@@ -5,7 +5,7 @@ bool	false true
 int	-192 +234 7899
 real	0.15 0.7e-9 2245.3
 date	1961-07-20  # ISO8601
-text	'Some text which may include newlines' # Escapes \\ \' \xHH \uHHHH
+text	'Some text which may include newlines' # see notes below
 bytes	<20AC 65 66 48> # must be even number of digits; whitespace optional
 list	[value1 value2 ... valueN]
 dict	{key1 value1 key2 value2 ... keyN valueN}
