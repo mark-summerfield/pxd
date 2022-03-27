@@ -1,5 +1,7 @@
 Portable eXchange Data format
 
+A plain text optionally typed alternative to csv, ini, json, toml, and yaml.
+
 none	none
 bool	false true
 int	-192 +234 7899
