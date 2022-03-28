@@ -28,7 +28,7 @@ xml, or yaml.
 
 === Minimal empty pxd
 
-    {'pxd' [100]}
+    {'pxd' [1.0]}
 
 === CSV to pxd
 
@@ -41,7 +41,7 @@ xml, or yaml.
 
 ==== PXD Equivalent
 
-    {'pxd' [100 'Price List']
+    {'pxd' [1.0 'Price List']
     'recorddefs' [
         'Item' {'Date' date 'Price' real 'Quantity' int 'ID' text 'Description' text}
     ]
@@ -67,7 +67,7 @@ xml, or yaml.
 
 ==== PXD Equivalent (untyped)
 
-    {'pxd' [100 'MyApp Config']
+    {'pxd' [1.0 'MyApp Config']
     'data' { # dict
         'General' {'shapename' 'Hexagon' 'zoom' 150 'showtoolbar' false}
         'Window' {'x' 615 'y' 252 'width' 592 'height' 636}
@@ -78,7 +78,7 @@ Since no record types are used no `recorddefs` entry is needed.
 
 ==== PXD Equivalent (typed)
 
-    {'pxd' [100 'MyApp Config']
+    {'pxd' [1.0 'MyApp Config']
     'recorddefs' [
         'General' {'shapename' text 'zoom' int 'showtoolbar' bool'}
         'Window' {'x' int 'y' int 'width' int 'height' int}
@@ -91,7 +91,7 @@ Since no record types are used no `recorddefs` entry is needed.
 
 === Database to pxd
 
-    {'pxd' [100 'MyApp Data']
+    {'pxd' [1.0 'MyApp Data']
     'recorddefs' [
         'Customer' {'cid' int 'organization' text 'address' text 'contact' text 'phone' text 'email' text}
         'Invoice' {'inum' int 'cid' int 'raised' date 'due' date 'paid' bool 'description' text}
@@ -126,20 +126,23 @@ present uses the key `data` and has a value which is a `list`, `dict`,
 `recordlist`, `recorddict`, or a single `record`.
 
     PXD        ::= "{" HEADER (OWS RECORDDEFS)? OWS DATA? OWS "}"
-    HEADER     ::= "'pxd'" OWS "[" OWS /\d{1,9}/ (RWS TEXT)? OWS "]"
+    HEADER     ::= "'pxd'" OWS "[" OWS /\d\d?\.\d\d?/ (RWS TEXT)? OWS "]"
     RECORDDEFS ::= OWS "'recorddefs'" OWS "[" RECORDDEF (OWS RECORDDEF)* "]"
     RECORDDEF  ::= "'" IDENTIFIER "'" OWS
                    "{" OWS IDENTIFIER RWS TYPENAME
                        (RWS IDENTIFIER RWS TYPENAME)* "}"
     DATA       ::= "'data'" OWS
-                   (LIST | DICT | RECORDLIST | RECORDDICT | RECORD)
+                   (LIST | DICT | TYPEDLIST | RECORDLIST | RECORDDICT |
+                    RECORD)
     LIST       ::= "[" OWS VALUE? (RWS VALUE)* OWS "]"
     DICT       ::= "{" OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS "}"
+    TYPEDLIST ::= ("intlist" | "datelist" | "datetimelist" | "byteslist" |
+                   "reallist" | "textlist") LIST
     RECORDLIST ::= IDENTIFIER LIST
     RECORDDICT ::= IDENTIFIER DICT
     KEY        ::= INT | DATE | TEXT
     VALUE      ::= KEY | NONE | BOOL | REAL | BYTES | LIST | DICT
-                |  RECORD | RECORDLIST | RECORDDICT | DATETIME
+                |  RECORD | TYPEDLIST | RECORDLIST | RECORDDICT | DATETIME
     INT               ::= /[-+]?\d+/
     DATE       ::= /\d\d\d\d-\d\d-\d\d/ # must be a valid date
     DATETIME   ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # must be a valid date

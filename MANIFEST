@@ -2,10 +2,13 @@ pxd.py
 
 pxd.adoc
 
+eg/tlm-ini.pxd
+
 # TODO
 # convert to pxd:
+# - TLM ini
+# - TLM tlm
 # - timelog xml
-# - TLM tlm + ini
 # - biller sqlite (biller2.bdb)
 #
 # pxd to:
