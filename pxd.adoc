@@ -124,7 +124,8 @@ present uses the key `data` and has a value which is a `list`, `dict`,
 
 ### TODO FIXME
 
-    PXD        ::= pxd RWS REAL (OWS DEFS)? OWS DATA? OWS
+    PXD        ::= pxd RWS REAL CUSTOM? (OWS DEFS)? OWS DATA? OWS
+    CUSTOM     ::= RWS [^\n]+ # user-defined data e.g. filetype and version
     DEFS       ::= OWS 'defs' OWS '[' RECORDDEF (OWS RECORDDEF)* ']'
     RECORDDEF  ::= RECORDIDENTIFIER OWS
                    '{' OWS RECORDIDENTIFIER RWS TYPENAME ('[]' | '{}')?
