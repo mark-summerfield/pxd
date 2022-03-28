@@ -1,15 +1,24 @@
-pxd.txt
+pxd.py
+
+pxd.adoc
 
 # TODO
+# convert to pxd:
+# - timelog xml
+# - TLM tlm + ini
+# - biller sqlite (biller2.bdb)
+#
 # pxd to:
 #   pxdtosqlite
 #   pxdtojson
 #   pxdtoxml
+#
 # pxd from:
 #   pxdfromsqlite (tables only)
 #   pxdfromjson
 #   pxdfromxml (pxd-xml only)
 #   pxdfromcsv (one or more csv files)
+#
 # pxd lib:
 # pxd.py pxd.rs pxd.cpp pxd.java pxd.rb ...
 
