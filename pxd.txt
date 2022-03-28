@@ -1,6 +1,7 @@
-Portable eXchange Data format
+pxd
 
-A plain text optionally typed alternative to csv, ini, json, toml, and yaml.
+A plain text optionally typed alternative to csv, ini, json, sqlite,
+toml, xml, and yaml.
 
 none	none
 bool	false true
@@ -15,18 +16,18 @@ record	recordname(value1 value2 ... valueN)
 recordlist recordname[recordbody1 recordbody2 ... recordbodyN]
 recorddict recordname{key1 recordbody1 key2 recordbody2 .. keyN recordbodyN}
 
-Empty PXD
+Empty pxd
 
-    {'PXD' [100]}
+    {'pxd' [100]}
 
-CSV to PXD
+CSV to pxd
 
     Date,Price,Quantity,ID,Description
     2017-09-21,3.99,2,"CH1-A2","Chisel, 1in"
     2017-10-02,4.49,1,"H2-K9","Hammer, 2lb"
     2017-10-02,5.89,1,"SX4-D1","Eversure Sealant, 13floz"
 
-    {'PXD' [100 'Price List']
+    {'pxd' [100 'Price List']
     'records' [
 	'Item' {'Date' date 'Price' real 'Quantity' int 'ID' text
 		'Description' text}
@@ -38,7 +39,7 @@ CSV to PXD
     ]
     }
 
-INI to PXD (untyped)
+INI to pxd (untyped)
 
     shapename = Hexagon
     zoom = 150
@@ -49,16 +50,16 @@ INI to PXD (untyped)
     width=592
     height=636
 
-    {'PXD' [100 'MyApp Config']
+    {'pxd' [100 'MyApp Config']
     'data' { # dict
 	'General' {'shapename' 'Hexagon' 'zoom' 150 'showtoolbar' false}
 	'Window' {'x' 615 'y' 252 'width' 592 'height' 636}
     }
     }
 
-INI to PXD (typed)
+INI to pxd (typed)
 
-    {'PXD' [100 'MyApp Config']
+    {'pxd' [100 'MyApp Config']
     'records' [
 	'General' {'shapename' text 'zoom' int 'showtoolbar' bool'}
 	'Window' {'x' int 'y' int 'width' int 'height' int}
@@ -70,9 +71,9 @@ INI to PXD (typed)
     }
 
 
-Database to PXD
+Database to pxd
 
-    {'PXD' [100 'MyApp Data']
+    {'pxd' [100 'MyApp Data']
     'records' [
 	'Customer' {'cid' int 'organization' text 'address' text
 		    'contact' text 'phone' text 'email' text}
@@ -101,7 +102,7 @@ Database to PXD
 BNF
 
     PXD		::= "{" HEADER OWS RECORDDEFS? OWS DATA? OWS "}"
-    HEADER	::= "'PXD'" OWS "[" OWS /\d{1,9}/ (RWS TEXT)? OWS "]"
+    HEADER	::= "'pxd'" OWS "[" OWS /\d{1,9}/ (RWS TEXT)? OWS "]"
     RECORDDEFS	::= OWS "'records'" OWS "[" RECORDDEF (OWS RECORDDEF)* "]"
     RECORDDEF	::= "'" IDENTIFIER "'" OWS
 		    "{" OWS IDENTIFIER RWS TYPENAME
@@ -128,4 +129,4 @@ BNF
     OWS		::= /[\s\n]*/
     RWS 	::= /[\s\n]+/
 
-# Plus comments are allowed at ends of lines.
+# Plus comments are allowed at ends of lines but are not preserved.

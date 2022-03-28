@@ -1,6 +1,16 @@
-PXD.txt
+pxd.txt
 
 # TODO
+# pxd to:
+#   pxdtosqlite
+#   pxdtojson
+#   pxdtoxml
+# pxd from:
+#   pxdfromsqlite (tables only)
+#   pxdfromjson
+#   pxdfromxml (pxd-xml only)
+#   pxdfromcsv (one or more csv files)
+# pxd lib:
 # pxd.py pxd.rs pxd.cpp pxd.java pxd.rb ...
 
 st.sh
