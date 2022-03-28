@@ -1,3 +1,8 @@
+# TODO Do these first & put any useful generic functions in pxd.py
+misc/tlm2pxd.py eg/tlm-tlm-partial.pxd # TODO 
+misc/timelog2pxd.py
+mist/sqlite2pxd.py # for biller .bdb files; otherwise biller2pxd.py
+
 pxd.py
 
 pxd.adoc
@@ -21,7 +26,7 @@ eg/tlm-ini.pxd
 #   pxdfromxml (pxd-xml only)
 #   pxdfromcsv (one or more csv files)
 #
-# pxd lib:
+# pxd lib: read(filename_or_filelike) write(filename_or_filelike, data)
 # pxd.py pxd.rs pxd.cpp pxd.java pxd.rb ...
 
 st.sh

@@ -43,3 +43,4 @@ dub.selections.json
 .mypy_cache
 zig-cache
 *.html
+*partial.pxd
