@@ -5,8 +5,7 @@ pxd.adoc
 eg/tlm-ini.pxd
 
 # TODO
-# convert to pxd:
-# - TLM ini
+# convert to pxd in eg/:
 # - TLM tlm
 # - timelog xml
 # - biller sqlite (biller2.bdb)
