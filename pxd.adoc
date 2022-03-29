@@ -18,7 +18,7 @@ xml, or yaml.
 |str        |`<Some text which may include newlines>` # see BNF below
 |bytes      |`(20AC 65 66 48)` # must be even number of hex digits; whitespace optional
 |list       |`[value1 value2 ... valueN]`
-|records    |`@name1 type1 name2 type2 ... nameN typeN[ +
+|records    |`Identifier[ +
                 [value1a value2a ... valueNa] +
                 [value1b value2b ... valueNb] +
                                : +
@@ -28,7 +28,8 @@ xml, or yaml.
 |===
 
 Dictionary keys may only be of types `int`, `date`, `datetime`, `str`,
-and `bytes`.
+and `bytes`. Record identifiers are created by `def` statements and
+always start with a capital letter (see examples below).
 
 == Examples
 
@@ -54,15 +55,19 @@ and `bytes`.
         [2017-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13floz>]
     ]
 
+Here the data is simply a `list` of ``list``s.
+
 ==== PXD Equivalent using explicitly typed and named records
 
     pxd 1.0 Price List
-    @<Date> date <Price> real <Quantity> int <ID> str <Description> str[
+    def PriceList {<Date> date <Price> real <Quantity> int <ID> str <Description> str}
+    PriceList[
         [2017-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in>]
         [2017-10-02 4.49 1 <H2-K9> <Hammer, 2lb>]
         [2017-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13floz>]
     ]
 
+Now we have a list of _records_ each of type `PriceList`.
 
 === INI to pxd
 
@@ -93,70 +98,94 @@ and `bytes`.
                  <recent2> <C:\Users\mark\test3.pxd>}
     }
 
+Here we've used a `dict` whose values are themselves ``dict``s.
+
 ==== PXD Equivalent using explicitly typed and named records
 
     pxd 1.0 MyApp 1.2.0 Config
-    {
-        <General> @<shapename> str <zoom> int <showtoolbar> bool[<Hexagon> 150 false]
-        <Window> @<x> int <y> int <width> int <height> int <scale> real[615 252 592 636 1.0]
-        <Files> @<kind> str <filename> str[
+    def General {<shapename> str <zoom> int <showtoolbar> bool}
+    def Window {<x> int <y> int <width> int <height> int <scale> real}
+    def File {<which> str <filename> str}
+    [
+        General[[<Hexagon> 150 false]]
+        Window[[615 252 592 636 1.0]]
+        File[
             [<current> <test1.pxd>]
             [<recent1> </tmp/test2.pxd>]
             [<recent2> <C:\Users\mark\test3.pxd>]
         ]
     }
 
+Here we have created a list of three values, each a _record_ type. For
+both `General` and `Window` we only have a single value for each, hence
+the double brackets (outer for the list of `General` or `Window`
+records, and inner for the one and only particular record). This
+structure is clearer for the `File` record type where we have a list of
+`File` records that has three records rather than just one.
+
 ==== PXD Equivalent -- an alternative nesting Files withing General
 
     pxd 1.0 MyApp 1.2.0 Config
-    {
-        <General> @<shapename> str <zoom> int <showtoolbar> bool <files> records[
-            <Hexagon> 150 false @<kind> str <filename> str[
+    def General {<shapename> str <zoom> int <showtoolbar> bool <files> File}
+    def File {<which> str <filename> str}
+    def Window {<x> int <y> int <width> int <height> int <scale> real}
+    [
+        General[
+            [<Hexagon> 150 false File[
                 [<current> <test1.pxd>]
                 [<recent1> </tmp/test2.pxd>]
                 [<recent2> <C:\Users\mark\test3.pxd>]
+                ]
             ]
         ]
-        <Window> @<x> int <y> int <width> int <height> int <scale> real[615 252 592 636 1.0]
+        Window[[615 252 592 636 1.0]]
     }
 
 === Database to pxd
 
     pxd 1.0 MyApp Data
-    {
-    <Customer> @<cid> int <organization> str <address> str <contact> str <phone> str <email> str[
-        [50 <Best People> <123 Somewhere> <John Doe> <> <j@doe.com>]
-        [19 <Supersuppliers> <> <Jane Doe> <> <jane@super.com>]
+    def Customer {<cid> int <organization> str <address> str <contact> str <phone> str <email> str}
+    def Invoice {<inum> int <cid> int <raised> date <due> date <paid> bool <description> str}
+    def Item {<iid> int <inum> int <date> date <price> real <quantity> int <description> str}
+    [
+        Customer[
+            [50 <Best People> <123 Somewhere> <John Doe> <> <j@doe.com>]
+            [19 <Supersuppliers> <> <Jane Doe> <> <jane@super.com>]
+        ]
+        Invoice[
+            [152 50 2022-01-17 2022-02-17 false <COD>]
+            [153 19 2022-01-19 2022-02-19 true <COD>]
+        ]
+        Item[
+            [1839 152 2022-01-16 29.99 2 <Bales of hay>]
+            [1840 152 2022-01-16 5.98 3 <Straps>]
+            [1620 153 2022-01-19 11.50 1 <Washers (1-in)>]
+        ]
     ]
-    <Invoice> @<inum> int <cid> int <raised> date <due> date <paid> bool <description> str[
-        [152 50 2022-01-17 2022-02-17 false <COD>]
-        [153 19 2022-01-19 2022-02-19 true <COD>]
-    ]
-    <Item> @<iid> int <inum> int <date> date <price> real <quantity> int <description> str[
-        [1839 152 2022-01-16 29.99 2 <Bales of hay>]
-        [1840 152 2022-01-16 5.98 3 <Straps>]
-        [1620 153 2022-01-19 11.50 1 <Washers (1-in)>]
-    ]
-    }
+
+Here we have a list of three lists equivalent to three database tables.
 
 == BNF
 
 A `.pxd` file consists of a mandatory header followed by a single
 optional `dict`, `list`, or `records`.
 
-    PXD         ::= 'pxd' RWS REAL CUSTOM? '\n' DATA?
+    PXD         ::= 'pxd' RWS REAL CUSTOM? '\n' DEFS? DATA?
     CUSTOM      ::= RWS [^\n]+ # user-defined data e.g. filetype and version
+    DEFS        ::= DEF (OWS DEF)*
+    DEF         ::= 'def' RWS IDENTIFIER OWS
+                    '{' OWS STR RWS TYPENAME (RWS STR RWS TYPENAME)* OWS '}'
     DATA        ::= (DICT | LIST | RECORDS)
     DICT        ::= '{' OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
     LIST        ::= '[' OWS VALUE? (RWS VALUE)* OWS ']'
-    RECORDS     ::= RECORDTYPE '[' OWS RECORDVALUE? (RWS RECORDVALUE)* OWS ']'
-    RECORDTYPE  ::= '@' STR RWS TYPENAME (RWS STR RWS TYPENAME)*
+    RECORDS     ::= TYPENAME '[' OWS RECORDVALUE? (RWS RECORDVALUE)* OWS ']'
     RECORDVALUE ::= '[' OWS VALUE (RWS VALUE)* OWS ']' # one value per type
     TYPENAME    ::= ('bool' | 'int' | 'real' | 'date' | 'datetime' | 'str' | 'bytes' |
-                     'list' | 'dict' | 'records')
+                     'list' | 'dict' | IDENTIFIER) # IDENTIFIER created by def
     KEY         ::= (INT | DATE | DATETIME | STR | BYTES)
     VALUE       ::= (NONE | BOOL | INT | REAL | DATE | DATETIME | STR | BYTES |
                      LIST | DICT | RECORDS)
+    IDENTIFIER  ::= /\p{Lu}\w{,32}/
     NONE        ::= 'none'
     BOOL        ::= 'false' | 'true'
     INT         ::= /[-+]?\d+/
@@ -167,7 +196,6 @@ optional `dict`, `list`, or `records`.
     BYTES      ::= '(' (OWS [A-Fa-f0-9]{2})* OWS ')'
     OWS         ::= /[\s\n]*/
     RWS         ::= /[\s\n]+/
-
 
 Plus comments (`#` followed by text) are allowed at ends of lines but
 are not preserved.
