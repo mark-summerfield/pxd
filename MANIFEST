@@ -1,6 +1,5 @@
 # TODO Do these first & _then_ put any useful generic functions in pxd.py
-misc/read-tlm-u-ini.py
-misc/read-tlm-t-ini.py
+misc/read-tlm-ini.py
 misc/tlm2pxd.py eg/tlm-tlm-partial.pxd
 misc/timelog2pxd.py
 misc/sqlite2pxd.py # for biller .bdb files; otherwise biller2pxd.py
