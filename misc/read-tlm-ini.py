@@ -64,7 +64,7 @@ def pxd_read_defs(text):
     definitions = {}
     offset = 0
     for match in re.finditer(
-            r'def\s+(?P<id>\p{Lu}\w{,32})\s*[{](?P<keyvals>.*?)[}]', text,
+            r'=\s*(?P<id>\p{Lu}\w{,32})\s*[{](?P<keyvals>.*?)[}]', text,
             re.DOTALL):
         offset = match.end()
         id = match['id']

@@ -30,8 +30,8 @@ Note that `.pxd` files are always UTF-8-encoded.
 |===
 
 Dictionary keys may only be of types `int`, `date`, `datetime`, `str`,
-and `bytes`. Record identifiers are created by `def` statements and
-always start with a capital letter (see examples below).
+and `bytes`. Record identifiers are created by definition (`=`)
+statements and always start with a capital letter (see examples below).
 
 == Examples
 
@@ -62,7 +62,7 @@ Here the data is simply a `list` of ``list``s.
 ==== PXD Equivalent using explicitly typed and named records
 
     pxd 1.0 Price List
-    def PriceList {<Date> date <Price> real <Quantity> int <ID> str <Description> str}
+    = PriceList {<Date> date <Price> real <Quantity> int <ID> str <Description> str}
     PriceList[
         [2017-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in>]
         [2017-10-02 4.49 1 <H2-K9> <Hammer, 2lb>]
@@ -105,9 +105,9 @@ Here we've used a `dict` whose values are themselves ``dict``s.
 ==== PXD Equivalent using explicitly typed and named records
 
     pxd 1.0 MyApp 1.2.0 Config
-    def General {<shapename> str <zoom> int <showtoolbar> bool}
-    def Window {<x> int <y> int <width> int <height> int <scale> real}
-    def File {<which> str <filename> str}
+    = General {<shapename> str <zoom> int <showtoolbar> bool}
+    = Window {<x> int <y> int <width> int <height> int <scale> real}
+    = File {<which> str <filename> str}
     [
         General[[<Hexagon> 150 false]]
         Window[[615 252 592 636 1.0]]
@@ -128,9 +128,9 @@ structure is clearer for the `File` record type where we have a list of
 ==== PXD Equivalent -- an alternative nesting Files withing General
 
     pxd 1.0 MyApp 1.2.0 Config
-    def General {<shapename> str <zoom> int <showtoolbar> bool <files> File}
-    def File {<which> str <filename> str}
-    def Window {<x> int <y> int <width> int <height> int <scale> real}
+    = General {<shapename> str <zoom> int <showtoolbar> bool <files> File}
+    = File {<which> str <filename> str}
+    = Window {<x> int <y> int <width> int <height> int <scale> real}
     [
         General[
             [<Hexagon> 150 false File[
@@ -146,9 +146,9 @@ structure is clearer for the `File` record type where we have a list of
 === Database to pxd
 
     pxd 1.0 MyApp Data
-    def Customer {<cid> int <organization> str <address> str <contact> str <phone> str <email> str}
-    def Invoice {<inum> int <cid> int <raised> date <due> date <paid> bool <description> str}
-    def Item {<iid> int <inum> int <date> date <price> real <quantity> int <description> str}
+    = Customer {<cid> int <organization> str <address> str <contact> str <phone> str <email> str}
+    = Invoice {<inum> int <cid> int <raised> date <due> date <paid> bool <description> str}
+    = Item {<iid> int <inum> int <date> date <price> real <quantity> int <description> str}
     [
         Customer[
             [50 <Best People> <123 Somewhere> <John Doe> <> <j@doe.com>]
@@ -175,7 +175,7 @@ optional `dict`, `list`, or `records`.
     PXD         ::= 'pxd' RWS REAL CUSTOM? '\n' DEFS? DATA?
     CUSTOM      ::= RWS [^\n]+ # user-defined data e.g. filetype and version
     DEFS        ::= DEF (OWS DEF)*
-    DEF         ::= 'def' RWS IDENTIFIER OWS
+    DEF         ::= '=' RWS IDENTIFIER OWS
                     '{' OWS STR RWS TYPENAME (RWS STR RWS TYPENAME)* OWS '}'
     DATA        ::= (DICT | LIST | RECORDS)
     DICT        ::= '{' OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
@@ -183,7 +183,7 @@ optional `dict`, `list`, or `records`.
     RECORDS     ::= TYPENAME '[' OWS RECORDVALUE? (RWS RECORDVALUE)* OWS ']'
     RECORDVALUE ::= '[' OWS VALUE (RWS VALUE)* OWS ']' # one value per type
     TYPENAME    ::= ('bool' | 'int' | 'real' | 'date' | 'datetime' | 'str' | 'bytes' |
-                     'list' | 'dict' | IDENTIFIER) # IDENTIFIER created by def
+                     'list' | 'dict' | IDENTIFIER) # IDENTIFIER created by =
     KEY         ::= (INT | DATE | DATETIME | STR | BYTES)
     VALUE       ::= (NONE | BOOL | INT | REAL | DATE | DATETIME | STR | BYTES |
                      LIST | DICT | RECORDS)

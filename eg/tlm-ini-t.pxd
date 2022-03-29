@@ -1,7 +1,7 @@
 pxd 1.0 TLM Config (typed)
-def General {<autosave> bool <historysize> int <volume> real <files> File}
-def File {<which> str <filename> str}
-def Window {<x> int <y> int <width> int <height> int <scale> real}
+= General {<autosave> bool <historysize> int <volume> real <files> File}
+= File {<which> str <filename> str}
+= Window {<x> int <y> int <width> int <height> int <scale> real}
 [
     General[
         [true 35 0.7 File[
