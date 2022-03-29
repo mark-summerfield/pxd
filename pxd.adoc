@@ -1,6 +1,6 @@
 = PXD
 
-Pxd is a plain text human editable optionally typed storage format that
+Pxd is a plain text human readable optionally typed storage format that
 may serve as a convenient alternative to csv, ini, json, sqlite, toml,
 xml, or yaml.
 
@@ -15,16 +15,20 @@ xml, or yaml.
 |real       |`0.15` `0.7e-9` `2245.389`
 |date       |`2022-04-01`  # ISO8601
 |datetime   |`2022-04-01T16:11::51` `2022-04-01T16:11::51Z` # ISO8601
-|text       |`"Some text which may include escapes"` # see notes below
-|bytes      |`<20AC 65 66 48>` # must be even number of digits; whitespace optional
+|str        |`<Some text which may include newlines>` # see BNF below
+|bytes      |`(20AC 65 66 48)` # must be even number of hex digits; whitespace optional
 |list       |`[value1 value2 ... valueN]`
-|typedlist  |`valuetypename[value1 value2 ... valueN]`
+|records    |`@name1 type1 name2 type2 ... nameN typeN[ +
+                [value1a value2a ... valueNa] +
+                [value1b value2b ... valueNb] +
+                               : +
+                [value1z value2z ... valueNz] +
+             ]`
 |dict       |`{key1 value1 key2 value2 ... keyN valueN}`
-|typeddict  |`valuetypename{key1 value1 key2 value2 ... keyN valueN}`
-|record     |`recordname(value1 value2 ... valueN)`
-|recordlist |`recordname[recordbody1 recordbody2 ... recordbodyN]`
-|recorddict |`recordname{key1 recordbody1 key2 recordbody2 ... keyN recordbodyN}`
 |===
+
+Dictionary keys may only be of types `int`, `date`, `datetime`, `str`,
+and `bytes`.
 
 == Examples
 
@@ -37,22 +41,28 @@ xml, or yaml.
 ==== CSV
 
     Date,Price,Quantity,ID,Description
-    2017-09-21,3.99,2,"CH1-A2","Chisel, 1in"
+    2017-09-21,3.99,2,"CH1-A2","Chisels (pair), 1in & 1¼in"
     2017-10-02,4.49,1,"H2-K9","Hammer, 2lb"
     2017-10-02,5.89,1,"SX4-D1","Eversure Sealant, 13floz"
 
-==== PXD Equivalent
+==== PXD Equivalent using simple implicitly typed lists
 
     pxd 1.0 Price List
-    defs[
-    Item{"Date" date "Price" real "Quantity" int "ID" text "Description" text}
-    ][
-    Item[ # recordlist, i.e., a list of heterogeneous records
-        (2017-09-21 3.99 2 "CH1-A2" "Chisel, 1in")
-        (2017-10-02 4.49 1 "H2-K9" "Hammer, 2lb")
-        (2017-10-02 5.89 1 "SX4-D1" "Eversure Sealant, 13floz")
+    [
+        [2017-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in>]
+        [2017-10-02 4.49 1 <H2-K9> <Hammer, 2lb>]
+        [2017-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13floz>]
     ]
+
+==== PXD Equivalent using explicitly typed and named records
+
+    pxd 1.0 Price List
+    @<Date> date <Price> real <Quantity> int <ID> str <Description> str[
+        [2017-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in>]
+        [2017-10-02 4.49 1 <H2-K9> <Hammer, 2lb>]
+        [2017-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13floz>]
     ]
+
 
 === INI to pxd
 
@@ -66,98 +76,98 @@ xml, or yaml.
     y=252
     width=592
     height=636
+    scale=1.0
+    [Files]
+    current=test1.pxd
+    recent1=/tmp/test2.pxd
+    recent2=C:\Users\mark\test3.pxd
 
-==== PXD Equivalent (untyped)
+==== PXD Equivalent using simple implicitly typed dicts
 
-    pxd 1.0 MyApp Config
+    pxd 1.0 MyApp 1.2.0 Config
     {
-        "General" {"shapename" "Hexagon" "zoom" 150 "showtoolbar" false}
-        "Window" {"x" 615 "y" 252 "width" 592 "height" 636}
+        <General> {<shapename> <Hexagon> <zoom> 150 <showtoolbar> false}
+        <Window> {<x> 615 <y> 252 <width> 592 <height> 636 <scale> 1.0}
+        <Files> {<current> <test1.pxd>
+                 <recent1> </tmp/test2.pxd>
+                 <recent2> <C:\Users\mark\test3.pxd>}
     }
 
-Since no record types are used no `recorddefs` entry is needed.
+==== PXD Equivalent using explicitly typed and named records
 
-==== PXD Equivalent (typed)
+    pxd 1.0 MyApp 1.2.0 Config
+    {
+        <General> @<shapename> str <zoom> int <showtoolbar> bool[<Hexagon> 150 false]
+        <Window> @<x> int <y> int <width> int <height> int <scale> real[615 252 592 636 1.0]
+        <Files> @<kind> str <filename> str[
+            [<current> <test1.pxd>]
+            [<recent1> </tmp/test2.pxd>]
+            [<recent2> <C:\Users\mark\test3.pxd>]
+        ]
+    }
 
-    pxd 1.0 MyApp Config
-    defs[
-        General{"shapename" text "zoom" int "showtoolbar" bool"}
-        Window{"x" int "y" int "width" int "height" int}
-    ][ # list of heterogeneous records
-        General("Hexagon" 150 false)
-        Window(615 252 592 636)
-    ]
+==== PXD Equivalent -- an alternative nesting Files withing General
+
+    pxd 1.0 MyApp 1.2.0 Config
+    {
+        <General> @<shapename> str <zoom> int <showtoolbar> bool <files> records[
+            <Hexagon> 150 false @<kind> str <filename> str[
+                [<current> <test1.pxd>]
+                [<recent1> </tmp/test2.pxd>]
+                [<recent2> <C:\Users\mark\test3.pxd>]
+            ]
+        ]
+        <Window> @<x> int <y> int <width> int <height> int <scale> real[615 252 592 636 1.0]
+    }
 
 === Database to pxd
 
     pxd 1.0 MyApp Data
-    defs[
-        Customer{"cid" int "organization" text "address" text "contact" text "phone" text "email" text}
-        Invoice{"inum" int "cid" int "raised" date "due" date "paid" bool "description" text}
-        Item{"iid" int "inum" int "date" date "price" real "quantity" int "description" text}
-    ][ # list of recordlists
-        Customer[
-            (50 "Best People" "123 Somewhere" "John Doe" "" "j@doe.com")
-            (19 "Supersuppliers" "" "Jane Doe" "" "jane@super.com")
-        ]
-        Invoice[
-            (152 50 2022-01-17 2022-02-17 false "COD")
-            (153 19 2022-01-19 2022-02-19 true "COD")
-        ]
-        Item[
-            (1839 152 2022-01-16 29.99 2 "Bales of hay")
-            (1840 152 2022-01-16 5.98 3 "Straps")
-            (1620 153 2022-01-19 11.50 1 "Washers (1-in)")
-        ]
+    {
+    <Customer> @<cid> int <organization> str <address> str <contact> str <phone> str <email> str[
+        [50 <Best People> <123 Somewhere> <John Doe> <> <j@doe.com>]
+        [19 <Supersuppliers> <> <Jane Doe> <> <jane@super.com>]
     ]
+    <Invoice> @<inum> int <cid> int <raised> date <due> date <paid> bool <description> str[
+        [152 50 2022-01-17 2022-02-17 false <COD>]
+        [153 19 2022-01-19 2022-02-19 true <COD>]
+    ]
+    <Item> @<iid> int <inum> int <date> date <price> real <quantity> int <description> str[
+        [1839 152 2022-01-16 29.99 2 <Bales of hay>]
+        [1840 152 2022-01-16 5.98 3 <Straps>]
+        [1620 153 2022-01-19 11.50 1 <Washers (1-in)>]
+    ]
+    }
 
 == BNF
 
-A `.pxd` file consists of a single untyped `dict` with a first mandatory
-key of `pxd` and a `list` value whose first entry is an `int` PXD
-version number. Any subsequent entries are for custom data, for example
-to identify a custom PXD format. The second entry is optional and if
-present uses the key `recorddefs` and has a `list` value where each item
-specifies a typed record. The third entry is also optional and if
-present uses the key `data` and has a value which is a `list`, `dict`,
-`recordlist`, `recorddict`, or a single `record`.
+A `.pxd` file consists of a mandatory header followed by a single
+optional `dict`, `list`, or `records`.
 
-### TODO FIXME
+    PXD         ::= 'pxd' RWS REAL CUSTOM? '\n' DATA?
+    CUSTOM      ::= RWS [^\n]+ # user-defined data e.g. filetype and version
+    DATA        ::= (DICT | LIST | RECORDS)
+    DICT        ::= '{' OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
+    LIST        ::= '[' OWS VALUE? (RWS VALUE)* OWS ']'
+    RECORDS     ::= RECORDTYPE '[' OWS RECORDVALUE? (RWS RECORDVALUE)* OWS ']'
+    RECORDTYPE  ::= '@' STR RWS TYPENAME (RWS STR RWS TYPENAME)*
+    RECORDVALUE ::= '[' OWS VALUE (RWS VALUE)* OWS ']' # one value per type
+    TYPENAME    ::= ('bool' | 'int' | 'real' | 'date' | 'datetime' | 'str' | 'bytes' |
+                     'list' | 'dict' | 'records')
+    KEY         ::= (INT | DATE | DATETIME | STR | BYTES)
+    VALUE       ::= (NONE | BOOL | INT | REAL | DATE | DATETIME | STR | BYTES |
+                     LIST | DICT | RECORDS)
+    NONE        ::= 'none'
+    BOOL        ::= 'false' | 'true'
+    INT         ::= /[-+]?\d+/
+    REAL        ::= # support both standard and scientific
+    DATE        ::= /\d\d\d\d-\d\d-\d\d/ # must be a valid date
+    DATETIME    ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # must be a valid date
+    STR         ::= /[<][^<>]*[>]/ # newlines and &amp; &lt; &gt; supported i.e., XML
+    BYTES      ::= '(' (OWS [A-Fa-f0-9]{2})* OWS ')'
+    OWS         ::= /[\s\n]*/
+    RWS         ::= /[\s\n]+/
 
-    PXD        ::= pxd RWS REAL CUSTOM? (OWS DEFS)? OWS DATA? OWS
-    CUSTOM     ::= RWS [^\n]+ # user-defined data e.g. filetype and version
-    DEFS       ::= OWS 'defs' OWS '[' RECORDDEF (OWS RECORDDEF)* ']'
-    RECORDDEF  ::= RECORDIDENTIFIER OWS
-                   '{' OWS RECORDIDENTIFIER RWS TYPENAME ('[]' | '{}')?
-                       (RWS RECORDIDENTIFIER RWS TYPENAME ('[]' | '{}')?)* '}'
-	    # If [] follows a typename it means list of this type; if {}
-	    # follows a typename it means dict whose values are of this type
-    DATA       ::= OWS (LIST | DICT | TYPEDLIST | RECORDLIST | RECORDDICT |
-                    RECORD)
-    LIST       ::= '[' OWS VALUE? (RWS VALUE)* OWS ']'
-    DICT       ::= '{' OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
-    TYPEDLIST ::= ('int' | 'date' | 'datetime' | 'bytes' |
-                   'real' | 'text') LIST
-    RECORDLIST ::= IDENTIFIER LIST
-    RECORDDICT ::= IDENTIFIER DICT
-    KEY        ::= INT | DATE | TEXT
-    VALUE      ::= KEY | NONE | BOOL | REAL | BYTES | LIST | DICT
-                |  RECORD | TYPEDLIST | RECORDLIST | RECORDDICT | DATETIME
-    INT               ::= /[-+]?\d+/
-    DATE       ::= /\d\d\d\d-\d\d-\d\d/ # must be a valid date
-    DATETIME   ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # must be a valid date
-    TEXT       ::= /"[^"]*"/ # plus handle escapes:
-            # /[^]([nt^]|x[A-Fa-f0-9]{2}|u[A-Fa-f0-9]{4}|U[A-Fa-f0-9]{6}/
-    NONE       ::= 'none'
-    BOOL       ::= 'false' | 'true'
-    REAL       ::= ### normal + scientific
-    BYTES      ::= '<' (OWS [A-Fa-f0-9]{2})* OWS '>'
-    RECORD     ::= IDENTIFIER '(' OWS VALUE (RWS VALUE)* ')'
-                   # must be correct number of VALUEs of the correct types
-    RECORDIDENTIFIER ::= /\p{Lu}[\w.]*/ # must start with uppercase
-    IDENTIFIER ::= /\p{L}[\w.]*/
-    OWS        ::= /[\s\n]*/
-    RWS        ::= /[\s\n]+/
 
 Plus comments (`#` followed by text) are allowed at ends of lines but
 are not preserved.
