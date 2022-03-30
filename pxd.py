@@ -120,10 +120,19 @@ class Lexer:
             self.read_bytes()
         elif c.isdigit():
             pass # TODO self.read_number_or_date()
+            # int, real, date, datetime: none have a space or bracket
+            # so work like read_string() to gather determining the type as
+            # we go (int, then if . real then if second . date then if T
+            # datetime) -- but _don't_ advance past the terminating space or
+            # bracket or whatever it is
         elif c.isupper():
             pass # TODO self.read_recdef_name()
+            # an identifier is \p{Lu}\w+ so again do like read_string() but
+            # don't advance past the terminator
         elif c.isalpha():
             pass # TODO self.read_const_or_typename()
+            # this is either a typename (int, bool, etc.) or a constant
+            # (none, false, true) or an error
         else:
             self.error(f'invalid character encountered: {c!r}')
 
