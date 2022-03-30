@@ -12,4 +12,5 @@ pxd 1.0 TLM Config (typed)
         ]
     ]
     Window[[383 124 590 536 1]]
+    <Magic> (1F 8B)
 ]

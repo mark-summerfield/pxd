@@ -1,22 +1,14 @@
-# TODO Do these first & _then_ put any useful generic functions in pxd.py
-misc/tlm-ini.py
-misc/tlm2pxd.py eg/tlm-tlm-partial.pxd
-misc/timelog2pxd.py
-misc/sqlite2pxd.py # for biller .bdb files; otherwise biller2pxd.py
-
-pxd.py
+pxd.py # TODO scan_next()
 
 pxd.adoc
 
 eg/tlm-ini-u.pxd
 eg/tlm-ini-t.pxd
+eg/tlm-tlm-partial.pxd # TODO write tlm2pxd.py to create tlm-tlm.pxd
+# TODO timelog.pxd (based on timelog.xml)
+# TODO biller.pxd (based on sqlite biller2.bdb)
 
 # TODO
-# convert to pxd in eg/:
-# - TLM tlm
-# - timelog xml
-# - biller sqlite (biller2.bdb)
-#
 # pxd to:
 #   pxdtosqlite
 #   pxdtojson
@@ -28,7 +20,7 @@ eg/tlm-ini-t.pxd
 #   pxdfromxml (pxd-xml only)
 #   pxdfromcsv (one or more csv files)
 #
-# pxd lib: read(filename_or_filelike) write(filename_or_filelike, data)
+# pxd lib
 # pxd.py pxd.rs pxd.cpp pxd.java pxd.rb ...
 
 st.sh
