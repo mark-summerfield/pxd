@@ -2,6 +2,7 @@
 # Copyright © 2022 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
+import enum
 import os
 from xml.sax.saxutils import unescape
 
@@ -23,15 +24,16 @@ def main():
                 print(f'opened {filename!r} with no custom text')
             else:
                 print(f'opened {filename!r} custom text is {custom!r}')
-            definitions, text = pxd_read_defs(text)
-            read_config(config, definitions, text)
+            lino, recdefs, text = pxd_read_recdecs(text)
+            for token in pxd_data_lex(lino, recdefs, text):
+                print(token)
+            # read_config(config, recdefs, lino, text)
             print()
         except Error as err:
             print(err)
 
 
-def read_config(config, definitions, text):
-    print('Definitions', definitions)
+def read_config(config, recdefs, lino, text):
     print()
     print(config)
     print()
@@ -60,19 +62,97 @@ def _pxd_check_header(line):
     return custom.strip() if custom else None
 
 
-def pxd_read_defs(text):
-    definitions = {}
+def pxd_read_recdecs(text):
+    recdefs = {}
     offset = 0
     for match in re.finditer(
             r'=\s*(?P<id>\p{Lu}\w{,32})\s*[{](?P<keyvals>.*?)[}]', text,
             re.DOTALL):
         offset = match.end()
         id = match['id']
-        definitions[id] = {}
+        recdefs[id] = {}
         for name, kind in re.findall(r'<([^<>]+)>\s+(\p{L}\w*)',
                                      match['keyvals'], re.DOTALL):
-            definitions[id][unescape(name)] = kind
-    return definitions, text[offset:]
+            recdefs[id][unescape(name)] = kind
+    if text[offset] == '\n':
+        offset += 1
+    lino = text[:offset].count('\n') + 2 # 1-based linos + header line
+    return lino, recdefs, text[offset:]
+
+
+def pxd_data_lex(lino, recdefs, text):
+    print(f'recdecs to line {lino}: {recdefs}')
+    state = LexState.EXPECT_COLLECTION
+    saved_lino = lino
+    saved_pos = 0
+    name = ''
+    for lino, line in enumerate(text, lino):
+        for pos, c in enumerate(line):
+            if state is LexState.EXPECT_COLLECTION:
+                if c.isspace():
+                    continue
+                elif c == '{':
+                    yield Token(lino, pos, TokenKind.DICT_BEGIN)
+                elif c == '[':
+                    yield Token(lino, pos, TokenKind.LIST_BEGIN)
+                elif c.isalpha():
+                    name = c
+                    saved_pos = pos
+                    saved_lino = lino
+                    state = LexState.GET_RECNAME
+                else:
+                    raise Error(
+                        f'{lino}#{pos}: expected dict, list, or record')
+            elif state is LexState.GET_RECNAME:
+                if c == '_' or c.isalnum():
+                    name += c
+                elif c == '[':
+                    yield Token(saved_lino, saved_pos,
+                                TokenKind.RECORDS_BEGIN, name)
+                    saved_lino = lino
+                    saved_pos = 0
+                    name = ''
+                else:
+                    raise Error(
+                        f'{lino}#{pos}: expected \'[\' to begin record')
+
+
+
+@enum.unique
+class LexState(enum.Enum):
+    EXPECT_COLLECTION = enum.auto()
+    GET_RECNAME = enum.auto()
+
+
+class Token:
+
+    def __init__(self, lino, pos, kind, value=None):
+        self.lino = lino
+        self.pos = pos
+        self.kind = kind
+        self.value = value
+
+
+    def __repr__(self):
+        pass # TODO
+
+
+@enum.unique
+class TokenKind(enum.Enum):
+    NONE = enum.auto()
+    BOOL = enum.auto()
+    INT = enum.auto()
+    REAL = enum.auto()
+    DATE = enum.auto()
+    DATETIME = enum.auto()
+    STR = enum.auto()
+    BYTES = enum.auto()
+    LIST_BEGIN = enum.auto()
+    LIST_END = enum.auto()
+    RECORDS_BEGIN = enum.auto()
+    RECORDS_END = enum.auto()
+    DICT_BEGIN = enum.auto()
+    DICT_END = enum.auto()
 
 
 class Error(Exception):

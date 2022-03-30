@@ -199,8 +199,15 @@ optional `dict`, `list`, or `records`.
     OWS         ::= /[\s\n]*/
     RWS         ::= /[\s\n]+/
 
-Plus comments (`#` followed by text) are allowed at ends of lines but
-are not preserved.
+Comments are not directly supported. However, you could always add a
+comment definition, e.g.,
+
+    = Comment {<comment> str}
+    # or
+    = Comment {<#> str}
+
+Or, simply add an extra `<comment> str` or ``<#> str`` field to one or more
+existing definitions.
 
 A `pxd` reader should be able to read a plain text or gzipped plain text
 `pxd` file.
