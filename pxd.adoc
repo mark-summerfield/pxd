@@ -1,37 +1,33 @@
 = PXD
 
-Pxd is a plain text human readable optionally typed storage format that
-may serve as a convenient alternative to csv, ini, json, sqlite, toml,
-xml, or yaml.
+Pxd is a plain text human readable storage format that may serve as a
+convenient alternative to csv, ini, json, sqlite, toml, xml, or yaml.
 
-Note that `.pxd` files are always UTF-8-encoded.
+Note that `.pxd` files are always UTF-8-encoded and may optionally be
+gzip-compressed.
 
 == Datatypes
 
+Pxd supports ten datatypes.
+
 [cols="1,5"]
 |===
-|**Type**   |**Example(s) and notes**
-|none       |`none`
-|bool       |`false` `true`
+|**Type**   |**Example(s) # notes**
+|null       |`null`
+|bool       |`no` `false` `yes` `true`
 |int        |`-192` `+234` `7891409`
-|real       |`0.15` `0.7e-9` `2245.389`
+|real       |`0.15` `0.7e-9` `2245.389` # a decimal point with at least
+one digit before and after
 |date       |`2022-04-01`  # ISO8601
 |datetime   |`2022-04-01T16:11::51` `2022-04-01T16:11::51Z` # ISO8601
 |str        |`<Some text which may include newlines>` # see BNF below
 |bytes      |`(20AC 65 66 48)` # must be even number of hex digits; whitespace optional
 |list       |`[value1 value2 ... valueN]`
-|records    |`Identifier[ +
-                [value1a value2a ... valueNa] +
-                [value1b value2b ... valueNb] +
-                               : +
-                [value1z value2z ... valueNz] +
-             ]`
 |dict       |`{key1 value1 key2 value2 ... keyN valueN}`
 |===
 
 Dictionary keys may only be of types `int`, `date`, `datetime`, `str`,
-and `bytes`. Record identifiers are created by definition (`=`)
-statements and always start with a capital letter (see examples below).
+and `bytes`.
 
 == Examples
 
@@ -46,30 +42,33 @@ statements and always start with a capital letter (see examples below).
     Date,Price,Quantity,ID,Description
     2017-09-21,3.99,2,"CH1-A2","Chisels (pair), 1in & 1¼in"
     2017-10-02,4.49,1,"H2-K9","Hammer, 2lb"
-    2017-10-02,5.89,1,"SX4-D1","Eversure Sealant, 13floz"
+    2017-10-02,5.89,1,"SX4-D1","Eversure Sealant, 13-floz"
 
-==== PXD Equivalent using simple implicitly typed lists
+==== PXD Equivalent
 
     pxd 1.0 Price List
     [
         [2017-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in>]
         [2017-10-02 4.49 1 <H2-K9> <Hammer, 2lb>]
-        [2017-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13floz>]
+        [2017-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz>]
     ]
 
 Here the data is simply a `list` of ``list``s.
 
-==== PXD Equivalent using explicitly typed and named records
+And of course, there's nothing to stop us having a description `list` at
+the start:
 
     pxd 1.0 Price List
-    = PriceList {<Date> date <Price> real <Quantity> int <ID> str <Description> str}
-    PriceList[
+    [
+        [<Date> <Price> <Quantity> <ID> <Description>]
         [2017-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in>]
         [2017-10-02 4.49 1 <H2-K9> <Hammer, 2lb>]
-        [2017-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13floz>]
+        [2017-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz>]
     ]
 
-Now we have a list of _records_ each of type `PriceList`.
+In practice we probably wouldn't need the description `list` since the
+custom text at the beginning (`Price List`) tells the application what
+data is in the file.
 
 === INI to pxd
 
@@ -83,113 +82,121 @@ Now we have a list of _records_ each of type `PriceList`.
     y=252
     width=592
     height=636
-    scale=1.0
+    scale=1.1
     [Files]
     current=test1.pxd
     recent1=/tmp/test2.pxd
     recent2=C:\Users\mark\test3.pxd
 
-==== PXD Equivalent using simple implicitly typed dicts
+==== PXD Equivalent
 
     pxd 1.0 MyApp 1.2.0 Config
     {
-        <General> {<shapename> <Hexagon> <zoom> 150 <showtoolbar> false}
-        <Window> {<x> 615 <y> 252 <width> 592 <height> 636 <scale> 1.0}
+        <General> {<shapename> <Hexagon> <zoom> 150 <showtoolbar> no}
+        <Window> {<x> 615 <y> 252 <width> 592 <height> 636 <scale> 1.1}
         <Files> {<current> <test1.pxd>
                  <recent1> </tmp/test2.pxd>
                  <recent2> <C:\Users\mark\test3.pxd>}
     }
 
-Here we've used a `dict` whose values are themselves ``dict``s.
+For configuration data it is often convenient to use ``dict``s with name
+keys and data values. In this case the overall data is a `dict` which
+contains each configuration file section, and the value of each of this
+``dict``s keys is itself a `dict`.
 
-==== PXD Equivalent using explicitly typed and named records
-
-    pxd 1.0 MyApp 1.2.0 Config
-    = General {<shapename> str <zoom> int <showtoolbar> bool}
-    = Window {<x> int <y> int <width> int <height> int <scale> real}
-    = File {<which> str <filename> str}
-    [
-        General[[<Hexagon> 150 false]]
-        Window[[615 252 592 636 1.0]]
-        File[
-            [<current> <test1.pxd>]
-            [<recent1> </tmp/test2.pxd>]
-            [<recent2> <C:\Users\mark\test3.pxd>]
-        ]
-    }
-
-Here we have created a list of three values, each a _record_ type. For
-both `General` and `Window` we only have a single value for each, hence
-the double brackets (outer for the list of `General` or `Window`
-records, and inner for the one and only particular record). This
-structure is clearer for the `File` record type where we have a list of
-`File` records that has three records rather than just one.
-
-==== PXD Equivalent -- an alternative nesting Files withing General
+Of course, we can nest as deep as we like and mix ``dict``s and lists.
+For example, here's an alternative:
 
     pxd 1.0 MyApp 1.2.0 Config
-    = General {<shapename> str <zoom> int <showtoolbar> bool <files> File}
-    = File {<which> str <filename> str}
-    = Window {<x> int <y> int <width> int <height> int <scale> real}
-    [
-        General[
-            [<Hexagon> 150 false File[
-                [<current> <test1.pxd>]
-                [<recent1> </tmp/test2.pxd>]
-                [<recent2> <C:\Users\mark\test3.pxd>]
-                ]
-            ]
-        ]
-        Window[[615 252 592 636 1.0]]
+    {
+        <General> {
+            <shapename> <Hexagon> <zoom> 150 <showtoolbar> no
+            <Files> {<current> <test1.pxd>
+                     <recent> [</tmp/test2.pxd> <C:\Users\mark\test3.pxd>]}
+        }
+        <Window> {<x> 615 <y> 252 <width> 592 <height> 636 <scale> 1.1}
     }
+
+Here, we've moved the _Files_ into _General_ and changed the recent
+files from per-file `dict` items into a `list` of filenames.
 
 === Database to pxd
 
+Data-wise a database normally consists of one or more tables. A pxd
+equivalent using a `dict` of ``list``s is easily made.
+
     pxd 1.0 MyApp Data
-    = Customer {<cid> int <organization> str <address> str <contact> str <phone> str <email> str}
-    = Invoice {<inum> int <cid> int <raised> date <due> date <paid> bool <description> str}
-    = Item {<iid> int <inum> int <date> date <price> real <quantity> int <description> str}
-    [
-        Customer[
-            [50 <Best People> <123 Somewhere> <John Doe> <> <j@doe.com>]
-            [19 <Supersuppliers> <> <Jane Doe> <> <jane@super.com>]
+    {
+        <#> <Customer is CID Company Address Person Email;
+             Invoice is INUM CID RaisedDate DueDate Paid Description;
+             Item is IID INUM DeliveryDate UnitPrice Quantity Description>
+        <Customer> [
+            [50 <Best People> <123 Somewhere> <John Doe> <j@doe.com>]
+            [19 <Supersuppliers> null <Jane Doe> <jane@super.com>]
         ]
-        Invoice[
+        <Invoice> [
             [152 50 2022-01-17 2022-02-17 false <COD>]
-            [153 19 2022-01-19 2022-02-19 true <COD>]
+            [153 19 2022-01-19 2022-02-19 true <>]
         ]
-        Item[
+        <Item> [
             [1839 152 2022-01-16 29.99 2 <Bales of hay>]
             [1840 152 2022-01-16 5.98 3 <Straps>]
             [1620 153 2022-01-19 11.50 1 <Washers (1-in)>]
         ]
-    ]
+    }
 
-Here we have a list of three lists equivalent to three database tables.
+Here we have a `dict`. The first item is a comment which we've
+informally indicated by using a key of `#`. We could have used `comment`
+or `rem` or anything else. Each of the other keys' items is a `list` of
+``list``s representing three database tables.
+
+Notice that the second customer has a `null` address and the second
+invoice has an empty description.
+
+The data presented here is in the form of flat database tables. But of
+course, pxd also supports hierarchical data using ``dict``s. So we could
+have structured the data like this:
+
+    pxd 1.0 MyApp Data
+    {
+        <#> <Customer is CID Company Address Person Email;
+             Invoice is INUM CID RaisedDate DueDate Paid Description
+                 list of items each of which is
+                 IID DeliveryDate UnitPrice Quantity Description>
+        <Customer> [
+            [50 <Best People> <123 Somewhere> <John Doe> <j@doe.com>]
+            [19 <Supersuppliers> null <Jane Doe> <jane@super.com>]
+        ]
+        <Invoice> [
+            [152 50 2022-01-17 2022-02-17 false <COD> [
+                [1839 2022-01-16 29.99 2 <Bales of hay>]
+                [1840 2022-01-16 5.98 3 <Straps>]
+                ]
+            ]
+            [153 19 2022-01-19 2022-02-19 true <>
+                [1620 2022-01-19 11.50 1 <Washers (1-in)>]
+            ]
+        ]
+    }
+
+This slightly reduces the data (invoice items don't need to store the
+invoice number).
 
 == BNF
 
 A `.pxd` file consists of a mandatory header followed by a single
 optional `dict`, `list`, or `records`.
 
-    PXD         ::= 'pxd' RWS REAL CUSTOM? '\n' DEFS? DATA?
+    PXD         ::= 'pxd' RWS REAL CUSTOM? '\n' DATA?
     CUSTOM      ::= RWS [^\n]+ # user-defined data e.g. filetype and version
-    DEFS        ::= DEF (OWS DEF)*
-    DEF         ::= '=' RWS IDENTIFIER OWS
-                    '{' OWS STR RWS TYPENAME (RWS STR RWS TYPENAME)* OWS '}'
-    DATA        ::= (DICT | LIST | RECORDS)
+    DATA        ::= (DICT | LIST)
     DICT        ::= '{' OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
     LIST        ::= '[' OWS VALUE? (RWS VALUE)* OWS ']'
-    RECORDS     ::= TYPENAME '[' OWS RECORDVALUE? (RWS RECORDVALUE)* OWS ']'
-    RECORDVALUE ::= '[' OWS VALUE (RWS VALUE)* OWS ']' # one value per type
-    TYPENAME    ::= ('bool' | 'int' | 'real' | 'date' | 'datetime' | 'str' | 'bytes' |
-                     'list' | 'dict' | IDENTIFIER) # IDENTIFIER created by =
     KEY         ::= (INT | DATE | DATETIME | STR | BYTES)
-    VALUE       ::= (NONE | BOOL | INT | REAL | DATE | DATETIME | STR | BYTES |
-                     LIST | DICT | RECORDS)
-    IDENTIFIER  ::= /\p{Lu}\w{,32}/
-    NONE        ::= 'none'
-    BOOL        ::= 'false' | 'true'
+    VALUE       ::= (NULL | BOOL | INT | REAL | DATE | DATETIME | STR |
+                     BYTES | LIST | DICT)
+    NULL        ::= 'null'
+    BOOL        ::= 'no' | 'false' | 'yes' | 'true'
     INT         ::= /[-+]?\d+/
     REAL        ::= # support both standard and scientific
     DATE        ::= /\d\d\d\d-\d\d-\d\d/ # must be a valid date
@@ -199,15 +206,9 @@ optional `dict`, `list`, or `records`.
     OWS         ::= /[\s\n]*/
     RWS         ::= /[\s\n]+/
 
-Comments are not directly supported. However, you could always add a
-comment definition, e.g.,
-
-    = Comment {<comment> str}
-    # or
-    = Comment {<#> str}
-
-Or, simply add an extra `<comment> str` or ``<#> str`` field to one or more
-existing definitions.
+Comments are not directly supported. However, you could always add an
+extra `<comment> <# some comment>` or ``<#> <some comment>`` item to any
+`dict`.
 
 A `pxd` reader should be able to read a plain text or gzipped plain text
 `pxd` file.

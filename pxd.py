@@ -46,7 +46,7 @@ class Lexer:
         self.text = text
         self.warn_is_error = warn_is_error
         self.start = 0
-        self.current = 0
+        self.pos = 0 # current
         self.lino = 1
         self.custom = None
         self.tokens = []
@@ -57,7 +57,7 @@ class Lexer:
         i = self.text.find('\n')
         if i == -1:
             self.error('missing pxd file header or empty file')
-        self.current = i
+        self.pos = i
         parts = self.text[:i].split(None, 2)
         if len(parts) < 2:
             self.error('invalid pxd file header')
@@ -76,16 +76,16 @@ class Lexer:
     def warn(self, message):
         if self.warn_is_error:
             return self.error(message)
-        print(f'warning:#{self.lino}: {message}')
+        print(f'warning:{self.lino}: {message}')
 
 
     def error(self, message):
-        raise Error(f'#{self.lino}: {message}')
+        raise Error(f'{self.lino}: {message}')
 
 
     def scan(self):
         while not self.at_end():
-            self.start = self.current
+            self.start = self.pos
             self.scan_next()
         self.add_token(_TokenKind.EOF)
         for token in self.tokens: # TODO delete
@@ -94,7 +94,7 @@ class Lexer:
 
 
     def at_end(self):
-        return self.current >= len(self.text)
+        return self.pos >= len(self.text)
 
 
     def scan_next(self):
@@ -102,10 +102,6 @@ class Lexer:
         if c.isspace():
             if c == '\n':
                 self.lino += 1
-            #if self.tokens[-1].kind != _TokenKind.SPACE:
-            #    self.add_token(_TokenKind.SPACE)
-        elif c == '=':
-            self.add_token(_TokenKind.EQUAL)
         elif c == '[':
             self.add_token(_TokenKind.BRACKET_OPEN)
         elif c == ']':
@@ -119,20 +115,9 @@ class Lexer:
         elif c == '(':
             self.read_bytes()
         elif c.isdigit():
-            pass # TODO self.read_number_or_date()
-            # int, real, date, datetime: none have a space or bracket
-            # so work like read_string() to gather determining the type as
-            # we go (int, then if . real then if second . date then if T
-            # datetime) -- but _don't_ advance past the terminating space or
-            # bracket or whatever it is
-        elif c.isupper():
-            pass # TODO self.read_recdef_name()
-            # an identifier is \p{Lu}\w+ so again do like read_string() but
-            # don't advance past the terminator
+            self.read_number_or_date()
         elif c.isalpha():
-            pass # TODO self.read_const_or_typename()
-            # this is either a typename (int, bool, etc.) or a constant
-            # (none, false, true) or an error
+            self.read_const()
         else:
             self.error(f'invalid character encountered: {c!r}')
 
@@ -146,7 +131,7 @@ class Lexer:
             self.error('unterminated string')
         else:
             self.advance() # over the closing '>'
-            value = self.text[self.start + 1:self.current - 1]
+            value = self.text[self.start + 1:self.pos - 1]
             self.add_token(_TokenKind.STR, value=unescape(value))
 
 
@@ -159,27 +144,52 @@ class Lexer:
             self.error('unterminated string')
         else:
             self.advance() # over the closing ')'
-            value = self.text[self.start + 1:self.current - 1]
+            value = self.text[self.start + 1:self.pos - 1]
             self.add_token(_TokenKind.BYTES, value=bytes.fromhex(value))
 
 
+    def read_const(self):
+        match = self.match('no', 'yes', 'null', 'true', 'false')
+        if match == 'null':
+            self.add_token(_TokenKind.NULL)
+        elif match in {'no', 'false'}:
+            self.add_token(_TokenKind.BOOL, value=False)
+        elif match in {'yes', 'true'}:
+            self.add_token(_TokenKind.BOOL, value=True)
+
+
+    def read_number_or_date(self):
+        had_dot = had_e = had_T = False
+        start = self.pos - 1
+        while self.peek() in '0123456789.eET' and not self.at_end(): # TODO rest of chars
+            self.advance()
+        print('read_number_or_date', self.lino, self.text[start:self.pos])
+        # int, real, date, datetime: none have a space or bracket so work
+        # like read_string() to gather determining the type as we go (int,
+        # then if . real then if second . date then if T datetime) -- but
+        # _don't_ advance past the terminating space or bracket or whatever
+        # it is
+
+
     def advance(self):
-        c = self.text[self.current]
-        self.current += 1
+        c = self.text[self.pos]
+        self.pos += 1
         return c
 
 
-    def match(self, c):
-        if self.at_end() or self.text[self.current] != c:
-            return False
-        self.current += 1
-        return True
+    def match(self, *targets):
+        if self.at_end():
+            return None
+        for target in targets:
+            if self.text.startswith(target, self.pos):
+                self.pos += len(target)
+                return target
 
 
     def peek(self):
         if self.at_end():
             return '\0'
-        return self.text[self.current]
+        return self.text[self.pos]
 
 
     def add_token(self, kind, *, value=None, text=None):
@@ -207,12 +217,11 @@ class _Token:
 
 @enum.unique
 class _TokenKind(enum.Enum):
-    EQUAL = enum.auto()
     BRACKET_OPEN = enum.auto()
     BRACKET_CLOSE = enum.auto()
     BRACE_OPEN = enum.auto()
     BRACE_CLOSE = enum.auto()
-    NONE = enum.auto()
+    NULL = enum.auto()
     BOOL = enum.auto()
     INT = enum.auto()
     REAL = enum.auto()
@@ -221,9 +230,6 @@ class _TokenKind(enum.Enum):
     STR = enum.auto()
     BYTES = enum.auto()
     EOF = enum.auto()
-    #LIST = enum.auto()
-    #RECORDS = enum.auto()
-    #DICT = enum.auto()
 
 
 def write(filename_or_filelike, *, data, custom='', compress=False):
@@ -264,4 +270,4 @@ if __name__ == '__main__':
         data = read(sys.argv[1])
         write(sys.stdout, data=data.data, custom=data.custom)
     except Error as err:
-        print(f'Error: {err}')
+        print(f'Error:{err}')
