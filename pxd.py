@@ -5,6 +5,7 @@
 import collections
 import enum
 import gzip
+import re
 from xml.sax.saxutils import unescape
 
 VERSION = 1.0
@@ -74,13 +75,13 @@ class Lexer:
 
     def warn(self, message):
         if self.warn_is_error:
-            return self.error(message)
-        lino = self.text.count('\n', self.pos)
+            self.error(message)
+        lino = self.text.count('\n', 0, self.pos) + 1
         print(f'warning:{lino}: {message}')
 
 
     def error(self, message):
-        lino = self.text.count('\n', self.pos)
+        lino = self.text.count('\n', 0, self.pos) + 1
         raise Error(f'{lino}: {message}')
 
 
@@ -103,17 +104,24 @@ class Lexer:
         if c.isspace():
             pass
         elif c == '[':
-            self.add_token(_TokenKind.BRACKET_OPEN)
+            if self.peek() == '=':
+                self.pos += 1
+                self.add_token(_TokenKind.STRLIST_BEGIN)
+            else:
+                self.add_token(_TokenKind.LIST_BEGIN)
         elif c == ']':
-            self.add_token(_TokenKind.BRACKET_CLOSE)
+            self.add_token(_TokenKind.LIST_END)
         elif c == '{':
-            self.add_token(_TokenKind.BRACE_OPEN)
+            self.add_token(_TokenKind.DICT_BEGIN)
         elif c == '}':
-            self.add_token(_TokenKind.BRACE_CLOSE)
+            self.add_token(_TokenKind.DICT_END)
         elif c == '<':
             self.read_string()
         elif c == '(':
             self.read_bytes()
+        elif c == '-' and self.peek().isdigit():
+            c = self.advance()
+            self.read_number_or_date(c, minus=True)
         elif c.isdigit():
             self.read_number_or_date(c)
         elif c.isalpha():
@@ -126,16 +134,14 @@ class Lexer:
         value = self.advance_to_closing('>')
         if value is None:
             self.error('unterminated string')
-        else:
-            self.add_token(_TokenKind.STR, value=unescape(value))
+        self.add_token(_TokenKind.STR, value=unescape(value))
 
 
     def read_bytes(self):
         value = self.advance_to_closing(')')
         if value is None:
-            self.error('unterminated string')
-        else:
-            self.add_token(_TokenKind.BYTES, value=bytes.fromhex(value))
+            self.error('unterminated bytes')
+        self.add_token(_TokenKind.BYTES, value=bytes.fromhex(value))
 
 
     def read_const(self):
@@ -148,19 +154,19 @@ class Lexer:
             self.add_token(_TokenKind.BOOL, value=True)
 
 
-    def read_number_or_date(self, c):
+    def read_number_or_date(self, c, *, minus=False):
+        match = re.match(r'[-+.:etz\d]+', self.text[self.pos - 1:],
+                         re.IGNORECASE | re.DOTALL)
+        if match is not None:
+            text = match.group()
+            self.pos += match.end()
+            # TODO match date/datetime else float else int
+            print((text,))
         ######### TODO ##################
-        start = self.pos - 1
-        pos = self.pos
-        while pos < len(self.text) and c in '0123456789.TeE-+:Z':
-            pos += 1
-        self.pos = pos
-        print('read_number_or_date', self.text.count('\n', self.pos), self.text[start:self.pos])
-        # int, real, date, datetime: none have a space or bracket so work
-        # like read_string() to gather determining the type as we go (int,
-        # then if . real then if second . date then if T datetime) -- but
-        # _don't_ advance past the terminating space or bracket or whatever
-        # it is
+
+
+    def peek(self):
+        return '\0' if self.at_end() else self.text[self.pos]
 
 
     def advance(self):
@@ -211,10 +217,11 @@ class _Token:
 
 @enum.unique
 class _TokenKind(enum.Enum):
-    BRACKET_OPEN = enum.auto()
-    BRACKET_CLOSE = enum.auto()
-    BRACE_OPEN = enum.auto()
-    BRACE_CLOSE = enum.auto()
+    STRLIST_BEGIN = enum.auto()
+    LIST_BEGIN = enum.auto()
+    LIST_END = enum.auto()
+    DICT_BEGIN = enum.auto()
+    DICT_END = enum.auto()
     NULL = enum.auto()
     BOOL = enum.auto()
     INT = enum.auto()

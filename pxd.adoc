@@ -8,7 +8,7 @@ gzip-compressed.
 
 == Datatypes
 
-Pxd supports ten datatypes.
+Pxd supports eleven datatypes.
 
 [cols="1,5"]
 |===
@@ -23,11 +23,14 @@ one digit before and after
 |str        |`<Some text which may include newlines>` # see BNF below
 |bytes      |`(20AC 65 66 48)` # must be even number of hex digits; whitespace optional
 |list       |`[value1 value2 ... valueN]`
+|strlist    |`[= <str1> <str2> ... <strN>]` # only needed for ``list``s
+of ``list``s
 |dict       |`{key1 value1 key2 value2 ... keyN valueN}`
 |===
 
 Dictionary keys may only be of types `int`, `date`, `datetime`, `str`,
-and `bytes`.
+and `bytes`. A `strlist` is a list of ``str``s used to provide names for
+a `list` of ``list``s (see the examples below).
 
 == Examples
 
@@ -55,16 +58,16 @@ and `bytes`.
 
 Here the data is simply a `list` of ``list``s.
 
-However, it is more conventional to make the first `list` in a `list` of
-`lists` a `list` of field names:
-
     pxd 1.0 Price List
     [
-        [<Date> <Price> <Quantity> <ID> <Description>]
+        [= <Date> <Price> <Quantity> <ID> <Description>]
         [2017-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in>]
         [2017-10-02 4.49 1 <H2-K9> <Hammer, 2lb>]
         [2017-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz>]
     ]
+
+And here we've used a `strlist` to include the field names in the `.pxd`
+file itself.
 
 === INI to pxd
 
@@ -90,15 +93,19 @@ However, it is more conventional to make the first `list` in a `list` of
     {
         <General> {<shapename> <Hexagon> <zoom> 150 <showtoolbar> no}
         <Window> {<x> 615 <y> 252 <width> 592 <height> 636 <scale> 1.1}
-        <Files> {<current> <test1.pxd>
-                 <recent1> </tmp/test2.pxd>
-                 <recent2> <C:\Users\mark\test3.pxd>}
+        <Files> [
+            [= <kind> <filename>]
+            [<current> <test1.pxd>]
+            [<recent1> </tmp/test2.pxd>]
+            [<recent2> <C:\Users\mark\test3.pxd>]
+        ]
     }
 
 For configuration data it is often convenient to use ``dict``s with name
 keys and data values. In this case the overall data is a `dict` which
-contains each configuration file section, and the value of each of this
-``dict``s keys is itself a `dict`.
+contains each configuration section. The value of the first two of the
+``dict``s keys is itself a `dict`. But for the third we use a `list` of
+``list``s with a `strlist` to provide field names.
 
 Of course, we can nest as deep as we like and mix ``dict``s and lists.
 For example, here's an alternative:
@@ -124,17 +131,17 @@ equivalent using a `dict` of ``list``s is easily made.
     pxd 1.0 MyApp Data
     {
         <Customer> [
-            [<CID> <Company> <Address> <Contact> <Email>]
+            [= <CID> <Company> <Address> <Contact> <Email>]
             [50 <Best People> <123 Somewhere> <John Doe> <j@doe.com>]
             [19 <Supersuppliers> null <Jane Doe> <jane@super.com>]
         ]
         <Invoice> [
-            [<INUM> <CID> <Raised Date> <Due Date> <Paid> <Description>]
+            [= <INUM> <CID> <Raised Date> <Due Date> <Paid> <Description>]
             [152 50 2022-01-17 2022-02-17 false <COD>]
             [153 19 2022-01-19 2022-02-19 true <>]
         ]
         <Item> [
-            [<IID> <INUM> <Delivery Date> <Unit Price> <Quantity> <Description>]
+            [= <IID> <INUM> <Delivery Date> <Unit Price> <Quantity> <Description>]
             [1839 152 2022-01-16 29.99 2 <Bales of hay>]
             [1840 152 2022-01-16 5.98 3 <Straps>]
             [1620 153 2022-01-19 11.50 1 <Washers (1-in)>]
@@ -143,7 +150,7 @@ equivalent using a `dict` of ``list``s is easily made.
 
 Here we have a `dict` where each keys' items are a `list` of ``list``s
 representing three database tables. As is conventional we make the first
-`list` in each `list` of ``list``s a `list` of field names.
+`list` in each `list` of ``list``s a `strlist` of field names.
 
 Notice that the second customer has a `null` address and the second
 invoice has an empty description.
@@ -155,9 +162,10 @@ optional `dict`, `list`, or `records`.
 
     PXD      ::= 'pxd' RWS REAL CUSTOM? '\n' DATA?
     CUSTOM   ::= RWS [^\n]+ # user-defined data e.g. filetype and version
-    DATA     ::= (DICT | LIST)
+    DATA     ::= (DICT | LIST | STRLIST)
     DICT     ::= '{' OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
     LIST     ::= '[' OWS VALUE? (RWS VALUE)* OWS ']'
+    STRLIST  ::= '[=' (OWS STR)+ ']'
     KEY      ::= (INT | DATE | DATETIME | STR | BYTES)
     VALUE    ::= (NULL | BOOL | INT | REAL | DATE | DATETIME | STR |
                   BYTES | LIST | DICT)
