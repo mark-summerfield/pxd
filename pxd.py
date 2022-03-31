@@ -108,7 +108,7 @@ class _Lexer:
 
 
     def scan_next(self):
-        c = self.advance()
+        c = self.getch()
         if c.isspace():
             pass
         elif c == '[':
@@ -128,7 +128,7 @@ class _Lexer:
         elif c == '(':
             self.read_bytes()
         elif c == '-' and self.peek().isdecimal():
-            c = self.advance() # skip the - onto the first digit
+            c = self.getch() # skip the - and get the first digit
             self.read_negative_number(c)
         elif c.isdecimal():
             self.read_positive_number_or_date(c)
@@ -139,12 +139,12 @@ class _Lexer:
 
 
     def read_string(self):
-        value = self.advance_to('>', error_text='unterminated string')
+        value = self.match_to('>', error_text='unterminated string')
         self.add_token(_TokenKind.STR, unescape(value))
 
 
     def read_bytes(self):
-        value = self.advance_to(')', error_text='unterminated bytes')
+        value = self.match_to(')', error_text='unterminated bytes')
         self.add_token(_TokenKind.BYTES, bytes.fromhex(value))
 
 
@@ -205,7 +205,7 @@ class _Lexer:
 
 
     def read_const(self):
-        match = self.advance_to_any_of('no', 'yes', 'null', 'true', 'false')
+        match = self.match_any_of('no', 'yes', 'null', 'true', 'false')
         if match == 'null':
             self.add_token(_TokenKind.NULL)
         elif match in {'no', 'false'}:
@@ -222,29 +222,29 @@ class _Lexer:
         return '\0' if self.at_end() else self.text[self.pos]
 
 
-    def advance(self):
+    def getch(self): # advance
         c = self.text[self.pos]
         self.pos += 1
         return c
 
 
-    def advance_to(self, c, *, error_text):
+    def match_to(self, c, *, error_text):
         if not self.at_end():
             i = self.text.find(c, self.pos)
             if i > -1:
                 text = self.text[self.pos:i]
-                self.pos = i + 1 # skip closing c
+                self.pos = i + 1 # skip past target c
                 return text
         self.error(error_text)
 
 
-    def advance_to_any_of(self, *targets):
+    def match_any_of(self, *targets):
         if self.at_end():
             return None
         start = self.pos - 1
         for target in targets:
             if self.text.startswith(target, start):
-                self.pos += len(target)
+                self.pos += len(target) # skip past target
                 return target
 
 
