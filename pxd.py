@@ -47,7 +47,6 @@ class Lexer:
         self.warn_is_error = warn_is_error
         self.start = 0
         self.pos = 0 # current
-        self.lino = 1
         self.custom = None
         self.tokens = []
         self.scan_header()
@@ -76,11 +75,13 @@ class Lexer:
     def warn(self, message):
         if self.warn_is_error:
             return self.error(message)
-        print(f'warning:{self.lino}: {message}')
+        lino = self.text.count('\n', self.pos)
+        print(f'warning:{lino}: {message}')
 
 
     def error(self, message):
-        raise Error(f'{self.lino}: {message}')
+        lino = self.text.count('\n', self.pos)
+        raise Error(f'{lino}: {message}')
 
 
     def scan(self):
@@ -100,8 +101,7 @@ class Lexer:
     def scan_next(self):
         c = self.advance()
         if c.isspace():
-            if c == '\n':
-                self.lino += 1
+            pass
         elif c == '[':
             self.add_token(_TokenKind.BRACKET_OPEN)
         elif c == ']':
@@ -115,7 +115,7 @@ class Lexer:
         elif c == '(':
             self.read_bytes()
         elif c.isdigit():
-            self.read_number_or_date()
+            self.read_number_or_date(c)
         elif c.isalpha():
             self.read_const()
         else:
@@ -123,33 +123,23 @@ class Lexer:
 
 
     def read_string(self):
-        while self.peek() != '>' and not self.at_end():
-            if self.peek() == '\n':
-                self.lino += 1
-            self.advance()
-        if self.at_end():
+        value = self.advance_to_closing('>')
+        if value is None:
             self.error('unterminated string')
         else:
-            self.advance() # over the closing '>'
-            value = self.text[self.start + 1:self.pos - 1]
             self.add_token(_TokenKind.STR, value=unescape(value))
 
 
     def read_bytes(self):
-        while self.peek() != ')' and not self.at_end():
-            if self.peek() == '\n':
-                self.lino += 1
-            self.advance()
-        if self.at_end():
+        value = self.advance_to_closing(')')
+        if value is None:
             self.error('unterminated string')
         else:
-            self.advance() # over the closing ')'
-            value = self.text[self.start + 1:self.pos - 1]
             self.add_token(_TokenKind.BYTES, value=bytes.fromhex(value))
 
 
     def read_const(self):
-        match = self.match('no', 'yes', 'null', 'true', 'false')
+        match = self.advance_to_match('no', 'yes', 'null', 'true', 'false')
         if match == 'null':
             self.add_token(_TokenKind.NULL)
         elif match in {'no', 'false'}:
@@ -158,12 +148,14 @@ class Lexer:
             self.add_token(_TokenKind.BOOL, value=True)
 
 
-    def read_number_or_date(self):
-        had_dot = had_e = had_T = False
+    def read_number_or_date(self, c):
+        ######### TODO ##################
         start = self.pos - 1
-        while self.peek() in '0123456789.eET' and not self.at_end(): # TODO rest of chars
-            self.advance()
-        print('read_number_or_date', self.lino, self.text[start:self.pos])
+        pos = self.pos
+        while pos < len(self.text) and c in '0123456789.TeE-+:Z':
+            pos += 1
+        self.pos = pos
+        print('read_number_or_date', self.text.count('\n', self.pos), self.text[start:self.pos])
         # int, real, date, datetime: none have a space or bracket so work
         # like read_string() to gather determining the type as we go (int,
         # then if . real then if second . date then if T datetime) -- but
@@ -177,7 +169,7 @@ class Lexer:
         return c
 
 
-    def match(self, *targets):
+    def advance_to_match(self, *targets):
         if self.at_end():
             return None
         for target in targets:
@@ -186,14 +178,18 @@ class Lexer:
                 return target
 
 
-    def peek(self):
+    def advance_to_closing(self, c):
         if self.at_end():
-            return '\0'
-        return self.text[self.pos]
+            return None
+        i = self.text.find(c, self.pos)
+        if i > -1:
+            text = self.text[self.pos:i]
+            self.pos = i + 1 # skip closing c
+            return text
 
 
     def add_token(self, kind, *, value=None, text=None):
-        self.tokens.append(_Token(self.lino, kind, value=value, text=text))
+        self.tokens.append(_Token(kind, value=value, text=text))
 
 
 class Error(Exception):
@@ -202,17 +198,15 @@ class Error(Exception):
 
 class _Token:
 
-    def __init__(self, lino, kind, *, value=None, text=None):
-        self.lino = lino
+    def __init__(self, kind, *, value=None, text=None):
         self.kind = kind
         self.value = value # literal, i.e., correctly typed item
         self.text = text # lexeme, i.e., the original text
 
 
     def __repr__(self):
-        return (f'{self.__class__.__name__}({self.lino!r}, '
-                f'{self.kind.name}, value={self.value!r}, '
-                f'text={self.text!r})')
+        return (f'{self.__class__.__name__}({self.kind.name}, '
+                f'value={self.value!r}, text={self.text!r})')
 
 
 @enum.unique

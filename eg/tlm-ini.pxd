@@ -7,6 +7,6 @@ pxd 1.0 TLM Config
             {<recent2> </home/mark/data/playlists-all.tlm>}
         }
     }
-    <Window> [383 124 590 536 1.1]
+    <Window> {<x> 383 <y> 124 <width> 590 <height> 536 <scale> 1.1}
     <Magic> (1F 8B)
 }

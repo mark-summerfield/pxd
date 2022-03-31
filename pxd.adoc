@@ -55,8 +55,8 @@ and `bytes`.
 
 Here the data is simply a `list` of ``list``s.
 
-And of course, there's nothing to stop us having a description `list` at
-the start:
+However, it is more conventional to make the first `list` in a `list` of
+`lists` a `list` of field names:
 
     pxd 1.0 Price List
     [
@@ -65,10 +65,6 @@ the start:
         [2017-10-02 4.49 1 <H2-K9> <Hammer, 2lb>]
         [2017-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz>]
     ]
-
-In practice we probably wouldn't need the description `list` since the
-custom text at the beginning (`Price List`) tells the application what
-data is in the file.
 
 === INI to pxd
 
@@ -127,88 +123,54 @@ equivalent using a `dict` of ``list``s is easily made.
 
     pxd 1.0 MyApp Data
     {
-        <#> <Customer is CID Company Address Person Email;
-             Invoice is INUM CID RaisedDate DueDate Paid Description;
-             Item is IID INUM DeliveryDate UnitPrice Quantity Description>
         <Customer> [
+            [<CID> <Company> <Address> <Contact> <Email>]
             [50 <Best People> <123 Somewhere> <John Doe> <j@doe.com>]
             [19 <Supersuppliers> null <Jane Doe> <jane@super.com>]
         ]
         <Invoice> [
+            [<INUM> <CID> <Raised Date> <Due Date> <Paid> <Description>]
             [152 50 2022-01-17 2022-02-17 false <COD>]
             [153 19 2022-01-19 2022-02-19 true <>]
         ]
         <Item> [
+            [<IID> <INUM> <Delivery Date> <Unit Price> <Quantity> <Description>]
             [1839 152 2022-01-16 29.99 2 <Bales of hay>]
             [1840 152 2022-01-16 5.98 3 <Straps>]
             [1620 153 2022-01-19 11.50 1 <Washers (1-in)>]
         ]
     }
 
-Here we have a `dict`. The first item is a comment which we've
-informally indicated by using a key of `#`. We could have used `comment`
-or `rem` or anything else. Each of the other keys' items is a `list` of
-``list``s representing three database tables.
+Here we have a `dict` where each keys' items are a `list` of ``list``s
+representing three database tables. As is conventional we make the first
+`list` in each `list` of ``list``s a `list` of field names.
 
 Notice that the second customer has a `null` address and the second
 invoice has an empty description.
-
-The data presented here is in the form of flat database tables. But of
-course, pxd also supports hierarchical data using ``dict``s. So we could
-have structured the data like this:
-
-    pxd 1.0 MyApp Data
-    {
-        <#> <Customer is CID Company Address Person Email;
-             Invoice is INUM CID RaisedDate DueDate Paid Description
-                 list of items each of which is
-                 IID DeliveryDate UnitPrice Quantity Description>
-        <Customer> [
-            [50 <Best People> <123 Somewhere> <John Doe> <j@doe.com>]
-            [19 <Supersuppliers> null <Jane Doe> <jane@super.com>]
-        ]
-        <Invoice> [
-            [152 50 2022-01-17 2022-02-17 false <COD> [
-                [1839 2022-01-16 29.99 2 <Bales of hay>]
-                [1840 2022-01-16 5.98 3 <Straps>]
-                ]
-            ]
-            [153 19 2022-01-19 2022-02-19 true <>
-                [1620 2022-01-19 11.50 1 <Washers (1-in)>]
-            ]
-        ]
-    }
-
-This slightly reduces the data (invoice items don't need to store the
-invoice number).
 
 == BNF
 
 A `.pxd` file consists of a mandatory header followed by a single
 optional `dict`, `list`, or `records`.
 
-    PXD         ::= 'pxd' RWS REAL CUSTOM? '\n' DATA?
-    CUSTOM      ::= RWS [^\n]+ # user-defined data e.g. filetype and version
-    DATA        ::= (DICT | LIST)
-    DICT        ::= '{' OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
-    LIST        ::= '[' OWS VALUE? (RWS VALUE)* OWS ']'
-    KEY         ::= (INT | DATE | DATETIME | STR | BYTES)
-    VALUE       ::= (NULL | BOOL | INT | REAL | DATE | DATETIME | STR |
-                     BYTES | LIST | DICT)
-    NULL        ::= 'null'
-    BOOL        ::= 'no' | 'false' | 'yes' | 'true'
-    INT         ::= /[-+]?\d+/
-    REAL        ::= # support both standard and scientific
-    DATE        ::= /\d\d\d\d-\d\d-\d\d/ # must be a valid date
-    DATETIME    ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # must be a valid date
-    STR         ::= /[<][^<>]*[>]/ # newlines and &amp; &lt; &gt; supported i.e., XML
-    BYTES      ::= '(' (OWS [A-Fa-f0-9]{2})* OWS ')'
-    OWS         ::= /[\s\n]*/
-    RWS         ::= /[\s\n]+/
-
-Comments are not directly supported. However, you could always add an
-extra `<comment> <# some comment>` or ``<#> <some comment>`` item to any
-`dict`.
+    PXD      ::= 'pxd' RWS REAL CUSTOM? '\n' DATA?
+    CUSTOM   ::= RWS [^\n]+ # user-defined data e.g. filetype and version
+    DATA     ::= (DICT | LIST)
+    DICT     ::= '{' OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
+    LIST     ::= '[' OWS VALUE? (RWS VALUE)* OWS ']'
+    KEY      ::= (INT | DATE | DATETIME | STR | BYTES)
+    VALUE    ::= (NULL | BOOL | INT | REAL | DATE | DATETIME | STR |
+                  BYTES | LIST | DICT)
+    NULL     ::= 'null'
+    BOOL     ::= 'no' | 'false' | 'yes' | 'true'
+    INT      ::= /[-+]?\d+/
+    REAL     ::= # support both standard and scientific
+    DATE     ::= /\d\d\d\d-\d\d-\d\d/ # must be a valid date
+    DATETIME ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # must be a valid date
+    STR      ::= /[<][^<>]*[>]/ # newlines and &amp; &lt; &gt; supported i.e., XML
+    BYTES    ::= '(' (OWS [A-Fa-f0-9]{2})* OWS ')'
+    OWS      ::= /[\s\n]*/
+    RWS      ::= /[\s\n]+/
 
 A `pxd` reader should be able to read a plain text or gzipped plain text
 `pxd` file.
