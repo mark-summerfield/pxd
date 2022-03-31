@@ -3,10 +3,16 @@
 # License: GPLv3
 
 import collections
+import datetime
 import enum
 import gzip
-import re
 from xml.sax.saxutils import unescape
+
+try:
+    from dateutil.parser import isoparse
+except ImportError:
+    isoparse = None
+
 
 VERSION = 1.0
 UTF8 = 'utf-8'
@@ -24,8 +30,14 @@ def read(filename_or_filelike):
     custom = None
     data = None
     text = _read_text(filename_or_filelike)
-    lexer = Lexer(text)
+    lexer = _Lexer(text)
     tokens = lexer.scan()
+
+    ### TODO delete
+    for token in tokens:
+        print(token)
+    ### TODO end delete
+
     # TODO parse tokens
     return PxdData(data, custom)
 
@@ -41,12 +53,11 @@ def _read_text(filename_or_filelike):
             return file.read()
 
 
-class Lexer:
+class _Lexer:
 
     def __init__(self, text, *, warn_is_error=False):
         self.text = text
         self.warn_is_error = warn_is_error
-        self.start = 0
         self.pos = 0 # current
         self.custom = None
         self.tokens = []
@@ -87,11 +98,8 @@ class Lexer:
 
     def scan(self):
         while not self.at_end():
-            self.start = self.pos
             self.scan_next()
         self.add_token(_TokenKind.EOF)
-        for token in self.tokens: # TODO delete
-            print(token) # TODO delete
         return self.tokens
 
 
@@ -119,11 +127,11 @@ class Lexer:
             self.read_string()
         elif c == '(':
             self.read_bytes()
-        elif c == '-' and self.peek().isdigit():
-            c = self.advance()
-            self.read_number_or_date(c, minus=True)
-        elif c.isdigit():
-            self.read_number_or_date(c)
+        elif c == '-' and self.peek().isdecimal():
+            c = self.advance() # skip the - onto the first digit
+            self.read_negative_number(c)
+        elif c.isdecimal():
+            self.read_positive_number_or_date(c)
         elif c.isalpha():
             self.read_const()
         else:
@@ -131,38 +139,83 @@ class Lexer:
 
 
     def read_string(self):
-        value = self.advance_to_closing('>')
-        if value is None:
-            self.error('unterminated string')
-        self.add_token(_TokenKind.STR, value=unescape(value))
+        value = self.advance_to('>', error_text='unterminated string')
+        self.add_token(_TokenKind.STR, unescape(value))
 
 
     def read_bytes(self):
-        value = self.advance_to_closing(')')
-        if value is None:
-            self.error('unterminated bytes')
-        self.add_token(_TokenKind.BYTES, value=bytes.fromhex(value))
+        value = self.advance_to(')', error_text='unterminated bytes')
+        self.add_token(_TokenKind.BYTES, bytes.fromhex(value))
+
+
+    def read_negative_number(self, c):
+        is_real = False
+        start = self.pos - 1
+        while not self.at_end() and (c in '.eE' or c.isdecimal()):
+            if c in '.eE':
+                is_real = True
+            c = self.text[self.pos]
+            self.pos += 1
+        convert = float if is_real else int
+        text = self.text[start:self.pos]
+        try:
+            value = convert(text)
+            self.add_token(_TokenKind.REAL if is_real else _TokenKind.INT,
+                           -value)
+        except ValueError as err:
+            self.error(f'invalid number: {text}: {err}')
+
+
+    def read_positive_number_or_date(self, c):
+        is_real = is_datetime = False
+        hyphens = 0
+        start = self.pos - 1
+        while not self.at_end() and (c in '-+.:eETZ' or c.isdecimal()):
+            if c in '.eE':
+                is_real = True
+            elif c == '-':
+                hyphens += 1
+            elif c in ':TZ':
+                is_datetime = True
+            c = self.text[self.pos]
+            self.pos += 1
+        self.pos -= 1 # wind back to terminating non-numeric non-date char
+        text = self.text[start:self.pos]
+        if is_datetime:
+            convert = (datetime.datetime.fromisoformat if isoparse is None
+                       else isoparse)
+            token = _TokenKind.DATETIME
+        elif hyphens == 2:
+            convert = (datetime.date.fromisoformat if isoparse is None
+                       else isoparse)
+            token = _TokenKind.DATE
+        elif is_real:
+            convert = float
+            token = _TokenKind.REAL
+        else:
+            convert = int
+            token = _TokenKind.INT
+        try:
+            value = convert(text)
+            if token is _TokenKind.DATE and isoparse is not None:
+                value = value.date()
+            self.add_token(token, value)
+        except ValueError as err:
+            self.error(f'invalid number or date/time: {text}: {err}')
 
 
     def read_const(self):
-        match = self.advance_to_match('no', 'yes', 'null', 'true', 'false')
+        match = self.advance_to_any_of('no', 'yes', 'null', 'true', 'false')
         if match == 'null':
             self.add_token(_TokenKind.NULL)
         elif match in {'no', 'false'}:
-            self.add_token(_TokenKind.BOOL, value=False)
+            self.add_token(_TokenKind.BOOL, False)
         elif match in {'yes', 'true'}:
-            self.add_token(_TokenKind.BOOL, value=True)
-
-
-    def read_number_or_date(self, c, *, minus=False):
-        match = re.match(r'[-+.:etz\d]+', self.text[self.pos - 1:],
-                         re.IGNORECASE | re.DOTALL)
-        if match is not None:
-            text = match.group()
-            self.pos += match.end()
-            # TODO match date/datetime else float else int
-            print((text,))
-        ######### TODO ##################
+            self.add_token(_TokenKind.BOOL, True)
+        else:
+            i = self.text.find('\n', self.pos)
+            text = self.text[self.pos - 1:i if i > -1 else self.pos + 8]
+            self.error(f'expected const got: {text!r}')
 
 
     def peek(self):
@@ -175,27 +228,28 @@ class Lexer:
         return c
 
 
-    def advance_to_match(self, *targets):
+    def advance_to(self, c, *, error_text):
+        if not self.at_end():
+            i = self.text.find(c, self.pos)
+            if i > -1:
+                text = self.text[self.pos:i]
+                self.pos = i + 1 # skip closing c
+                return text
+        self.error(error_text)
+
+
+    def advance_to_any_of(self, *targets):
         if self.at_end():
             return None
+        start = self.pos - 1
         for target in targets:
-            if self.text.startswith(target, self.pos):
+            if self.text.startswith(target, start):
                 self.pos += len(target)
                 return target
 
 
-    def advance_to_closing(self, c):
-        if self.at_end():
-            return None
-        i = self.text.find(c, self.pos)
-        if i > -1:
-            text = self.text[self.pos:i]
-            self.pos = i + 1 # skip closing c
-            return text
-
-
-    def add_token(self, kind, *, value=None, text=None):
-        self.tokens.append(_Token(kind, value=value, text=text))
+    def add_token(self, kind, value=None):
+        self.tokens.append(_Token(kind, value))
 
 
 class Error(Exception):
@@ -204,15 +258,19 @@ class Error(Exception):
 
 class _Token:
 
-    def __init__(self, kind, *, value=None, text=None):
+    def __init__(self, kind, value=None):
         self.kind = kind
         self.value = value # literal, i.e., correctly typed item
-        self.text = text # lexeme, i.e., the original text
+
+
+    def __str__(self):
+        return (f'{self.kind.name}={self.value!r}' if self.value is not None
+                else self.kind.name)
 
 
     def __repr__(self):
         return (f'{self.__class__.__name__}({self.kind.name}, '
-                f'value={self.value!r}, text={self.text!r})')
+                f'{self.value!r})')
 
 
 @enum.unique
