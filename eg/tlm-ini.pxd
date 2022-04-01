@@ -3,7 +3,7 @@ pxd 1.0 TLM Config
     <General> {
         <saved> 2022-03-21 <autosave> true <historysize> -35 <volume> 0.7
         <files> [
-            [= <kind> <filename>]
+            [= <kind> <filename> =]
             [<current> </home/mark/app/rs/tlm/PlaylistsTest.tlm>]
             [<recent1> </home/mark/app/rs/tlm/PlaylistsTest.tlm>]
             [<recent2> </home/mark/data/playlists-all.tlm>]

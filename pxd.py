@@ -116,12 +116,15 @@ class _Lexer:
                 if (self.tokens and self.tokens[-1].kind is
                         _TokenKind.LIST_BEGIN):
                     self.pos += 1
-                    self.add_token(_TokenKind.FIELDNAMES)
+                    self.add_token(_TokenKind.FIELDNAMES_BEGIN)
                 else:
                     self.error('fieldnames may only occur as the first '
                                'item in a list of lists')
             else:
                 self.add_token(_TokenKind.LIST_BEGIN)
+        elif c == '=' and self.peek() == ']':
+            self.pos += 1
+            self.add_token(_TokenKind.FIELDNAMES_END)
         elif c == ']':
             self.add_token(_TokenKind.LIST_END)
         elif c == '{':
@@ -286,7 +289,8 @@ class _Token:
 
 @enum.unique
 class _TokenKind(enum.Enum):
-    FIELDNAMES = enum.auto()
+    FIELDNAMES_BEGIN = enum.auto()
+    FIELDNAMES_END = enum.auto()
     LIST_BEGIN = enum.auto()
     LIST_END = enum.auto()
     DICT_BEGIN = enum.auto()

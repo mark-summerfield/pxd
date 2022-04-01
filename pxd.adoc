@@ -24,8 +24,8 @@ library dependent)
 |str        |`<Some text which may include newlines>` # see BNF below
 |bytes      |`(20AC 65 66 48)` # must be even number of hex digits; whitespace optional
 |list       |`[value1 value2 ... valueN]`
-|fieldnames |`[= <str1> <str2> ... <strN>]` # optionally used for ``list``s
-of ``list``s
+|fieldnames |`[= <str1> <str2> ... <strN> =]` # optionally used for
+``list``s of ``list``s
 |dict       |`{key1 value1 key2 value2 ... keyN valueN}`
 |===
 
@@ -61,7 +61,7 @@ Here the data is simply a `list` of ``list``s.
 
     pxd 1.0 Price List
     [
-        [= <Date> <Price> <Quantity> <ID> <Description>]
+        [= <Date> <Price> <Quantity> <ID> <Description> =]
         [2017-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in>]
         [2017-10-02 4.49 1 <H2-K9> <Hammer, 2lb>]
         [2017-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz>]
@@ -94,7 +94,7 @@ And here we've used `fieldnames` to improve readability.
         <General> {<shapename> <Hexagon> <zoom> 150 <showtoolbar> no}
         <Window> {<x> 615 <y> 252 <width> 592 <height> 636 <scale> 1.1}
         <Files> [
-            [= <kind> <filename>]
+            [= <kind> <filename> =]
             [<current> <test1.pxd>]
             [<recent1> </tmp/test2.pxd>]
             [<recent2> <C:\Users\mark\test3.pxd>]
@@ -131,17 +131,17 @@ equivalent using a `dict` of ``list``s is easily made.
     pxd 1.0 MyApp Data
     {
         <Customer> [
-            [= <CID> <Company> <Address> <Contact> <Email>]
+            [= <CID> <Company> <Address> <Contact> <Email> =]
             [50 <Best People> <123 Somewhere> <John Doe> <j@doe.com>]
             [19 <Supersuppliers> null <Jane Doe> <jane@super.com>]
         ]
         <Invoice> [
-            [= <INUM> <CID> <Raised Date> <Due Date> <Paid> <Description>]
+            [= <INUM> <CID> <Raised Date> <Due Date> <Paid> <Description> =]
             [152 50 2022-01-17 2022-02-17 false <COD>]
             [153 19 2022-01-19 2022-02-19 true <>]
         ]
         <Item> [
-            [= <IID> <INUM> <Delivery Date> <Unit Price> <Quantity> <Description>]
+            [= <IID> <INUM> <Delivery Date> <Unit Price> <Quantity> <Description> =]
             [1839 152 2022-01-16 29.99 2 <Bales of hay>]
             [1840 152 2022-01-16 5.98 3 <Straps>]
             [1620 153 2022-01-19 11.50 1 <Washers (1-in)>]
@@ -165,7 +165,7 @@ optional `dict`, `list`, or `records`.
     DATA       ::= (DICT | LIST)
     DICT       ::= '{' OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
     LIST       ::= '[' (OWS FIELDNAMES)? OWS VALUE? (RWS VALUE)* OWS ']'
-    FIELDNAMES ::= '[=' (OWS STR)+ ']'
+    FIELDNAMES ::= '[=' (OWS STR)+ '=]'
     KEY        ::= (INT | DATE | DATETIME | STR | BYTES)
     VALUE      ::= (NULL | BOOL | INT | REAL | DATE | DATETIME | STR |
                     BYTES | LIST | DICT)
