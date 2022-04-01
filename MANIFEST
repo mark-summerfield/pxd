@@ -1,9 +1,11 @@
-pxd.py # TODO
+pxd.py
+
+misc/tlm2pxd.py
 
 pxd.adoc
 
 eg/tlm-ini.pxd
-eg/tlm-tlm-partial.pxd # TODO write tlm2pxd.py to create tlm-tlm.pxd
+eg/playlists-tlm.pxd
 # TODO timelog.pxd (based on timelog.xml)
 # TODO biller.pxd (based on sqlite biller2.bdb)
 
