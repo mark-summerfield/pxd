@@ -16,14 +16,15 @@ Pxd supports eleven datatypes.
 |null       |`null`
 |bool       |`no` `false` `yes` `true`
 |int        |`-192` `+234` `7891409`
-|real       |`0.15` `0.7e-9` `2245.389` # a decimal point with at least
-one digit before and after
+|real       |`0.15` `0.7e-9` `2245.389` # standard and scientific with
+at least one digit before and after the point
 |date       |`2022-04-01`  # ISO8601
-|datetime   |`2022-04-01T16:11::51` `2022-04-01T16:11::51Z` # ISO8601
+|datetime   |`2022-04-01T16:11:51` # ISO8601 (timezone support is
+library dependent)
 |str        |`<Some text which may include newlines>` # see BNF below
 |bytes      |`(20AC 65 66 48)` # must be even number of hex digits; whitespace optional
 |list       |`[value1 value2 ... valueN]`
-|fieldnames |`[= <str1> <str2> ... <strN>]` # only needed for ``list``s
+|fieldnames |`[= <str1> <str2> ... <strN>]` # optionally used for ``list``s
 of ``list``s
 |dict       |`{key1 value1 key2 value2 ... keyN valueN}`
 |===
