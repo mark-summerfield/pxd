@@ -323,6 +323,9 @@ def write(filename_or_filelike, *, data, custom='', compress=False):
         file = filename_or_filelike
     try:
         _write_header(file, custom)
+        # TODO write the data!
+        # For a list of namedtuples output a fieldnames followed by lists of
+        # items
     finally:
         if close:
             file.close()

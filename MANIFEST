@@ -1,13 +1,17 @@
 pxd.py
 
-misc/tlm2pxd.py
-
 pxd.adoc
 
 eg/tlm-ini.pxd
 eg/playlists-tlm.pxd
-# TODO timelog.pxd (based on timelog.xml)
-# TODO biller.pxd (based on sqlite biller2.bdb)
+
+# TODO misc/timelog2pxd.py to make timelog.pxd (based on timelog.xml)
+# TODO misc/sqlite2pxd.py to make biller.pxd (based on sqlite biller2.bdb)
+
+misc/tlm2pxd.py
+
+# TODO parser! for fieldnames create a namedtuple and put all the rest
+# of the list items into namedtuples of this newly created namedtuple type
 
 # TODO
 # pxd to:
@@ -20,8 +24,13 @@ eg/playlists-tlm.pxd
 #   pxdfromjson
 #   pxdfromxml (pxd-xml only)
 #   pxdfromcsv (one or more csv files)
+#   pxdfromini ?
+#   pxdfromtoml ?
+#   pxdfromyaml ?
 #
 # pxd lib
 # pxd.py pxd.rs pxd.cpp pxd.java pxd.rb ...
 
 st.sh
+
+# vim: syn=yaml
