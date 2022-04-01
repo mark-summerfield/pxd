@@ -23,14 +23,14 @@ one digit before and after
 |str        |`<Some text which may include newlines>` # see BNF below
 |bytes      |`(20AC 65 66 48)` # must be even number of hex digits; whitespace optional
 |list       |`[value1 value2 ... valueN]`
-|strlist    |`[= <str1> <str2> ... <strN>]` # only needed for ``list``s
+|fieldnames |`[= <str1> <str2> ... <strN>]` # only needed for ``list``s
 of ``list``s
 |dict       |`{key1 value1 key2 value2 ... keyN valueN}`
 |===
 
 Dictionary keys may only be of types `int`, `date`, `datetime`, `str`,
-and `bytes`. A `strlist` is a list of ``str``s used to provide names for
-a `list` of ``list``s (see the examples below).
+and `bytes`. The `fieldnames` is a list of ``str``s used to provide
+names for the fields in a `list` of ``list``s (see the examples below).
 
 == Examples
 
@@ -66,8 +66,7 @@ Here the data is simply a `list` of ``list``s.
         [2017-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz>]
     ]
 
-And here we've used a `strlist` to include the field names in the `.pxd`
-file itself.
+And here we've used `fieldnames` to improve readability.
 
 === INI to pxd
 
@@ -105,7 +104,7 @@ For configuration data it is often convenient to use ``dict``s with name
 keys and data values. In this case the overall data is a `dict` which
 contains each configuration section. The value of the first two of the
 ``dict``s keys is itself a `dict`. But for the third we use a `list` of
-``list``s with a `strlist` to provide field names.
+``list``s with `fieldnames` for readability.
 
 Of course, we can nest as deep as we like and mix ``dict``s and lists.
 For example, here's an alternative:
@@ -150,7 +149,7 @@ equivalent using a `dict` of ``list``s is easily made.
 
 Here we have a `dict` where each keys' items are a `list` of ``list``s
 representing three database tables. As is conventional we make the first
-`list` in each `list` of ``list``s a `strlist` of field names.
+item in each `list` of ``list``s `fieldnames` for readability.
 
 Notice that the second customer has a `null` address and the second
 invoice has an empty description.
@@ -160,25 +159,33 @@ invoice has an empty description.
 A `.pxd` file consists of a mandatory header followed by a single
 optional `dict`, `list`, or `records`.
 
-    PXD      ::= 'pxd' RWS REAL CUSTOM? '\n' DATA?
-    CUSTOM   ::= RWS [^\n]+ # user-defined data e.g. filetype and version
-    DATA     ::= (DICT | LIST | STRLIST)
-    DICT     ::= '{' OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
-    LIST     ::= '[' OWS VALUE? (RWS VALUE)* OWS ']'
-    STRLIST  ::= '[=' (OWS STR)+ ']'
-    KEY      ::= (INT | DATE | DATETIME | STR | BYTES)
-    VALUE    ::= (NULL | BOOL | INT | REAL | DATE | DATETIME | STR |
-                  BYTES | LIST | DICT)
-    NULL     ::= 'null'
-    BOOL     ::= 'no' | 'false' | 'yes' | 'true'
-    INT      ::= /[-+]?\d+/
-    REAL     ::= # support both standard and scientific
-    DATE     ::= /\d\d\d\d-\d\d-\d\d/ # must be a valid date
-    DATETIME ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # must be a valid date
-    STR      ::= /[<][^<>]*[>]/ # newlines and &amp; &lt; &gt; supported i.e., XML
-    BYTES    ::= '(' (OWS [A-Fa-f0-9]{2})* OWS ')'
-    OWS      ::= /[\s\n]*/
-    RWS      ::= /[\s\n]+/
+    PXD        ::= 'pxd' RWS REAL CUSTOM? '\n' DATA?
+    CUSTOM     ::= RWS [^\n]+ # user-defined data e.g. filetype and version
+    DATA       ::= (DICT | LIST)
+    DICT       ::= '{' OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
+    LIST       ::= '[' (OWS FIELDNAMES)? OWS VALUE? (RWS VALUE)* OWS ']'
+    FIELDNAMES ::= '[=' (OWS STR)+ ']'
+    KEY        ::= (INT | DATE | DATETIME | STR | BYTES)
+    VALUE      ::= (NULL | BOOL | INT | REAL | DATE | DATETIME | STR |
+                    BYTES | LIST | DICT)
+    NULL       ::= 'null'
+    BOOL       ::= 'no' | 'false' | 'yes' | 'true'
+    INT        ::= /[-+]?\d+/
+    REAL       ::= # support both standard and scientific
+    DATE       ::= /\d\d\d\d-\d\d-\d\d/ # see note below
+    DATETIME   ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # see note below
+    STR        ::= /[<][^<>]*[>]/ # newlines and &amp; &lt; &gt; supported i.e., XML
+    BYTES      ::= '(' (OWS [A-Fa-f0-9]{2})* OWS ')'
+    OWS        ::= /[\s\n]*/
+    RWS        ::= /[\s\n]+/
+
+Notice that `fieldnames` may only occur as the first item inside a
+`list`.
+
+For ``datetime``s, support may vary across different _pxd_ libraries and
+might _not_ include timezone support. For example, the Python library
+only supports timezones at all if the `dateutil` module is installed,
+and then only `Z` (UTC) or an offset (`/[-+]HH(:MM)?/`).
 
 A `pxd` reader should be able to read a plain text or gzipped plain text
 `pxd` file.

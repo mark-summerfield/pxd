@@ -113,8 +113,13 @@ class _Lexer:
             pass
         elif c == '[':
             if self.peek() == '=':
-                self.pos += 1
-                self.add_token(_TokenKind.STRLIST_BEGIN)
+                if (self.tokens and self.tokens[-1].kind is
+                        _TokenKind.LIST_BEGIN):
+                    self.pos += 1
+                    self.add_token(_TokenKind.FIELDNAMES)
+                else:
+                    self.error('fieldnames may only occur as the first '
+                               'item in a list of lists')
             else:
                 self.add_token(_TokenKind.LIST_BEGIN)
         elif c == ']':
@@ -182,6 +187,12 @@ class _Lexer:
         self.pos -= 1 # wind back to terminating non-numeric non-date char
         text = self.text[start:self.pos]
         if is_datetime:
+            if isoparse is None:
+                convert = datetime.datetime.fromisoformat
+                if text.endswith('Z'):
+                    text = text[:-1] # Py std lib can't handle UTC 'Z'
+            else:
+                convert = isoparse
             convert = (datetime.datetime.fromisoformat if isoparse is None
                        else isoparse)
             token = _TokenKind.DATETIME
@@ -275,7 +286,7 @@ class _Token:
 
 @enum.unique
 class _TokenKind(enum.Enum):
-    STRLIST_BEGIN = enum.auto()
+    FIELDNAMES = enum.auto()
     LIST_BEGIN = enum.auto()
     LIST_END = enum.auto()
     DICT_BEGIN = enum.auto()
