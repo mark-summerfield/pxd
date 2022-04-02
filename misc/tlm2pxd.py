@@ -8,49 +8,48 @@ from xml.sax.saxutils import escape
 
 
 def main():
-    custom = ''
     in_tracks = False
     in_list = False
     end = ''
-    with open('playlists-tlm.pxd', 'wt', encoding='utf-8') as outfile:
-        with gzip.open(sys.argv[1], 'rt', encoding='utf-8') as infile:
-            for line in infile:
+    with open('playlists-tlm.pxd', 'wt', encoding='utf-8') as out:
+        with gzip.open(sys.argv[1], 'rt', encoding='utf-8') as reader:
+            for line in reader:
                 if line.startswith('\f'):
                     line = line.strip()
                     if line.startswith('TLM'):
                         custom = line.strip().replace('\t', ' ')
-                        outfile.write(f'pxd 1.0 {custom}')
-                        outfile.write('\n{\n<items> [\n')
-                        outfile.write(
+                        out.write(f'pxd 1.0 {custom}')
+                        out.write('\n{\n<items> [\n')
+                        out.write(
                             ' [= <Items> <indent> <leaf> <tracks> =]\n')
                     elif line == 'TRACKS':
                         in_tracks = True
                     elif line == 'HISTORY':
                         if in_list:
-                            outfile.write('  ]\n ]\n')
+                            out.write('  ]\n ]\n')
                             in_list = False
-                        outfile.write(']\n') # end of items
+                        out.write(']\n') # end of items
                         in_tracks = False
-                        outfile.write('<history> [\n')
+                        out.write('<history> [\n')
                         end = ' ]\n'
                 elif line.startswith('\v'):
                     if in_list:
-                        outfile.write('  ]\n ]\n')
+                        out.write('  ]\n ]\n')
                         in_list = False
                     in_list = True
                     indent = line.count('\v')
                     text = escape(line[indent:].strip())
-                    outfile.write(f' [{indent} <{text}> [\n')
-                    outfile.write('  [= <Tracks> <filename> <secs> =]\n')
+                    out.write(f' [{indent} <{text}> [\n')
+                    out.write('  [= <Tracks> <filename> <secs> =]\n')
                 elif in_tracks:
                     parts = line.strip().split('\t', 1)
                     filename = escape(parts[0])
-                    outfile.write(f'  [<{filename}> {parts[1]}]\n')
+                    out.write(f'  [<{filename}> {parts[1]}]\n')
                 else: # in history
                     text = escape(line.strip())
-                    outfile.write(f'   <{text}>\n')
-        outfile.write(end)
-        outfile.write('}\n')
+                    out.write(f'   <{text}>\n')
+        out.write(end)
+        out.write('}\n')
 
 
 if __name__ == '__main__':
