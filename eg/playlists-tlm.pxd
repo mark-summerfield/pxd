@@ -1,9 +1,9 @@
 pxd 1.0 TLM 100
 {
 <items> [
- [= <indent> <leaf> <tracks> =]
+ [= <Items> <indent> <leaf> <tracks> =]
  [1 <ABBA> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/ABBA/CD1/01-People_Need_Love.ogg> 165.773]
   [</home/mark/music/ABBA/CD1/02-He_Is_Your_Brother.ogg> 198.440]
   [</home/mark/music/ABBA/CD1/03-Ring_Ring.ogg> 184.693]
@@ -44,7 +44,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Amelie> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Amelie/01-J_y_suis_jamais_all.ogg> 94.467]
   [</home/mark/music/Amelie/02-Les_jours_tristes_instrumental.ogg> 183.467]
   [</home/mark/music/Amelie/03-La_valse_d_Am_lie.ogg> 135.907]
@@ -68,35 +68,35 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Test List #1> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [2 <Bob Marley Test> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [2 <ABBA> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [2 <Test list #2> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [3 <Test List #3> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [4 <Eagles> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [4 <Earth, Wind And Fire> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [4 <Eagles #2> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Eagles/07-Pretty_Maids_All_in_a_Row.ogg> 235.293]
   [</home/mark/music/Eagles/06-Victim_of_Love.ogg> 0.000]
   [</home/mark/music/Eagles/03-Life_in_the_Fast_Lane.ogg> 0.000]
@@ -105,11 +105,11 @@ pxd 1.0 TLM 100
   ]
  ]
  [4 <Eagles #3> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [4 <Beatles #2> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Beatles> 0.000]
   [</home/mark/music/Beatles/Greatest Hits> 0.000]
   [</home/mark/music/Beatles/Greatest Hits/02-From Me To You.ogg> 0.000]
@@ -148,7 +148,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [4 <Beatles #3> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Beatles> 0.000]
   [</home/mark/music/Beatles/Greatest Hits> 0.000]
   [</home/mark/music/Beatles/Greatest Hits/01-Love Me Do.ogg> 0.000]
@@ -189,7 +189,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [4 <Beatles #5> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Beatles/Greatest Hits/01-Love Me Do.ogg> 140.733]
   [</home/mark/music/Beatles/Greatest Hits/02-From Me To You.ogg> 0.000]
   [</home/mark/music/Beatles/Greatest Hits/03-She Loves You.ogg> 0.000]
@@ -227,7 +227,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [4 <Bruce Springsteen #2> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Bruce_Springsteen/CD1/01-Blinded_by_the_Light.ogg> 304.733]
   [</home/mark/music/Bruce_Springsteen/CD1/02-For_You.ogg> 281.000]
   [</home/mark/music/Bruce_Springsteen/CD1/03-Spirit_in_the_Night.ogg> 300.000]
@@ -264,7 +264,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [4 <Eagles Test 4> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Eagles/01-Hotel_California.ogg> 392.200]
   [</home/mark/music/Eagles/02-New_Kid_in_Town.ogg> 304.773]
   [</home/mark/music/Eagles/03-Life_in_the_Fast_Lane.ogg> 286.400]
@@ -277,11 +277,11 @@ pxd 1.0 TLM 100
   ]
  ]
  [3 <Bruce Springsteen Test> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [1 <American Pop> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/American/American-1/01-My Funny Valentine.ogg> 138.440]
   [</home/mark/music/American/American-1/02-Summertime.ogg> 174.453]
   [</home/mark/music/American/American-1/03-Just One Of Those Things.ogg> 138.320]
@@ -360,7 +360,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Beatles> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Beatles/Greatest Hits/02-From Me To You.ogg> 116.160]
   [</home/mark/music/Beatles/Greatest Hits/01-Love Me Do.ogg> 140.733]
   [</home/mark/music/Beatles/Greatest Hits/03-She Loves You.ogg> 141.173]
@@ -398,7 +398,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Blondie> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Blondie/01-Atomic.ogg> 230.160]
   [</home/mark/music/Blondie/02-Heart Of Glass.ogg> 251.773]
   [</home/mark/music/Blondie/03-Sunday Girl.ogg> 195.133]
@@ -420,7 +420,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Bob Marley> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Bob_Marley/Legend/01-Is_This_Love.ogg> 232.507]
   [</home/mark/music/Bob_Marley/Legend/02-No_Woman_No_Cry_live.ogg> 427.493]
   [</home/mark/music/Bob_Marley/Legend/03-Could_You_Be_Loved.ogg> 235.000]
@@ -485,11 +485,11 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Test list 3> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [1 <Bob_Dylan> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Bob_Dylan/Blood_on_the_Tracks/01-Tangled_Up_in_Blue.ogg> 341.000]
   [</home/mark/music/Bob_Dylan/Blood_on_the_Tracks/02-Simple_Twist_of_Fate.ogg> 257.627]
   [</home/mark/music/Bob_Dylan/Blood_on_the_Tracks/03-You_re_a_Big_Girl_Now.ogg> 274.640]
@@ -539,7 +539,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Bruce_Springsteen> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Bruce_Springsteen/CD1/01-Blinded_by_the_Light.ogg> 304.733]
   [</home/mark/music/Bruce_Springsteen/CD1/02-For_You.ogg> 280.667]
   [</home/mark/music/Bruce_Springsteen/CD1/03-Spirit_in_the_Night.ogg> 300.133]
@@ -573,7 +573,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Carla Bruni> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Carla_Bruni/01-Quelqu_un_m_a_dit.ogg> 166.627]
   [</home/mark/music/Carla_Bruni/02-Rapha_l.ogg> 145.920]
   [</home/mark/music/Carla_Bruni/03-Tout_le_monde.ogg> 197.360]
@@ -589,7 +589,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Carly Simon - Never Been Gone> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Carly_Simon/Never_Been_Gone/01-The_Right_Thing_To_Do.ogg> 225.840]
   [</home/mark/music/Carly_Simon/Never_Been_Gone/02-It_Happens_Every_Day.ogg> 259.333]
   [</home/mark/music/Carly_Simon/Never_Been_Gone/03-Never_Been_Gone.ogg> 174.947]
@@ -605,7 +605,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Cris Williamson> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Cris_Williamson/Strange_Paradise/01-Strange_Paradise.ogg> 272.813]
   [</home/mark/music/Cris_Williamson/Strange_Paradise/02-Live_Wire.ogg> 283.040]
   [</home/mark/music/Cris_Williamson/Strange_Paradise/03-Marcy.ogg> 248.747]
@@ -629,7 +629,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Culture Club> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Culture_Club/01-Do_You_Really_Want_to_Hurt_Me.ogg> 265.000]
   [</home/mark/music/Culture_Club/02-White_Boy_dance_mix.ogg> 280.840]
   [</home/mark/music/Culture_Club/03-Church_of_the_Poison_Mind.ogg> 212.533]
@@ -649,7 +649,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <David Bowie> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/David Bowie/Singles 1/01-Space Oddity.ogg> 315.760]
   [</home/mark/music/David Bowie/Singles 1/02-Changes.ogg> 215.173]
   [</home/mark/music/David Bowie/Singles 1/03-Starman.ogg> 258.027]
@@ -686,7 +686,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Dire Straits> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Dire_Straits/01-So Far Away.ogg> 311.973]
   [</home/mark/music/Dire_Straits/02-Money for Nothing.ogg> 506.400]
   [</home/mark/music/Dire_Straits/03-Walk of Life.ogg> 252.493]
@@ -697,7 +697,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Eagles> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Eagles/01-Hotel_California.ogg> 392.200]
   [</home/mark/music/Eagles/02-New_Kid_in_Town.ogg> 304.773]
   [</home/mark/music/Eagles/03-Life_in_the_Fast_Lane.ogg> 286.400]
@@ -710,7 +710,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Earth, Wind And Fire> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Earth, Wind And Fire/01-Let's Groove.ogg> 337.720]
   [</home/mark/music/Earth, Wind And Fire/02-Boogie Wonderland.ogg> 288.800]
   [</home/mark/music/Earth, Wind And Fire/03-September.ogg> 215.053]
@@ -731,7 +731,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Elena Ledda> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Elena_Ledda/01-Cantendi_a_Deus.ogg> 58.227]
   [</home/mark/music/Elena_Ledda/02-Non_mi_giamedas_Maria.ogg> 287.880]
   [</home/mark/music/Elena_Ledda/03-Orus_a_su_Sperevundu.ogg> 385.987]
@@ -753,7 +753,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Elvis Costello> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Elvis_Costello/CD1/01-What_s_So_Funny_Bout_Peace_Love__Understanding.ogg> 212.347]
   [</home/mark/music/Elvis_Costello/CD1/02-Oliver_s_Army.ogg> 177.773]
   [</home/mark/music/Elvis_Costello/CD1/03-Watching_the_Detectives.ogg> 223.773]
@@ -799,7 +799,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Eurythmics> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Eurythmics/01-Love Is A Stranger.ogg> 221.827]
   [</home/mark/music/Eurythmics/02-Sweet Dreams (Are Made Of This) (Extended Version).ogg> 293.933]
   [</home/mark/music/Eurythmics/03-Who's That Girl.ogg> 227.200]
@@ -820,7 +820,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Frankie Goes To Hollywood> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Frankie_Goes_to_Hollywood/01-Relax.ogg> 237.493]
   [</home/mark/music/Frankie_Goes_to_Hollywood/02-Two_Tribes.ogg> 236.373]
   [</home/mark/music/Frankie_Goes_to_Hollywood/03-War.ogg> 255.933]
@@ -837,7 +837,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Gene Pitney> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Gene_Pitney/01-24_Hours_From_Tulsa.ogg> 179.627]
   [</home/mark/music/Gene_Pitney/02-Town_Without_Pity.ogg> 173.733]
   [</home/mark/music/Gene_Pitney/03-Something_s_Gotten_Hold_Of_My_Heart.ogg> 215.200]
@@ -865,7 +865,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <George Michael> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/George_Michael/CD1/01-Jesus_to_a_Child.ogg> 411.733]
   [</home/mark/music/George_Michael/CD1/02-Father_Figure.ogg> 341.360]
   [</home/mark/music/George_Michael/CD1/03-Careless_Whisper.ogg> 300.107]
@@ -898,7 +898,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Glenn Miller> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Glenn_Miller/The_Collection/01-In_The_Mood.ogg> 213.760]
   [</home/mark/music/Glenn_Miller/The_Collection/02-Chatanooga_Choo_Choo.ogg> 211.147]
   [</home/mark/music/Glenn_Miller/The_Collection/03-A_String_Of_Pearls.ogg> 196.613]
@@ -920,7 +920,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Gwyneth Glyn-Tro> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Gwyneth Glyn-Tro/01-Tanau.ogg> 176.307]
   [</home/mark/music/Gwyneth Glyn-Tro/02-CÃ¢n y cÅµn.ogg> 233.427]
   [</home/mark/music/Gwyneth Glyn-Tro/03-Cwlwm.ogg> 226.653]
@@ -937,7 +937,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Happy Mondays> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Happy Mondays/01-Kinky Afro.ogg> 241.307]
   [</home/mark/music/Happy Mondays/02-God's Cop.ogg> 300.600]
   [</home/mark/music/Happy Mondays/03-Donovan.ogg> 246.493]
@@ -951,7 +951,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Jacques Brel> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Jacques_Brel/Brel 1/01-La_Quête.ogg> 159.560]
   [</home/mark/music/Jacques_Brel/Brel 1/02-La_Cathédrale.ogg> 288.800]
   [</home/mark/music/Jacques_Brel/Brel 1/03-L_amour_est_mort.ogg> 245.373]
@@ -995,7 +995,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Jeff Buckley-Grace> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Jeff Buckley-Grace/01-Mojo Pin.ogg> 342.840]
   [</home/mark/music/Jeff Buckley-Grace/02-Grace.ogg> 322.147]
   [</home/mark/music/Jeff Buckley-Grace/03-Last Goodbye.ogg> 275.493]
@@ -1010,7 +1010,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Joan Baez> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Joan_Baez/Baez_Vol2/01-Wagoner's Lad.ogg> 134.360]
   [</home/mark/music/Joan_Baez/Baez_Vol2/02-The Trees They Do Grow High.ogg> 179.000]
   [</home/mark/music/Joan_Baez/Baez_Vol2/03-The Lily Of The West.ogg> 200.867]
@@ -1070,7 +1070,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <John Lennon> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/John_Lennon/01-Imagine.ogg> 184.360]
   [</home/mark/music/John_Lennon/02-Instant_Karma.ogg> 201.467]
   [</home/mark/music/John_Lennon/03-Mother_single_edit.ogg> 235.573]
@@ -1094,7 +1094,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Joni Mitchell> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Joni_Mitchell/A Tribute/01-Free Man in Paris.ogg> 301.720]
   [</home/mark/music/Joni_Mitchell/A Tribute/02-The Boho Dance.ogg> 308.840]
   [</home/mark/music/Joni_Mitchell/A Tribute/03-Dreamland.ogg> 296.280]
@@ -1120,7 +1120,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Kate_Bush> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Kate_Bush/Aerial (A Sea of Honey)/01-King Of The Mountain.ogg> 293.720]
   [</home/mark/music/Kate_Bush/Aerial (A Sea of Honey)/02-Pi.ogg> 369.680]
   [</home/mark/music/Kate_Bush/Aerial (A Sea of Honey)/03-Bertie.ogg> 258.840]
@@ -1151,7 +1151,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Leah Owen> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Leah Owen/01-Ali Gyn A.ogg> 1316.987]
   [</home/mark/music/Leah Owen/02-Ali Gyn B.ogg> 1426.013]
   [</home/mark/music/Leah Owen/03-Breudd.ogg> 2447.173]
@@ -1159,7 +1159,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Leonard Cohen> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Leonard Cohen/01-Suzanne.ogg> 230.107]
   [</home/mark/music/Leonard Cohen/02-So Long Marianne.ogg> 338.533]
   [</home/mark/music/Leonard Cohen/03-Sisters of Mercy.ogg> 214.653]
@@ -1180,7 +1180,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Madonna> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Madonna/01-Holiday.ogg> 246.093]
   [</home/mark/music/Madonna/02-Lucky_Star.ogg> 217.533]
   [</home/mark/music/Madonna/03-Borderline.ogg> 240.133]
@@ -1201,7 +1201,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Marvin Gaye> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Marvin Gaye/01-What's Going On.ogg> 233.000]
   [</home/mark/music/Marvin Gaye/02-What's Happening Brother.ogg> 163.680]
   [</home/mark/music/Marvin Gaye/03-Flyin' High (In The Friendly Sky).ogg> 229.573]
@@ -1216,7 +1216,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Matteo Salvatore> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Matteo_Salvatore/01-Il_lamento_dei_mendicanti.ogg> 245.307]
   [</home/mark/music/Matteo_Salvatore/02-Mo_ve_la_bella_mia_da_la_muntagna.ogg> 174.360]
   [</home/mark/music/Matteo_Salvatore/03-Lu_furastiero.ogg> 160.840]
@@ -1248,13 +1248,13 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Mike Oldfield> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Mike Oldfield/01 - Part One.ogg> 1536.627]
   [</home/mark/music/Mike Oldfield/02 - Part Two.ogg> 1400.507]
   ]
  ]
  [1 <Moussu T E Lei Jovents> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Moussu_T_E_Lei_Jovents/01-O_que_calor.ogg> 192.333]
   [</home/mark/music/Moussu_T_E_Lei_Jovents/02-Par_la_Fenetre.ogg> 161.773]
   [</home/mark/music/Moussu_T_E_Lei_Jovents/03-Sur_la_rive.ogg> 276.907]
@@ -1271,7 +1271,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <New Order> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/New Order/01-Ceremony.ogg> 279.040]
   [</home/mark/music/New Order/02-Procession.ogg> 269.307]
   [</home/mark/music/New Order/03-Everything's Gone Green.ogg> 250.773]
@@ -1305,7 +1305,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Nina Simone> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Nina_Simone/Fine_And_Mellow/01-Fine_And_Mellow.ogg> 208.053]
   [</home/mark/music/Nina_Simone/Fine_And_Mellow/02-Ne_me_quitte_pas.ogg> 314.133]
   [</home/mark/music/Nina_Simone/Fine_And_Mellow/03-I_ll_Look_Around.ogg> 168.387]
@@ -1325,7 +1325,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Otis Redding> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Otis Redding/01-Respect.ogg> 129.733]
   [</home/mark/music/Otis Redding/02-Mr Pitiful.ogg> 160.467]
   [</home/mark/music/Otis Redding/03-Love Man.ogg> 139.533]
@@ -1349,7 +1349,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Pet Shop Boys> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Pet_Shop_Boys/The_Complete_Singles_Collection/Always_on_My_Mind.ogg> 234.907]
   [</home/mark/music/Pet_Shop_Boys/The_Complete_Singles_Collection/Being_Boring.ogg> 291.307]
   [</home/mark/music/Pet_Shop_Boys/The_Complete_Singles_Collection/DJ_Culture.ogg> 254.427]
@@ -1371,7 +1371,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Queen> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Queen/A_Day_at_the_Races/01-Tie_Your_Mother_Down.ogg> 288.093]
   [</home/mark/music/Queen/A_Day_at_the_Races/02-You_Take_My_Breath_Away.ogg> 308.667]
   [</home/mark/music/Queen/A_Day_at_the_Races/03-Long_Away.ogg> 213.507]
@@ -1448,7 +1448,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <REM> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/REM/Reckoning/01-Harborcoat.ogg> 234.560]
   [</home/mark/music/REM/Reckoning/02-7_Chinese_Bros.ogg> 258.507]
   [</home/mark/music/REM/Reckoning/03-So._Central_Rain.ogg> 196.000]
@@ -1462,7 +1462,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Renee Fleming> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Renée_Fleming/01-Gianni_Schicchi-O_mio_babbino_caro.ogg> 175.267]
   [</home/mark/music/Renée_Fleming/02-Madama_Butterfly-Un_bel_di_Vedremo.ogg> 295.800]
   [</home/mark/music/Renée_Fleming/03-La_Boh_me-Quando_me_n_vo.ogg> 171.200]
@@ -1480,7 +1480,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Rod Stewart> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Rod_Stewart/01-Three_Time_Loser.ogg> 246.627]
   [</home/mark/music/Rod_Stewart/02-Alright_For_An_Hour.ogg> 258.080]
   [</home/mark/music/Rod_Stewart/03-All_in_the_Name_of_Rock_n_Roll.ogg> 301.213]
@@ -1494,7 +1494,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Roots of Adele> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Roots_of_Adele/01-Fever.ogg> 202.733]
   [</home/mark/music/Roots_of_Adele/02-All Night Long.ogg> 178.320]
   [</home/mark/music/Roots_of_Adele/03-Don't Cry Baby.ogg> 145.907]
@@ -1518,7 +1518,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Sam Cooke> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Sam_Cooke/01-Touch_the_Hem_of_His_Garment.ogg> 124.720]
   [</home/mark/music/Sam_Cooke/02-Lovable.ogg> 146.187]
   [</home/mark/music/Sam_Cooke/03-You_Send_Me.ogg> 165.680]
@@ -1553,7 +1553,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Simon_Garfunkel> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Simon_Garfunkel/01-Wednesday_Morning_3_a.m.ogg> 131.693]
   [</home/mark/music/Simon_Garfunkel/02-The_Sound_of_Silence.ogg> 183.707]
   [</home/mark/music/Simon_Garfunkel/03-Homeward_Bound.ogg> 146.667]
@@ -1577,7 +1577,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Steppenwolf> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Steppenwolf/01-Medley.ogg> 270.760]
   [</home/mark/music/Steppenwolf/02-Born_To_Be_Wild.ogg> 237.507]
   [</home/mark/music/Steppenwolf/03-Magic_Carpet_Ride.ogg> 259.027]
@@ -1595,7 +1595,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Stevie Wonder> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Stevie_Wonder/CD1/01-Earth_s_Creation.ogg> 243.533]
   [</home/mark/music/Stevie_Wonder/CD1/02-The_First_Garden.ogg> 156.333]
   [</home/mark/music/Stevie_Wonder/CD1/03-Voyage_to_India.ogg> 389.667]
@@ -1628,7 +1628,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Sting> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Sting/01-Message_in_a_Bottle.ogg> 291.333]
   [</home/mark/music/Sting/02-Can_t_Stand_Losing_You.ogg> 181.933]
   [</home/mark/music/Sting/03-Englishman_in_New_York.ogg> 268.533]
@@ -1650,7 +1650,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Tangerine Dream> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Tangerine Dream/01-Ricochet Part One.ogg> 1019.800]
   [</home/mark/music/Tangerine Dream/02-Ricochet Part Two.ogg> 1265.707]
   [</home/mark/music/Tangerine Dream/03-Tangram set 1.ogg> 1192.173]
@@ -1658,7 +1658,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <The Pretenders> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/The Pretenders/01-Stop Your Sobbing.ogg> 159.093]
   [</home/mark/music/The Pretenders/02-Kid.ogg> 184.467]
   [</home/mark/music/The Pretenders/03-Brass In Pocket.ogg> 185.667]
@@ -1678,7 +1678,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <UB40> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/UB40/Collection/01-Food_for_Thought.ogg> 239.307]
   [</home/mark/music/UB40/Collection/02-Present_Arms.ogg> 300.133]
   [</home/mark/music/UB40/Collection/03-One_in_Ten.ogg> 275.320]
@@ -1697,7 +1697,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Van Morrison> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Van_Morrison/01-Goin_Down_Geneva.ogg> 267.200]
   [</home/mark/music/Van_Morrison/02-Philosophers_Stone.ogg> 366.000]
   [</home/mark/music/Van_Morrison/03-In_the_Midnight.ogg> 308.427]
@@ -1711,11 +1711,11 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Classical> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [2 <Bach> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/J.S._Bach/Orchestral_Suites_Nos.1-4/01-Suite_No.1_in_C_BWV1066_-I_Ouvert_re.ogg> 361.973]
   [</home/mark/music/J.S._Bach/Orchestral_Suites_Nos.1-4/02-Suite_No.1_in_C_BWV1066_-II_Courante.ogg> 124.533]
   [</home/mark/music/J.S._Bach/Orchestral_Suites_Nos.1-4/03-Suite_No.1_in_C_BWV1066_-III_Gavottes_I__II.ogg> 175.000]
@@ -1743,7 +1743,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Bartok> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Bela_Bartok/CD1/01-Piano_Concerto_No._1-I._Allegro_moderato.ogg> 550.000]
   [</home/mark/music/Bela_Bartok/CD1/02-Piano_Concerto_No._1-II._Andante_-.ogg> 497.493]
   [</home/mark/music/Bela_Bartok/CD1/03-Piano_Concerto_No._1-III._Allegro_molto.ogg> 408.507]
@@ -1764,7 +1764,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Beethoven> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Beethoven/9 Symphonies - Karajan 1/01-Symphony No.1 in C Major, Op.21 - I. Adagio molto - Allegro con brio.ogg> 573.667]
   [</home/mark/music/Beethoven/9 Symphonies - Karajan 1/02-Symphony No.1 in C Major, Op.21 - II. Andante cantabile con moto.ogg> 353.667]
   [</home/mark/music/Beethoven/9 Symphonies - Karajan 1/03-Symphony No.1 in C Major, Op.21 - III. Menuetto. Allegro moltoe vivace.ogg> 237.667]
@@ -1806,7 +1806,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Bryd and Tallis> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Bryd_and_Tallis/01_-_Third_Tune-_Why_Fum_th_in_Fight.ogg> 55.920]
   [</home/mark/music/Bryd_and_Tallis/02_-_Vigilate__Cantiones_sacrae_I,_1589_.ogg> 255.920]
   [</home/mark/music/Bryd_and_Tallis/03_-_Fifth_Tune-_E_en_Like_the_Hunted_Hind.ogg> 64.173]
@@ -1830,7 +1830,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Chopin> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Chopin/CD1/01-Allegro_maestoso.ogg> 1200.560]
   [</home/mark/music/Chopin/CD1/02-Romance_Larghetto.ogg> 624.667]
   [</home/mark/music/Chopin/CD1/03-Rondo_Vivace.ogg> 579.507]
@@ -1856,7 +1856,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Classical> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Classical/CD1/01-Introitus_-Laudate_Deum.ogg> 115.333]
   [</home/mark/music/Classical/CD1/02-G.P._Da_Palestrina-Missa_Papae_Marcelli_-Gloria.ogg> 336.000]
   [</home/mark/music/Classical/CD1/03-Suite_No.3_-Air.ogg> 322.000]
@@ -1929,7 +1929,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Dvorak> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Dvorak-_Cello_Concerto/01_-_Dvorak_Cello_Concerto_in_B_minor,_op.104_-_I._Allegro.ogg> 821.040]
   [</home/mark/music/Dvorak-_Cello_Concerto/02_-_Dvorak_Cello_Concerto_in_B_minor,_op.104_-_II._Adagio_ma_non_troppo.ogg> 634.667]
   [</home/mark/music/Dvorak-_Cello_Concerto/03_-_Dvorak-_Cello_Concerto_in_B_minor,_op._104_-_III._Finale-_Allegro_moderato.ogg> 717.480]
@@ -1941,7 +1941,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Gorecki> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Gorecki/01-I Lento - Sostenuto Tranquillo Ma Cantabile.ogg> 1631.333]
   [</home/mark/music/Gorecki/02-II Lento E Largo - Tranquillissimo.ogg> 618.000]
   [</home/mark/music/Gorecki/03-III Lento - Cantabile-Semplice.ogg> 1117.000]
@@ -1951,7 +1951,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Gregorian Chant> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Choir_of_Le_Bec-Hellouin_Abbey/Gregorian_Chant/03-Laetatus_Domine.ogg> 132.027]
   [</home/mark/music/Choir_of_Le_Bec-Hellouin_Abbey/Gregorian_Chant/04-Ecce_Quam_Bonum.ogg> 150.733]
   [</home/mark/music/Choir_of_Le_Bec-Hellouin_Abbey/Gregorian_Chant/05-Ubi_Caritas.ogg> 176.333]
@@ -1979,7 +1979,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Gustav Mahler> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Gustav_Mahler/01-Das_Lied_von_der_Erde-I._Das_Trinklied_vom_Jammer_der_Erde.ogg> 487.027]
   [</home/mark/music/Gustav_Mahler/02-Das_Lied_von_der_Erde-II._Der_Einsame_im_Herbst.ogg> 610.933]
   [</home/mark/music/Gustav_Mahler/03-Das_Lied_von_der_Erde-III._Von_der_Jugend.ogg> 223.667]
@@ -1989,7 +1989,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Mozart> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Mozart/CD1/01-Symph._No._40_-Molto_Allegro.ogg> 396.827]
   [</home/mark/music/Mozart/CD1/02-Symph._No._40_-Andante.ogg> 725.840]
   [</home/mark/music/Mozart/CD1/03-Symph._No._40_-Menuetto_and_Trio_-Allegretto.ogg> 222.827]
@@ -2016,7 +2016,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Paganini> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Paganini/01-Caprice_No.1_in_E.ogg> 106.360]
   [</home/mark/music/Paganini/02-Caprice_No.24_in_A_minor.ogg> 271.000]
   [</home/mark/music/Paganini/03-Violin_Concerto_No.1_in_D_-Allegro_maestoso.ogg> 1133.133]
@@ -2028,7 +2028,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Pavarotti> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Luciano_Pavarotti/The_Legend/01-O_Sole_Mio.ogg> 170.947]
   [</home/mark/music/Luciano_Pavarotti/The_Legend/02-Rigoletto-La_donna__mobile.ogg> 141.653]
   [</home/mark/music/Luciano_Pavarotti/The_Legend/03-Rigoletto-Questa_o_quella.ogg> 110.813]
@@ -2052,7 +2052,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Prokofiev> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Prokofiev/01-Peter And The Wolf - Complete Music Without Narrative.ogg> 942.000]
   [</home/mark/music/Prokofiev/02-Symphony No 1 I.ogg> 230.333]
   [</home/mark/music/Prokofiev/03-Symphony No 1 II.ogg> 251.333]
@@ -2108,7 +2108,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Rachmaninov> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Rachmaninov/01-Piano_Concerto_No_2_in_C_minor_-I_Moderato.ogg> 648.427]
   [</home/mark/music/Rachmaninov/02-Piano_Concerto_No_2_in_C_minor_-II_Adagio_sostenuto.ogg> 726.373]
   [</home/mark/music/Rachmaninov/03-Piano_Concerto_No_2_in_C_minor_-III_Allegro_scherzando.ogg> 728.533]
@@ -2143,7 +2143,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Schubert - Winterreise> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Schubert-Winterreise/01-Gute Nacht.ogg> 318.773]
   [</home/mark/music/Schubert-Winterreise/02-Die Wetterfahne.ogg> 99.667]
   [</home/mark/music/Schubert-Winterreise/03-Gefrorene Tranen.ogg> 135.333]
@@ -2171,7 +2171,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Shostakovich> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Shostakovich/01-Piano_Concerto_2_-I._Allegro.ogg> 446.227]
   [</home/mark/music/Shostakovich/02-Piano_Concerto_2_-II._Andante.ogg> 410.267]
   [</home/mark/music/Shostakovich/03-Piano_Concerto_2_-III._Allegro.ogg> 348.640]
@@ -2185,7 +2185,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Strauss, Richard> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Richard_Strauss/Four_Last_Songs/01-Also_Sprach_Zarathustra.ogg> 2002.893]
   [</home/mark/music/Richard_Strauss/Four_Last_Songs/02-Der_Rosenkavalier_-Act_I_Introduction.ogg> 206.707]
   [</home/mark/music/Richard_Strauss/Four_Last_Songs/03-Der_Rosenkavalier_-Act_II_Letter_Scene_and_Waltz.ogg> 442.067]
@@ -2197,7 +2197,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Tavener - Gorecki> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Part_-_Tavener_-_Gorecki/01-Summa_1977.ogg> 296.160]
   [</home/mark/music/Part_-_Tavener_-_Gorecki/02-The_lamb_1982.ogg> 194.333]
   [</home/mark/music/Part_-_Tavener_-_Gorecki/03-The_Beatitudes_1990_1991.ogg> 418.840]
@@ -2218,11 +2218,11 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Foreign> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [2 <BienDire> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/BienDire/BienDire84/01-Introduction 1.ogg> 27.693]
   [</home/mark/music/BienDire/BienDire84/02-Les Infos 2.ogg> 184.827]
   [</home/mark/music/BienDire/BienDire84/03-Les Infos 3.ogg> 99.520]
@@ -2394,7 +2394,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Chansons> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Chansons/Chansons-1/01-Sidonie.ogg> 172.720]
   [</home/mark/music/Chansons/Chansons-1/02-Non je ne regrette.ogg> 147.387]
   [</home/mark/music/Chansons/Chansons-1/03-Sous le Ciel de Paris.ogg> 206.667]
@@ -2548,7 +2548,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Choir of Le Bec-Hellouin Abbey> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Choir_of_Le_Bec-Hellouin_Abbey/Gregorian_Chant/01-Urbs_Jerusalem.ogg> 181.333]
   [</home/mark/music/Choir_of_Le_Bec-Hellouin_Abbey/Gregorian_Chant/02-Da_pacem_Domine.ogg> 195.000]
   [</home/mark/music/Choir_of_Le_Bec-Hellouin_Abbey/Gregorian_Chant/03-Laetatus_Domine.ogg> 132.027]
@@ -2578,7 +2578,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <German Poetry> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/German_Poetry/01-Unter_der_Linde.ogg> 73.707]
   [</home/mark/music/German_Poetry/02-Menshlieches_Ende.ogg> 73.600]
   [</home/mark/music/German_Poetry/03-Das_Rosenband.ogg> 36.160]
@@ -2624,7 +2624,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <German-Michael-Thomas> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/German-Michael-Thomas/01-_Guten_Tag_.ogg> 867.160]
   [</home/mark/music/German-Michael-Thomas/02-_Trnken_Sie_eine_Tasse_Kaffe_.ogg> 586.107]
   [</home/mark/music/German-Michael-Thomas/03-_Was_kostet_es_.ogg> 783.067]
@@ -2647,7 +2647,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <German-Oxford-Uni> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/German-Oxford-Uni/German-Oxford Uni 1/01-Introduction.ogg> 144.213]
   [</home/mark/music/German-Oxford-Uni/German-Oxford Uni 1/02-Pronunciation.ogg> 727.467]
   [</home/mark/music/German-Oxford-Uni/German-Oxford Uni 1/03-Unit 11.ogg> 187.240]
@@ -2769,7 +2769,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <German> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/German/01-Introduction.ogg> 359.147]
   [</home/mark/music/German/02-Good_Day1.ogg> 46.720]
   [</home/mark/music/German/03-Good_Day2.ogg> 68.813]
@@ -2873,7 +2873,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Polish-Ear> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Polish-Ear/01-Track 1.ogg> 363.640]
   [</home/mark/music/Polish-Ear/02-Track 2.ogg> 354.413]
   [</home/mark/music/Polish-Ear/03-Track 3.ogg> 439.840]
@@ -2887,11 +2887,11 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Poetry> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [2 <Catching Life By the Throat> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Catching Life By the Throat/01-W H Auden - Musee des Beaux Arts.ogg> 93.547]
   [</home/mark/music/Catching Life By the Throat/02-W H Auden - As I Walked Out One Evening.ogg> 145.893]
   [</home/mark/music/Catching Life By the Throat/03-W H Auden - Song of the Devil.ogg> 148.840]
@@ -2923,7 +2923,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Poetry> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Poetry/John_Donne/01-The_Good_Morrow.ogg> 84.707]
   [</home/mark/music/Poetry/John_Donne/02-Song-Go_And_Catch_A_Falling_Star.ogg> 66.800]
   [</home/mark/music/Poetry/John_Donne/03-The_Rising_Sun.ogg> 99.747]
@@ -3030,11 +3030,11 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Pop - Various> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [2 <1950s> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/1950s/1950s-1/01-All Shook Up.ogg> 120.667]
   [</home/mark/music/1950s/1950s-1/02-Living Doll.ogg> 158.507]
   [</home/mark/music/1950s/1950s-1/03-It Doesn't Matter Any More.ogg> 124.413]
@@ -3113,7 +3113,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <1960s> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/1960s/1960s-1/01-Love Me Do.ogg> 142.040]
   [</home/mark/music/1960s/1960s-1/02-Surfin' Safari.ogg> 126.453]
   [</home/mark/music/1960s/1960s-1/03-It Might as Well Rain Until September.ogg> 144.813]
@@ -3177,7 +3177,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Housewives> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Housewives/Housewives-1/01-In Party Mood.ogg> 170.200]
   [</home/mark/music/Housewives/Housewives-1/02-Don't Let the Stars Get in Your Eyes.ogg> 160.240]
   [</home/mark/music/Housewives/Housewives-1/03-That's My Desire.ogg> 167.107]
@@ -3256,7 +3256,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Lipstick> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Lipstick/Lipstick-1/01-Lipstick On Your Collar.ogg> 136.413]
   [</home/mark/music/Lipstick/Lipstick-1/02-Don't Be Cruel.ogg> 122.867]
   [</home/mark/music/Lipstick/Lipstick-1/03-The Platters.ogg> 159.760]
@@ -3335,7 +3335,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Pop> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/American/American-1/01-My Funny Valentine.ogg> 138.440]
   [</home/mark/music/American/American-1/02-Summertime.ogg> 174.453]
   [</home/mark/music/American/American-1/07-Cheek to Cheek.ogg> 301.093]
@@ -3370,7 +3370,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Rock> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/RockAndRoll/CD1/01-All_Shook_Up.ogg> 120.547]
   [</home/mark/music/RockAndRoll/CD1/02-Bye_Bye_Love.ogg> 144.120]
   [</home/mark/music/RockAndRoll/CD1/03-Runaway.ogg> 135.960]
@@ -3504,7 +3504,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <RockAndRoll> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/RockAndRoll/CD1/01-All_Shook_Up.ogg> 120.547]
   [</home/mark/music/RockAndRoll/CD1/02-Bye_Bye_Love.ogg> 144.120]
   [</home/mark/music/RockAndRoll/CD1/03-Runaway.ogg> 135.960]
@@ -3608,7 +3608,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <RockLegends> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/RockLegends/CD1/01-Great_Balls_Of_Fire.ogg> 113.227]
   [</home/mark/music/RockLegends/CD1/02-Be_Bop_A_Lula.ogg> 162.760]
   [</home/mark/music/RockLegends/CD1/03-For_Your_Love.ogg> 149.547]
@@ -3642,7 +3642,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Songs of WWII> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/WW2-Songs1/01-White Cliffs of Dover.ogg> 198.360]
   [</home/mark/music/WW2-Songs1/02-In the Mood.ogg> 215.507]
   [</home/mark/music/WW2-Songs1/03-As Time Goes By.ogg> 135.840]
@@ -3692,7 +3692,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <TearJerkers> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/TearJerkers/01-True_Love_Ways.ogg> 169.813]
   [</home/mark/music/TearJerkers/02-Sea_Of_Love.ogg> 144.427]
   [</home/mark/music/TearJerkers/03-Sweet_Dreams.ogg> 155.173]
@@ -3736,16 +3736,16 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Misc> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [2 <CBT> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/CBT/01-CBT.ogg> 1742.573]
   ]
  ]
  [2 <English Folk> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/English Folk/English Folk-1/01-Yarmouth Town.ogg> 230.613]
   [</home/mark/music/English Folk/English Folk-1/02-Rubberband.ogg> 182.733]
   [</home/mark/music/English Folk/English Folk-1/03-Love will Tear us Apart.ogg> 210.213]
@@ -3791,7 +3791,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Winnie-the-Pooh> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Winnie-the-Pooh/01-Once_Upon_a_Time_A_Very_Long_Time.ogg> 219.115]
   [</home/mark/music/Winnie-the-Pooh/02-Both_Of_Them_Went_Out.ogg> 240.849]
   [</home/mark/music/Winnie-the-Pooh/03-A_Few_Days_Later.ogg> 355.814]
@@ -3809,7 +3809,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <WNO-The Tudors> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/WNO-The Tudors/01-The Tudors.ogg> 77.267]
   [</home/mark/music/WNO-The Tudors/02-Anna Bolena.ogg> 234.053]
   [</home/mark/music/WNO-The Tudors/03-Maria Stuarda I.ogg> 232.587]
@@ -3819,11 +3819,11 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <Punk> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   ]
  ]
  [2 <Joy Division (selected)> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Joy_Division/Heart And Soul 1/03-Disorder.ogg> 211.507]
   [</home/mark/music/Joy_Division/Heart And Soul 1/04-Day of the Lords.ogg> 290.400]
   [</home/mark/music/Joy_Division/Heart And Soul 1/05-Candidate.ogg> 184.493]
@@ -3871,7 +3871,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Joy Division> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Joy_Division/Heart And Soul 1/01-Digital.ogg> 172.493]
   [</home/mark/music/Joy_Division/Heart And Soul 1/02-Glass.ogg> 236.333]
   [</home/mark/music/Joy_Division/Heart And Soul 1/03-Disorder.ogg> 211.507]
@@ -3956,7 +3956,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <Tears for Fears> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Tears_For_Fears/01-Sowing the seeds of love.ogg> 379.893]
   [</home/mark/music/Tears_For_Fears/02-Everybody wants to rule the world.ogg> 251.000]
   [</home/mark/music/Tears_For_Fears/03-Woman in chains.ogg> 388.933]
@@ -3972,7 +3972,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <The Clash - London Calling> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/The Clash-London Calling/01-London Calling.ogg> 199.827]
   [</home/mark/music/The Clash-London Calling/02-Brand New Cadillac.ogg> 128.267]
   [</home/mark/music/The Clash-London Calling/03-Jimmy Jazz.ogg> 234.933]
@@ -3995,7 +3995,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <The Jam> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/The Jam/01-In the City.ogg> 140.360]
   [</home/mark/music/The Jam/02-All around the World.ogg> 143.933]
   [</home/mark/music/The Jam/03-The Modern World.ogg> 152.640]
@@ -4020,7 +4020,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <The Saints> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/The Saints/The Saints CD1/01-(I'm) Stranded.ogg> 210.547]
   [</home/mark/music/The Saints/The Saints CD1/02-One Way Street.ogg> 175.293]
   [</home/mark/music/The Saints/The Saints CD1/03-Wild About You.ogg> 154.867]
@@ -4103,7 +4103,7 @@ pxd 1.0 TLM 100
   ]
  ]
  [2 <The Stranglers> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/The_Stranglers/CD1/01-Grip_89.ogg> 242.773]
   [</home/mark/music/The_Stranglers/CD1/02-London_Lady.ogg> 151.267]
   [</home/mark/music/The_Stranglers/CD1/03-Peaches.ogg> 246.200]
@@ -4149,12 +4149,12 @@ pxd 1.0 TLM 100
   ]
  ]
  [1 <&lt;Deleted&gt;> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Beatles/Greatest Hits/01-Love Me Do.ogg> 0.000]
   ]
  ]
  [2 <Eagles> [
-  [= <filename> <secs> =]
+  [= <Tracks> <filename> <secs> =]
   [</home/mark/music/Eagles/01-Hotel_California.ogg> 392.200]
   [</home/mark/music/Eagles/02-New_Kid_in_Town.ogg> 304.773]
   [</home/mark/music/Eagles/08-Try_and_Love_Again.ogg> 312.000]

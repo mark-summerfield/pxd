@@ -30,8 +30,7 @@ def read(filename_or_filelike):
     custom = None
     data = None
     text = _read_text(filename_or_filelike)
-    lexer = _Lexer(text)
-    tokens = lexer.scan()
+    tokens = _Lexer(text).scan()
 
     ### TODO delete
     for token in tokens:
@@ -58,6 +57,7 @@ class _Lexer:
     def __init__(self, text, *, warn_is_error=False):
         self.text = text
         self.warn_is_error = warn_is_error
+        self.text_token_type = _TokenKind.STR
         self.pos = 0 # current
         self.custom = None
         self.tokens = []
@@ -116,7 +116,8 @@ class _Lexer:
                 if (self.tokens and self.tokens[-1].kind is
                         _TokenKind.LIST_BEGIN):
                     self.pos += 1
-                    self.add_token(_TokenKind.FIELDNAMES_BEGIN)
+                    self.add_token(_TokenKind.TABLENAMES_BEGIN)
+                    self.text_token_type = _TokenKind.TABLENAME
                 else:
                     self.error('fieldnames may only occur as the first '
                                'item in a list of lists')
@@ -124,7 +125,8 @@ class _Lexer:
                 self.add_token(_TokenKind.LIST_BEGIN)
         elif c == '=' and self.peek() == ']':
             self.pos += 1
-            self.add_token(_TokenKind.FIELDNAMES_END)
+            self.add_token(_TokenKind.TABLENAMES_END)
+            self.text_token_type = _TokenKind.STR
         elif c == ']':
             self.add_token(_TokenKind.LIST_END)
         elif c == '{':
@@ -132,7 +134,7 @@ class _Lexer:
         elif c == '}':
             self.add_token(_TokenKind.DICT_END)
         elif c == '<':
-            self.read_string()
+            self.read_string_or_name()
         elif c == '(':
             self.read_bytes()
         elif c == '-' and self.peek().isdecimal():
@@ -146,9 +148,11 @@ class _Lexer:
             self.error(f'invalid character encountered: {c!r}')
 
 
-    def read_string(self):
-        value = self.match_to('>', error_text='unterminated string')
-        self.add_token(_TokenKind.STR, unescape(value))
+    def read_string_or_name(self):
+        value = self.match_to('>', error_text='unterminated string or name')
+        self.add_token(self.text_token_type, unescape(value))
+        if self.text_token_type is _TokenKind.TABLENAME:
+            self.text_token_type = _TokenKind.FIELDNAME
 
 
     def read_bytes(self):
@@ -289,8 +293,10 @@ class _Token:
 
 @enum.unique
 class _TokenKind(enum.Enum):
-    FIELDNAMES_BEGIN = enum.auto()
-    FIELDNAMES_END = enum.auto()
+    TABLENAMES_BEGIN = enum.auto()
+    TABLENAME = enum.auto()
+    FIELDNAME = enum.auto()
+    TABLENAMES_END = enum.auto()
     LIST_BEGIN = enum.auto()
     LIST_END = enum.auto()
     DICT_BEGIN = enum.auto()
