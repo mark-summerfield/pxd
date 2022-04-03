@@ -21,25 +21,24 @@ UTF8 = 'utf-8'
 PxdData = collections.namedtuple('PxdData', ('data', 'custom'))
 
 
-def read(filename_or_filelike, *, warn_is_error=False, debug=False):
+def read(filename_or_filelike, *, warn_is_error=False, _debug=False):
     '''
     Returns a PxdData whose Data is a tuple or dict or list using Python
     type equivalents to pxd types by parsing the filename_or_filelike and
     whose Custom is the short user string (if any).
     '''
-    custom = None
     data = None
-    tokens = _tokenize(filename_or_filelike, warn_is_error=warn_is_error,
-                       debug=debug)
-
-    data = _parse(tokens, warn_is_error=warn_is_error, debug=debug)
+    tokens, custom = _tokenize(filename_or_filelike,
+                               warn_is_error=warn_is_error, _debug=_debug)
+    data = _parse(tokens, warn_is_error=warn_is_error, _debug=_debug)
     return PxdData(data, custom)
 
 
-def _tokenize(filename_or_filelike, *, warn_is_error=False, debug=False):
+def _tokenize(filename_or_filelike, *, warn_is_error=False, _debug=False):
     text = _read_text(filename_or_filelike)
-    lexer = _Lexer(warn_is_error=warn_is_error, debug=debug)
-    return lexer.tokenize(text)
+    lexer = _Lexer(warn_is_error=warn_is_error, _debug=_debug)
+    tokens = lexer.tokenize(text)
+    return tokens, lexer.custom
 
 
 def _read_text(filename_or_filelike):
@@ -55,9 +54,9 @@ def _read_text(filename_or_filelike):
 
 class _Lexer:
 
-    def __init__(self, *, warn_is_error=False, debug=False):
+    def __init__(self, *, warn_is_error=False, _debug=False):
         self.warn_is_error = warn_is_error
-        self.debug = debug
+        self._debug = _debug
 
 
     def clear(self):
@@ -273,7 +272,8 @@ class _Lexer:
 
 
     def add_token(self, kind, value=None):
-        lino = (self.text.count('\n', 0, self.pos) + 1) if self.debug else 0
+        lino = ((self.text.count('\n', 0, self.pos) + 1) if self._debug
+                else 0)
         self.tokens.append(_Token(kind, value, lino))
 
 
@@ -330,7 +330,7 @@ class _TokenKind(enum.Enum):
 
 
 ########################### TODO ########################
-def _parse(tokens, *, warn_is_error=False, debug=False):
+def _parse(tokens, *, warn_is_error=False, _debug=False):
     if not tokens:
         raise Error('no tokens to parse')
     first = tokens[0]
@@ -373,7 +373,7 @@ def write(filename_or_filelike, *, data, custom='', compress=False):
 def _write_header(file, custom):
     file.write(f'pxd {VERSION}')
     if custom:
-        file.write(custom)
+        file.write(f' {custom}')
     file.write('\n')
 
 
