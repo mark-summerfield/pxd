@@ -339,7 +339,7 @@ def _parse(tokens, *, warn_is_error=False, _debug=False):
     elif first.kind is _TokenKind.DICT_BEGIN:
         data = parent = {}
     else:
-        raise Error(f'Error: expected list or dict got {first}')
+        raise Error(f'Error: expected list or dict, got {first}')
     for token in tokens[1:]:
         print(token) ### TODO delete
     return data
