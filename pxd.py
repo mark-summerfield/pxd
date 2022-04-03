@@ -21,7 +21,7 @@ UTF8 = 'utf-8'
 PxdData = collections.namedtuple('PxdData', ('data', 'custom'))
 
 
-def read(filename_or_filelike):
+def read(filename_or_filelike, *, warn_is_error=False, debug=False):
     '''
     Returns a PxdData whose Data is a tuple or dict or list using Python
     type equivalents to pxd types by parsing the filename_or_filelike and
@@ -29,8 +29,8 @@ def read(filename_or_filelike):
     '''
     custom = None
     data = None
-    text = _read_text(filename_or_filelike)
-    tokens = _Lexer(text).scan()
+    tokens = _tokenize(filename_or_filelike, warn_is_error=warn_is_error,
+                       debug=debug)
 
     ### TODO delete
     for token in tokens:
@@ -39,6 +39,12 @@ def read(filename_or_filelike):
 
     # TODO parse tokens
     return PxdData(data, custom)
+
+
+def _tokenize(filename_or_filelike, *, warn_is_error=False, debug=False):
+    text = _read_text(filename_or_filelike)
+    lexer = _Lexer(warn_is_error=warn_is_error, debug=debug)
+    return lexer.tokenize(text)
 
 
 def _read_text(filename_or_filelike):
@@ -54,14 +60,26 @@ def _read_text(filename_or_filelike):
 
 class _Lexer:
 
-    def __init__(self, text, *, warn_is_error=False):
-        self.text = text
+    def __init__(self, *, warn_is_error=False, debug=False):
         self.warn_is_error = warn_is_error
+        self.debug = debug
+
+
+    def clear(self):
         self.text_token_type = _TokenKind.STR
         self.pos = 0 # current
         self.custom = None
         self.tokens = []
+
+
+    def tokenize(self, text):
+        self.clear()
+        self.text = text
         self.scan_header()
+        while not self.at_end():
+            self.scan_next()
+        self.add_token(_TokenKind.EOF)
+        return self.tokens
 
 
     def scan_header(self):
@@ -94,13 +112,6 @@ class _Lexer:
     def error(self, message):
         lino = self.text.count('\n', 0, self.pos) + 1
         raise Error(f'{lino}: {message}')
-
-
-    def scan(self):
-        while not self.at_end():
-            self.scan_next()
-        self.add_token(_TokenKind.EOF)
-        return self.tokens
 
 
     def at_end(self):
@@ -267,7 +278,8 @@ class _Lexer:
 
 
     def add_token(self, kind, value=None):
-        self.tokens.append(_Token(kind, value))
+        lino = (self.text.count('\n', 0, self.pos) + 1) if self.debug else 0
+        self.tokens.append(_Token(kind, value, lino))
 
 
 class Error(Exception):
@@ -276,19 +288,29 @@ class Error(Exception):
 
 class _Token:
 
-    def __init__(self, kind, value=None):
+    def __init__(self, kind, value=None, lino=None):
         self.kind = kind
         self.value = value # literal, i.e., correctly typed item
+        self.lino = lino
 
 
     def __str__(self):
-        return (f'{self.kind.name}={self.value!r}' if self.value is not None
-                else self.kind.name)
+        parts = [self.kind.name]
+        if self.lino:
+            parts.append(f'#{self.lino}')
+        if self.value is not None:
+            parts.append(f'={self.value!r}')
+        return ''.join(parts)
 
 
     def __repr__(self):
-        return (f'{self.__class__.__name__}({self.kind.name}, '
-                f'{self.value!r})')
+        parts = [f'{self.__class__.__name__}({self.kind.name}']
+        if self.value is not None:
+            parts.append(f', {self.value!r}')
+        if self.lino is not None:
+            parts.append(f', {self.lino!r}')
+        parts.append(')')
+        return ''.join(parts)
 
 
 @enum.unique
