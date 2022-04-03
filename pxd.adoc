@@ -17,7 +17,7 @@ Pxd supports eleven datatypes.
 |bool       |`no` `false` `yes` `true`
 |int        |`-192` `+234` `7891409`
 |real       |`0.15` `0.7e-9` `2245.389` # standard and scientific with
-at least one digit before and after the point
+at least one digit before and after the point or one `e` between digits
 |date       |`2022-04-01`  # basic ISO8601 YYYY-MM-DD format
 |datetime   |`2022-04-01T16:11:51` # ISO8601 (timezone support is
 library dependent)
@@ -48,7 +48,7 @@ below).
 
     Date,Price,Quantity,ID,Description
     "2022-09-21",3.99,2,"CH1-A2","Chisels (pair), 1in & 1¼in"
-    "2022-10-02",4.49,1,"H2-K9","Hammer, 2lb"
+    "2022-10-02",4.49,1,"HV2-K9","Hammer, 2lb"
     "2022-10-02",5.89,1,"SX4-D1","Eversure Sealant, 13-floz"
 
 ==== PXD Equivalent
@@ -56,7 +56,7 @@ below).
     pxd 1.0 Price List
     [
         [2022-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in>]
-        [2022-10-02 4.49 1 <H2-K9> <Hammer, 2lb>]
+        [2022-10-02 4.49 1 <HV2-K9> <Hammer, 2lb>]
         [2022-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz>]
     ]
 
@@ -66,13 +66,39 @@ Here the data is simply a `list` of ``list``s.
     [
         [= <Price List> <Date> <Price> <Quantity> <ID> <Description> =]
         [2022-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in>]
-        [2022-10-02 4.49 1 <H2-K9> <Hammer, 2lb>]
+        [2022-10-02 4.49 1 <HV2-K9> <Hammer, 2lb>]
         [2022-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz>]
     ]
 
 And here we've used a `tablenames` to improve readability. Notice that the
 _first_ `tablenames` `str` is the name of the table itself, with the rest
 being the field names.
+
+Although `tablenames` is a list of ``str``s, it is perfectly possible to
+structure the strings to provide extra data for processing applications.
+For example:
+
+    pxd 1.0 Price List
+    [
+        [= <Price List> <Date|type date min 2022-01-01>
+         <Price|type float min 0.0 max 9e6>
+         <Quantity|type int min 0 max 9999>
+         <ID|type str picture A(2)9-A9> <Description> =]
+        [2022-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in>]
+        [2022-10-02 4.49 1 <HV2-K9> <Hammer, 2lb>]
+        [2022-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz>]
+    ]
+
+Here we've used a pipe (`|`) to separate field names from field
+attributes with attributes given as _name value_ pairs. The attributes
+are made up and could be anything you like. Here we've indicated the
+type of each field and for some a minimum value, for others both minimum
+and maximum values, and in one case a COBOL-style picture (meaning two
+alphabetic characters followed by a digit then a hyphen then an
+alphabetic character then another digit).
+
+Note that if you need to include `&`, `<` or `>` inside a `str`, you
+must use the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively.
 
 === INI to pxd
 

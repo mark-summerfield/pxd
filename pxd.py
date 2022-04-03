@@ -32,12 +32,7 @@ def read(filename_or_filelike, *, warn_is_error=False, debug=False):
     tokens = _tokenize(filename_or_filelike, warn_is_error=warn_is_error,
                        debug=debug)
 
-    ### TODO delete
-    for token in tokens:
-        print(token)
-    ### TODO end delete
-
-    # TODO parse tokens
+    data = _parse(tokens, warn_is_error=warn_is_error, debug=debug)
     return PxdData(data, custom)
 
 
@@ -332,6 +327,22 @@ class _TokenKind(enum.Enum):
     STR = enum.auto()
     BYTES = enum.auto()
     EOF = enum.auto()
+
+
+########################### TODO ########################
+def _parse(tokens, *, warn_is_error=False, debug=False):
+    if not tokens:
+        raise Error('no tokens to parse')
+    first = tokens[0]
+    if first.kind is _TokenKind.LIST_BEGIN:
+        data = parent = []
+    elif first.kind is _TokenKind.DICT_BEGIN:
+        data = parent = {}
+    else:
+        raise Error(f'Error: expected list or dict got {first}')
+    for token in tokens[1:]:
+        print(token) ### TODO delete
+    return data
 
 
 def write(filename_or_filelike, *, data, custom='', compress=False):
