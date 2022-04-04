@@ -334,15 +334,79 @@ def _parse(tokens, *, warn_is_error=False, _debug=False):
     if not tokens:
         raise Error('no tokens to parse')
     first = tokens[0]
+    depth = 0
     if first.kind is _TokenKind.LIST_BEGIN:
         data = parent = []
+        states = [_State.IN_LIST]
+        depth += 1
     elif first.kind is _TokenKind.DICT_BEGIN:
         data = parent = {}
+        states = [_State.IN_DICT]
     else:
-        raise Error(f'Error: expected list or dict, got {first}')
+        raise Error(f'expected list or dict, got {first}')
+    tupletype = None
+    depth_for_tupletype = None
+    fieldnames = []
+    tablename = None
     for token in tokens[1:]:
-        print(token) ### TODO delete
+        if token.kind is _TokenKind.TABLENAMES_BEGIN:
+            depth_for_tupletype = depth
+            fieldnames = []
+            tablename = None
+            states.append(_State.IN_TABLENAMES)
+        elif token.kind is _TokenKind.TABLENAME:
+            if states[-1] is not _State.IN_TABLENAMES:
+                raise Error(f'tablename outside tablenames: {token}')
+            tablename = token.value
+        elif token.kind is _TokenKind.FIELDNAME:
+            if states[-1] is not _State.IN_TABLENAMES:
+                raise Error(f'fieldname outside tablenames: {token}')
+            fieldnames.append(token.value)
+        elif token.kind is _TokenKind.TABLENAMES_END:
+            if states[-1] is not _State.IN_TABLENAMES:
+                raise Error(
+                    f'end of tablenames outside tablenames: {token}')
+            states.pop()
+            tupletype = collections.namedtuple(tablename, fieldnames)
+        elif token.kind is _TokenKind.LIST_BEGIN:
+            depth += 1
+            print(token) ### TODO delete
+        elif token.kind is _TokenKind.LIST_END:
+            if depth == depth_for_tupletype:
+                depth_for_tupletype = None
+            depth -= 1
+            print(token) ### TODO delete
+        elif token.kind is _TokenKind.DICT_BEGIN:
+            print(token) ### TODO delete
+        elif token.kind is _TokenKind.DICT_END:
+            print(token) ### TODO delete
+        elif token.kind is _TokenKind.NULL:
+            print(token) ### TODO delete
+        elif token.kind is _TokenKind.BOOL:
+            print(token) ### TODO delete
+        elif token.kind is _TokenKind.INT:
+            print(token) ### TODO delete
+        elif token.kind is _TokenKind.REAL:
+            print(token) ### TODO delete
+        elif token.kind is _TokenKind.DATE:
+            print(token) ### TODO delete
+        elif token.kind is _TokenKind.DATETIME:
+            print(token) ### TODO delete
+        elif token.kind is _TokenKind.STR:
+            print(token) ### TODO delete
+        elif token.kind is _TokenKind.BYTES:
+            print(token) ### TODO delete
+        elif token.kind is _TokenKind.EOF:
+            print(token) ### TODO delete
+        else:
+            raise Error(r'invalid token: {token}')
     return data
+
+@enum.unique
+class _State(enum.Enum):
+    IN_LIST = enum.auto()
+    IN_DICT = enum.auto()
+    IN_TABLENAMES = enum.auto()
 
 
 def write(filename_or_filelike, *, data, custom='', compress=False):
