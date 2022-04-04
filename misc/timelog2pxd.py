@@ -13,9 +13,13 @@ def main():
         text = file.read()
     tree = xml.dom.minidom.parseString(text)
     with gzip.open('timelog.pxd', 'wt', encoding='utf-8') as out:
-        out.write(f'pxd 1.0 Timelog 1.0')
-        # for element in tree.findall('PROJECT'):
-        #     pass#print(element)
+        out.write(f'pxd 1.0 Timelog 1.0\n{')
+        for element in tree.getElementsByTagName('PROJECT'):
+            # TODO pxd data design???
+            # write <project name> { <done> done <tasks> [
+            #   [#<Tasks>
+            print(element)
+        out.write('}\n')
 
 
 if __name__ == '__main__':
