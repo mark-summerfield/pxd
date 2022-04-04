@@ -2,10 +2,14 @@
 # Copyright © 2022 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
+'''
+TLM is a tree-structured format, and pxd can represent trees.
+However, here, I've used a flattened format that is much easier to produce.
+'''
+
 import gzip
 import sys
 from xml.sax.saxutils import escape
-
 
 def main():
     in_tracks = False

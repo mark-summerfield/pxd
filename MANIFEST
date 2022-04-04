@@ -6,12 +6,12 @@ pxd.py
 pxd.adoc
 
 eg/tlm-ini.pxd
-eg/playlists-tlm-flat.pxd
+eg/playlists-tlm.pxd
 
 # TODO (1) FIRST more test data
-# TODO misc/timelog2pxd.py to make timelog.pxd (based on timelog.xml)
-# TODO misc/sqlite2pxd.py to make biller.pxd (based on sqlite biller2.bdb)
 misc/tlm2pxd.py
+misc/timelog2pxd.py # TODO output timelog.pxd from timelog.xml
+misc/sqlite2pxd.py # TODO output biller.pxd from biller2.bdb
 
 # TODO
 # pxd to:
