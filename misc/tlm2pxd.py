@@ -11,7 +11,7 @@ def main():
     in_tracks = False
     in_list = False
     end = ''
-    with open('playlists-tlm.pxd', 'wt', encoding='utf-8') as out:
+    with gzip.open('playlists-tlm.pxd', 'wt', encoding='utf-8') as out:
         with gzip.open(sys.argv[1], 'rt', encoding='utf-8') as reader:
             for line in reader:
                 if line.startswith('\f'):

@@ -6,7 +6,7 @@ pxd.py
 pxd.adoc
 
 eg/tlm-ini.pxd
-eg/playlists-tlm.pxd
+eg/playlists-tlm-flat.pxd
 
 # TODO (1) FIRST more test data
 # TODO misc/timelog2pxd.py to make timelog.pxd (based on timelog.xml)

@@ -381,9 +381,22 @@ if __name__ == '__main__':
     import sys
 
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help', 'help'}:
-        raise SystemExit('usage: pxd.py <filename.pxd>')
+        raise SystemExit(
+            'usage: pxd.py [-z|--compress] <infile.pxd> [<outfile.pxd>]')
+    compress = False
+    args = sys.argv[1:]
+    infile = outfile = None
+    for arg in args:
+        if arg in {'-z', '--compress'}:
+            compress = True
+        elif infile is None:
+            infile = arg
+        else:
+            outfile = arg
     try:
-        data = read(sys.argv[1])
-        write(sys.stdout, data=data.data, custom=data.custom)
+        data = read(infile)
+        outfile = sys.stdout if outfile is None else outfile
+        write(outfile, data=data.data, custom=data.custom,
+              compress=compress)
     except Error as err:
         print(f'Error:{err}')
