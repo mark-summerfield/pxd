@@ -338,6 +338,9 @@ def _parse(tokens, *, warn_is_error=False, _debug=False):
     if tokens[0].kind not in {_TokenKind.LIST_BEGIN, _TokenKind.DICT_BEGIN,
                               _TokenKind.TABLE_BEGIN}:
         raise Error(f'expected list or dict, got {tokens[0]}')
+
+############ TODO create a _Parser class so I can have all this as state and
+# can call self.inrow() and self.intableinfo() etc.
     data = parent = None
     states = []
     tupletype = tablename = None

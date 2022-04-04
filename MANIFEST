@@ -1,5 +1,4 @@
-pxd.py
-# TODO (2) parser
+pxd.py # TODO class _Parser
 # for fieldnames create a namedtuple and put all the rest of the list
 # items into namedtuples of this newly created namedtuple type
 
