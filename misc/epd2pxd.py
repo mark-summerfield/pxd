@@ -3,15 +3,19 @@
 # License: GPLv3
 
 import gzip
+import os
 import sqlite3
 import sys
 from xml.sax.saxutils import escape
 
+os.chdir(os.path.dirname(__file__) + '/..')
+
 
 def main():
-    with sqlite3.connect(sys.argv[1]) as db:
+    with sqlite3.connect(os.path.expanduser('~/data/playlists.epd')) as db:
         cursor = db.cursor()
-        with gzip.open('playlists-epd.pxd', 'wt', encoding='utf-8') as out:
+        with gzip.open('eg/playlists-epd.pxd', 'wt',
+                       encoding='utf-8') as out:
             out.write(f'pxd 1.0 EPD (SQLite)\n')
             out.write('[\n') # simple list of SQL tables
             out.write(

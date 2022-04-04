@@ -8,15 +8,20 @@ However, here, I've used a flattened format that is much easier to produce.
 '''
 
 import gzip
+import os
 import sys
 from xml.sax.saxutils import escape
+
+os.chdir(os.path.dirname(__file__) + '/..')
+
 
 def main():
     in_tracks = False
     in_list = False
     end = ''
-    with gzip.open('playlists-tlm.pxd', 'wt', encoding='utf-8') as out:
-        with gzip.open(sys.argv[1], 'rt', encoding='utf-8') as reader:
+    with gzip.open('eg/playlists-tlm.pxd', 'wt', encoding='utf-8') as out:
+        with gzip.open(os.path.expanduser('~/app/rs/tlm/PlaylistsTest.tlm'),
+                       'rt', encoding='utf-8') as reader:
             for line in reader:
                 if line.startswith('\f'):
                     line = line.strip()

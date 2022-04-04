@@ -17,12 +17,16 @@ misc/epd2pxd.py
 #   pxdtosqlite
 #   pxdtojson
 #   pxdtoxml
+#   pxdtoini ?
+#   pxdtocsv ?
+#   pxdtotoml ?
+#   pxdtoyaml ?
 #
 # pxd from:
 #   pxdfromsqlite (tables only)
 #   pxdfromjson
-#   pxdfromxml (pxd-xml only)
 #   pxdfromcsv (one or more csv files)
+#   pxdfromxml ?
 #   pxdfromini ?
 #   pxdfromtoml ?
 #   pxdfromyaml ?
