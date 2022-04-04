@@ -183,12 +183,12 @@ optional `dict` or `list`.
     PXD      ::= 'pxd' RWS REAL CUSTOM? '\n' DATA?
     CUSTOM   ::= RWS [^\n]+ # user-defined data e.g. filetype and version
     DATA     ::= (DICT | LIST | TABLE)
-    DICT     ::= '{' OWS (KEY RWS VALUE)? (RWS KEY RWS VALUE)* OWS '}'
-    LIST     ::= '[' OWS VALUE? (RWS VALUE)* OWS ']'
+    DICT     ::= '{' OWS (KEY RWS ANYVALUE)? (RWS KEY RWS ANYVALUE)* OWS '}'
+    LIST     ::= '[' OWS ANYVALUE? (RWS ANYVALUE)* OWS ']'
     TABLE    ::= '[=' (OWS STR){2,} '=' (RWS VALUE)* '=]'
     KEY      ::= (INT | DATE | DATETIME | STR | BYTES)
-    VALUE    ::= (NULL | BOOL | INT | REAL | DATE | DATETIME | STR |
-                  BYTES | LIST | DICT | TABLE)
+    ANYVALUE ::= (VALUE | LIST | DICT | TABLE)
+    VALUE    ::= (NULL | BOOL | INT | REAL | DATE | DATETIME | STR | BYTES)
     NULL     ::= 'null'
     BOOL     ::= 'no' | 'false' | 'yes' | 'true'
     INT      ::= /[-+]?\d+/
@@ -206,8 +206,8 @@ values. There's no need to distinguish between one row and the next
 (although it is common to start new rows on new lines) since the number
 of fields indicate how many values each row has.
 
-Although it is possible to nest ``table``s inside ``table``s, this isn't
-recommended.
+Notice that ``table``s cannot be nested inside other ``table``s and
+``table`` values may not be ``dict``s or ``list``s.
 
 For ``datetime``s, support may vary across different _pxd_ libraries and
 might _not_ include timezone support. For example, the Python library

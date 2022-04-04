@@ -118,20 +118,21 @@ class _Lexer:
             pass
         elif c == '[':
             if self.peek() == '=':
-                if (self.tokens and self.tokens[-1].kind is
-                        _TokenKind.LIST_BEGIN):
-                    self.pos += 1
-                    self.add_token(_TokenKind.TABLENAMES_BEGIN)
-                    self.text_token_type = _TokenKind.TABLENAME
-                else:
-                    self.error('fieldnames may only occur as the first '
-                               'item in a list of lists')
+                self.pos += 1
+                self.add_token(_TokenKind.TABLE_BEGIN)
+                self.text_token_type = _TokenKind.TABLE_NAME
             else:
                 self.add_token(_TokenKind.LIST_BEGIN)
-        elif c == '=' and self.peek() == ']':
-            self.pos += 1
-            self.add_token(_TokenKind.TABLENAMES_END)
-            self.text_token_type = _TokenKind.STR
+        elif c == '=':
+            if self.peek() == ']':
+                self.pos += 1
+                self.add_token(_TokenKind.TABLE_END)
+                self.text_token_type = _TokenKind.STR
+            elif self.text_token_type is _TokenKind.TABLE_FIELD_NAME:
+                self.add_token(_TokenKind.TABLE_ROWS)
+                self.text_token_type = _TokenKind.STR
+            else:
+                self.error(f'unexpected character encountered: {c!r}')
         elif c == ']':
             self.add_token(_TokenKind.LIST_END)
         elif c == '{':
@@ -156,8 +157,8 @@ class _Lexer:
     def read_string_or_name(self):
         value = self.match_to('>', error_text='unterminated string or name')
         self.add_token(self.text_token_type, unescape(value))
-        if self.text_token_type is _TokenKind.TABLENAME:
-            self.text_token_type = _TokenKind.FIELDNAME
+        if self.text_token_type is _TokenKind.TABLE_NAME:
+            self.text_token_type = _TokenKind.TABLE_FIELD_NAME
 
 
     def read_bytes(self):
@@ -207,7 +208,7 @@ class _Lexer:
                 convert = isoparse
             convert = (datetime.datetime.fromisoformat if isoparse is None
                        else isoparse)
-            token = _TokenKind.DATETIME
+            token = _TokenKind.DATE_TIME
         elif hyphens == 2:
             convert = (datetime.date.fromisoformat if isoparse is None
                        else isoparse)
@@ -310,10 +311,11 @@ class _Token:
 
 @enum.unique
 class _TokenKind(enum.Enum):
-    TABLENAMES_BEGIN = enum.auto()
-    TABLENAME = enum.auto()
-    FIELDNAME = enum.auto()
-    TABLENAMES_END = enum.auto()
+    TABLE_BEGIN = enum.auto()
+    TABLE_NAME = enum.auto()
+    TABLE_FIELD_NAME = enum.auto()
+    TABLE_ROWS = enum.auto()
+    TABLE_END = enum.auto()
     LIST_BEGIN = enum.auto()
     LIST_END = enum.auto()
     DICT_BEGIN = enum.auto()
@@ -323,7 +325,7 @@ class _TokenKind(enum.Enum):
     INT = enum.auto()
     REAL = enum.auto()
     DATE = enum.auto()
-    DATETIME = enum.auto()
+    DATE_TIME = enum.auto()
     STR = enum.auto()
     BYTES = enum.auto()
     EOF = enum.auto()
@@ -333,80 +335,117 @@ class _TokenKind(enum.Enum):
 def _parse(tokens, *, warn_is_error=False, _debug=False):
     if not tokens:
         raise Error('no tokens to parse')
-    first = tokens[0]
-    depth = 0
-    if first.kind is _TokenKind.LIST_BEGIN:
-        data = parent = []
-        states = [_State.IN_LIST]
-        depth += 1
-    elif first.kind is _TokenKind.DICT_BEGIN:
-        data = parent = {}
-        states = [_State.IN_DICT]
-    else:
-        raise Error(f'expected list or dict, got {first}')
-    tupletype = None
-    depth_for_tupletype = None
+    if tokens[0].kind not in {_TokenKind.LIST_BEGIN, _TokenKind.DICT_BEGIN,
+                              _TokenKind.TABLE_BEGIN}:
+        raise Error(f'expected list or dict, got {tokens[0]}')
+    data = parent = None
+    states = []
+    tupletype = tablename = None
     fieldnames = []
-    tablename = None
-    for token in tokens[1:]:
-        if token.kind is _TokenKind.TABLENAMES_BEGIN:
-            depth_for_tupletype = depth
+    fields = []
+
+    def inrow():
+        return states and states[-1] is _State.IN_TABLE_ROWS
+
+    for token in tokens:
+        if token.kind is _TokenKind.TABLE_BEGIN:
+            tupletype = tablename = None
             fieldnames = []
-            tablename = None
-            states.append(_State.IN_TABLENAMES)
-        elif token.kind is _TokenKind.TABLENAME:
-            if states[-1] is not _State.IN_TABLENAMES:
-                raise Error(f'tablename outside tablenames: {token}')
+            states.append(_State.IN_TABLE_INFO)
+        elif token.kind is _TokenKind.TABLE_NAME:
+            if states[-1] is not _State.IN_TABLE_INFO:
+                raise Error(f'table name outside table info: {token}')
             tablename = token.value
-        elif token.kind is _TokenKind.FIELDNAME:
-            if states[-1] is not _State.IN_TABLENAMES:
-                raise Error(f'fieldname outside tablenames: {token}')
+        elif token.kind is _TokenKind.TABLE_FIELD_NAME:
+            if states[-1] is not _State.IN_TABLE_INFO:
+                raise Error(f'field name outside table info: {token}')
             fieldnames.append(token.value)
-        elif token.kind is _TokenKind.TABLENAMES_END:
-            if states[-1] is not _State.IN_TABLENAMES:
-                raise Error(
-                    f'end of tablenames outside tablenames: {token}')
+        elif token.kind is _TokenKind.TABLE_ROWS:
+            if states[-1] is not _State.IN_TABLE_INFO:
+                raise Error(f'"=" outside table info: {token}')
             states.pop()
             tupletype = collections.namedtuple(tablename, fieldnames)
+            states.append(_State.IN_TABLE_ROWS)
+        elif token.kind is _TokenKind.TABLE_END:
+            if states[-1] not in {_State.IN_TABLE_INFO,
+                                  _State.IN_TABLE_ROWS}:
+                raise Error(f'end of table outside table: {token}')
+            states.pop()
+            tupletype = tablename = None
+            fieldnames = []
         elif token.kind is _TokenKind.LIST_BEGIN:
-            depth += 1
+            if inrow():
+                raise Error(f'tables may not contain lists: {token}')
             print(token) ### TODO delete
         elif token.kind is _TokenKind.LIST_END:
-            if depth == depth_for_tupletype:
-                depth_for_tupletype = None
-            depth -= 1
+            if inrow():
+                raise Error(f'tables may not contain end lists: {token}')
             print(token) ### TODO delete
         elif token.kind is _TokenKind.DICT_BEGIN:
+            if inrow():
+                raise Error(f'tables may not contain dicts: {token}')
             print(token) ### TODO delete
         elif token.kind is _TokenKind.DICT_END:
+            if inrow():
+                raise Error(f'tables may not contain end dicts: {token}')
             print(token) ### TODO delete
         elif token.kind is _TokenKind.NULL:
-            print(token) ### TODO delete
+            if inrow():
+                #################################################
+                # TODO append to fields; if len(fields) == len(fieldnames)
+                # then make tuple and add it to data and clear fields
+                pass
+            else:
+                print(token) ### TODO delete
         elif token.kind is _TokenKind.BOOL:
-            print(token) ### TODO delete
+            if inrow():
+                pass
+            else:
+                print(token) ### TODO delete
         elif token.kind is _TokenKind.INT:
-            print(token) ### TODO delete
+            if inrow():
+                pass
+            else:
+                print(token) ### TODO delete
         elif token.kind is _TokenKind.REAL:
-            print(token) ### TODO delete
+            if inrow():
+                pass
+            else:
+                print(token) ### TODO delete
         elif token.kind is _TokenKind.DATE:
-            print(token) ### TODO delete
-        elif token.kind is _TokenKind.DATETIME:
-            print(token) ### TODO delete
+            if inrow():
+                pass
+            else:
+                print(token) ### TODO delete
+        elif token.kind is _TokenKind.DATE_TIME:
+            if inrow():
+                pass
+            else:
+                print(token) ### TODO delete
         elif token.kind is _TokenKind.STR:
-            print(token) ### TODO delete
+            if inrow():
+                pass
+            else:
+                print(token) ### TODO delete
         elif token.kind is _TokenKind.BYTES:
-            print(token) ### TODO delete
+            if inrow():
+                pass
+            else:
+                print(token) ### TODO delete
         elif token.kind is _TokenKind.EOF:
+            if inrow():
+                raise Error(f'missing "=]" to end a table: {token}')
             print(token) ### TODO delete
         else:
-            raise Error(r'invalid token: {token}')
+            raise Error(f'invalid token: {token}')
     return data
 
 @enum.unique
 class _State(enum.Enum):
     IN_LIST = enum.auto()
     IN_DICT = enum.auto()
-    IN_TABLENAMES = enum.auto()
+    IN_TABLE_INFO = enum.auto()
+    IN_TABLE_ROWS = enum.auto()
 
 
 def write(filename_or_filelike, *, data, custom='', compress=False):
