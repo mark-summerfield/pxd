@@ -6,6 +6,7 @@ import collections
 import datetime
 import enum
 import gzip
+import re
 from xml.sax.saxutils import unescape
 
 try:
@@ -331,6 +332,71 @@ class _TokenKind(enum.Enum):
     EOF = enum.auto()
 
 
+class Table:
+
+    def __init__(self):
+        self.name = None
+        self._Class = None
+        self._fieldnames = []
+        self.records = []
+
+
+    def set_name(self, name):
+        self.name = name
+
+
+    def append_fieldname(self, name):
+        self._fieldnames.append(name)
+
+
+    def append_fieldnames(self, *names):
+        self._fieldnames += names
+
+
+    def append(self, value):
+        if self._Class is None:
+            self._make_class()
+        if (not self.records or
+                len(self.records[-1]) >= len(self._fieldnames)):
+            self.records.append([])
+        self.records[-1].append(value)
+
+
+    def _make_class(self):
+        if not self.name:
+            raise Error('can\'t create a table without a name')
+        if not self._fieldnames:
+            raise Error('can\'t create a table with no field names')
+        self.name = canonicalize(self.name)
+        self._Class = collections.namedtuple(
+            self.name, [canonicalize(name) for name in self._fieldnames])
+
+
+    def __iadd__(self, value):
+        if isinstance(value, (list, tuple)): # or: collections.abc.Sequence
+            for v in value:
+                self.append(v)
+        else:
+            self.append(value)
+        return self
+
+
+    def __iter__(self):
+        if self._Class is None:
+            self._make_class()
+        for record in self.records:
+            yield self._Class(*record)
+
+
+    def __str__(self):
+        return (f'Table {self.name!r} {self._fieldnames!r} with '
+                f'{len(self.records)} records')
+
+
+def canonicalize(s):
+    return re.sub(r'\W+', '', s)
+
+
 ########################### TODO ########################
 def _parse(tokens, *, warn_is_error=False, _debug=False):
     if not tokens:
@@ -341,41 +407,51 @@ def _parse(tokens, *, warn_is_error=False, _debug=False):
 
 ############ TODO create a _Parser class so I can have all this as state and
 # can call self.inrow() and self.intableinfo() etc.
-    data = parent = None
+    data = None
     states = []
-    tupletype = tablename = None
-    fieldnames = []
-    fields = []
+    key = None
+    table = None
 
     def inrow():
         return states and states[-1] is _State.IN_TABLE_ROWS
 
     for token in tokens:
         if token.kind is _TokenKind.TABLE_BEGIN:
-            tupletype = tablename = None
-            fieldnames = []
+            table = Table()
             states.append(_State.IN_TABLE_INFO)
+            print(token) ### TODO delete
         elif token.kind is _TokenKind.TABLE_NAME:
-            if states[-1] is not _State.IN_TABLE_INFO:
+            if table is None:
                 raise Error(f'table name outside table info: {token}')
-            tablename = token.value
+            table.name = token.value
+            print(token) ### TODO delete
         elif token.kind is _TokenKind.TABLE_FIELD_NAME:
-            if states[-1] is not _State.IN_TABLE_INFO:
+            if table is None:
                 raise Error(f'field name outside table info: {token}')
-            fieldnames.append(token.value)
+            table.append_fieldname(token.value)
+            print(token) ### TODO delete
         elif token.kind is _TokenKind.TABLE_ROWS:
-            if states[-1] is not _State.IN_TABLE_INFO:
+            if table is None:
                 raise Error(f'"=" outside table info: {token}')
             states.pop()
-            tupletype = collections.namedtuple(tablename, fieldnames)
             states.append(_State.IN_TABLE_ROWS)
+            print(token) ### TODO delete
         elif token.kind is _TokenKind.TABLE_END:
             if states[-1] not in {_State.IN_TABLE_INFO,
                                   _State.IN_TABLE_ROWS}:
                 raise Error(f'end of table outside table: {token}')
             states.pop()
-            tupletype = tablename = None
-            fieldnames = []
+            if data is None:
+                data = table # pxd is a single Table
+            elif isinstance(data, list):
+                data.append(table)
+            elif isinstance(data, dict):
+                if key is None:
+                    raise Error(f'dict value without key: {token}')
+                data[key] = table
+                key = None
+            table = None
+            print(token) ### TODO delete
         elif token.kind is _TokenKind.LIST_BEGIN:
             if inrow():
                 raise Error(f'tables may not contain lists: {token}')
@@ -394,45 +470,58 @@ def _parse(tokens, *, warn_is_error=False, _debug=False):
             print(token) ### TODO delete
         elif token.kind is _TokenKind.NULL:
             if inrow():
-                #################################################
-                # TODO append to fields; if len(fields) == len(fieldnames)
-                # then make tuple and add it to data and clear fields
-                pass
+                if table is None:
+                    raise Error(f'internal table error {token}')
+                table += token.value
             else:
                 print(token) ### TODO delete
         elif token.kind is _TokenKind.BOOL:
             if inrow():
-                pass
+                if table is None:
+                    raise Error(f'internal table error {token}')
+                table += token.value
             else:
                 print(token) ### TODO delete
         elif token.kind is _TokenKind.INT:
             if inrow():
-                pass
+                if table is None:
+                    raise Error(f'internal table error {token}')
+                table += token.value
             else:
                 print(token) ### TODO delete
         elif token.kind is _TokenKind.REAL:
             if inrow():
-                pass
+                if table is None:
+                    raise Error(f'internal table error {token}')
+                table += token.value
             else:
                 print(token) ### TODO delete
         elif token.kind is _TokenKind.DATE:
             if inrow():
-                pass
+                if table is None:
+                    raise Error(f'internal table error {token}')
+                table += token.value
             else:
                 print(token) ### TODO delete
         elif token.kind is _TokenKind.DATE_TIME:
             if inrow():
-                pass
+                if table is None:
+                    raise Error(f'internal table error {token}')
+                table += token.value
             else:
                 print(token) ### TODO delete
         elif token.kind is _TokenKind.STR:
             if inrow():
-                pass
+                if table is None:
+                    raise Error(f'internal table error {token}')
+                table += token.value
             else:
                 print(token) ### TODO delete
         elif token.kind is _TokenKind.BYTES:
             if inrow():
-                pass
+                if table is None:
+                    raise Error(f'internal table error {token}')
+                table += token.value
             else:
                 print(token) ### TODO delete
         elif token.kind is _TokenKind.EOF:
@@ -441,6 +530,7 @@ def _parse(tokens, *, warn_is_error=False, _debug=False):
             print(token) ### TODO delete
         else:
             raise Error(f'invalid token: {token}')
+    print(data) ### TODO delete
     return data
 
 @enum.unique
