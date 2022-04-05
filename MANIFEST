@@ -1,11 +1,14 @@
-pxd.py # TODO class _Parser
-# for fieldnames create a namedtuple and put all the rest of the list
-# items into namedtuples of this newly created namedtuple type
+pxd.py
+# TODO get working with all play*.pxd egs so that it can round-trip them
 
 pxd.adoc
 
 eg/tlm-ini.pxd
-eg/playlists-epd.pxd
+eg/play1.pxd
+eg/play2.pxd
+eg/play3.pxd
+eg/play4.pxd
+eg/play5.pxd
 
 misc/epd2pxd.py
 

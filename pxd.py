@@ -7,7 +7,8 @@ import datetime
 import enum
 import gzip
 import re
-from xml.sax.saxutils import unescape
+import sys
+from xml.sax.saxutils import escape, unescape
 
 try:
     from dateutil.parser import isoparse
@@ -17,9 +18,6 @@ except ImportError:
 
 VERSION = 1.0
 UTF8 = 'utf-8'
-
-
-PxdData = collections.namedtuple('PxdData', ('data', 'custom'))
 
 
 def read(filename_or_filelike, *, warn_is_error=False, _debug=False):
@@ -33,7 +31,7 @@ def read(filename_or_filelike, *, warn_is_error=False, _debug=False):
         filename_or_filelike, warn_is_error=warn_is_error, _debug=_debug)
     data = _parse(tokens, text=text, warn_is_error=warn_is_error,
                   _debug=_debug)
-    return PxdData(data, custom)
+    return data, custom
 
 
 def _tokenize(filename_or_filelike, *, warn_is_error=False, _debug=False):
@@ -334,19 +332,19 @@ class Table:
     def __init__(self):
         self.name = None
         self._Class = None
-        self._fieldnames = []
+        self.fieldnames = []
         self.records = []
 
 
     def append_fieldname(self, name):
-        self._fieldnames.append(name)
+        self.fieldnames.append(name)
 
 
     def append(self, value):
         if self._Class is None:
             self._make_class()
         if (not self.records or
-                len(self.records[-1]) >= len(self._fieldnames)):
+                len(self.records[-1]) >= len(self.fieldnames)):
             self.records.append([])
         self.records[-1].append(value)
 
@@ -354,13 +352,12 @@ class Table:
     def _make_class(self):
         if not self.name:
             raise Error('can\'t create a table without a name')
-        if not self._fieldnames:
+        if not self.fieldnames:
             raise Error('can\'t create a table with no field names')
-        canonicalize_rx = re.compile(r'\W+')
-        self.name = canonicalize_rx.sub('', self.name)
         self._Class = collections.namedtuple(
-            self.name,
-            [canonicalize_rx.sub('', name) for name in self._fieldnames])
+            _canonicalize(self.name, 'Table'),
+            [_canonicalize(name, f'Field{i}')
+             for i, name in enumerate(self.fieldnames, 1)])
 
 
     def __iadd__(self, value):
@@ -379,18 +376,22 @@ class Table:
             yield self._Class(*record)
 
 
+    def __len__(self):
+        return len(self.records)
+
+
     def __str__(self):
-        return (f'Table {self.name!r} {self._fieldnames!r} with '
+        return (f'Table {self.name!r} {self.fieldnames!r} with '
                 f'{len(self.records)} records')
 
 
-    def __repr__(self): # debug only
-        rows = [f'{self.__class__.__name__} {self.name!r} [=',
-                f'  fieldnames: {self._fieldnames!r}']
-        for record in self:
-            rows.append(f'    {record}')
-        rows.append('=]')
-        return '\n'.join(rows)
+def _canonicalize(s, prefix):
+    s = re.sub(r'\W+', '', s)
+    if not s:
+        s = f'{prefix}{id(s):X}'
+    elif not s.isalpha():
+        s = prefix + s
+    return s
 
 
 def _parse(tokens, *, text, warn_is_error=False, _debug=False):
@@ -588,9 +589,7 @@ def write(filename_or_filelike, *, data, custom='', compress=False):
         file = filename_or_filelike
     try:
         _write_header(file, custom)
-        # TODO write the data!
-        # For a list of namedtuples output a fieldnames followed by lists of
-        # items
+        _write_value(file, data)
     finally:
         if close:
             file.close()
@@ -603,9 +602,88 @@ def _write_header(file, custom):
     file.write('\n')
 
 
-if __name__ == '__main__':
-    import sys
+def _write_value(file, item, indent=0, *, dict_value=False):
+    if isinstance(item, list):
+        return _write_list(file, item, indent, dict_value=dict_value)
+    if isinstance(item, dict):
+        return _write_dict(file, item, indent, dict_value=dict_value)
+    if isinstance(item, Table):
+        return _write_table(file, item, indent, dict_value=dict_value)
+    return _write_scalar(file, item, 0, dict_value=dict_value)
 
+
+def _write_list(file, item, indent=0, *, dict_value=False):
+    pad = '' if dict_value else _PAD * indent
+    file.write(f'{pad}[\n')
+    indent += 1
+    for value in item:
+        if not _write_value(file, value, indent, dict_value=dict_value):
+            file.write('\n')
+    pad = _PAD * (indent - 1)
+    file.write(f'{pad}]\n')
+    return True
+
+
+def _write_dict(file, item, indent=0, dict_value=False):
+    pad = '' if dict_value else _PAD * indent
+    file.write(f'{pad}{{\n')
+    indent += 1
+    for key, value in item.items():
+        _write_scalar(file, key, indent)
+        file.write(' ')
+        if not _write_value(file, value, indent, dict_value=True):
+            file.write('\n')
+    pad = _PAD * (indent - 1)
+    file.write(f'{pad}}}\n')
+    return True
+
+
+def _write_table(file, item, indent=0, dict_value=False):
+    pad = '' if dict_value else _PAD * indent
+    file.write(f'{pad}[= <{escape(item.name)}>')
+    for name in item.fieldnames:
+        file.write(f' <{escape(name)}>')
+    file.write(' =\n')
+    indent += 1
+    for record in item:
+        file.write(_PAD * indent)
+        for value in record:
+            _write_scalar(file, value)
+            file.write(' ')
+        file.write('\n')
+    pad = _PAD * (indent - 1)
+    file.write(f'{pad}=]\n')
+    return True
+
+
+def _write_scalar(file, item, indent=0, dict_value=False):
+    file.write(_PAD * indent)
+    if item is None:
+        file.write('null')
+    elif isinstance(item, bool):
+        file.write('yes' if item else 'no')
+    elif isinstance(item, int):
+        file.write(str(item))
+    elif isinstance(item, float):
+        value = f'{item:g}'
+        if '.' not in value:
+            value += '.0'
+        file.write(value)
+    elif isinstance(item, (datetime.date, datetime.datetime)):
+        file.write(item.isoformat())
+    elif isinstance(item, str):
+        file.write(f'<{escape(item)}>')
+    elif isinstance(item, bytes):
+        file.write(f'({item.hex().upper()})')
+    else:
+        print(f'error: unexpectedly got {item!r}', file=sys.stderr)
+    return False
+
+
+_PAD = '  '
+
+
+if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help', 'help'}:
         raise SystemExit(
             'usage: pxd.py [-z|--compress] <infile.pxd> [<outfile.pxd>]')
@@ -620,11 +698,8 @@ if __name__ == '__main__':
         else:
             outfile = arg
     try:
-        data = read(infile)
-        import pprint # TODO delete
-        pprint.pprint(data.data) # TODO delete
+        data, custom = read(infile)
         outfile = sys.stdout if outfile is None else outfile
-        write(outfile, data=data.data, custom=data.custom,
-              compress=compress)
+        write(outfile, data=data, custom=custom, compress=compress)
     except Error as err:
         print(f'Error:{err}')

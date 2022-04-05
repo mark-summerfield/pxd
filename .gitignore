@@ -44,3 +44,4 @@ dub.selections.json
 zig-cache
 *.html
 *.pxd
+*.out
