@@ -441,6 +441,9 @@ class _Parser(ErrorMixin):
                 if token.kind is not _TokenKind.EOF:
                     self.error(f'expected EOF, got {token}')
                 break # should be redundant
+            elif state is _State.EXPECT_ANY_VALUE:
+                if token.kind is not _TokenKind.EOF:
+                    self._handle_any_value(token)
         return data
 
 
@@ -543,6 +546,17 @@ class _Parser(ErrorMixin):
         else: # a scalar
             self.states[-1] = _State.EXPECT_DICT_KEY
             self.stack[-1][self.keys.pop()] = token.value
+
+
+    def _handle_any_value(self, token):
+        if self._is_collection_start(token.kind):
+            # this adds a new list, dict, or Table to the stack
+            self._on_collection_start(token.kind)
+        elif self._is_collection_end(token.kind):
+            self.states.pop()
+            self.stack.pop()
+        else: # a scalar
+            self.stack[-1].append(token.value)
 
 
 @enum.unique

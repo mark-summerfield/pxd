@@ -24,7 +24,7 @@ def main():
                     'ORDER BY title'):
                 selected = 'yes' if selected else 'no'
                 out.write(f'    {cid} <{escape(title)}> {selected}\n')
-            out.write('  ]\n') # end of categories
+            out.write('  =]\n') # end of categories
             out.write('  [= <Playlists> <PID> <Title> <CID> <Selected> =\n')
             for pid, title, cid, selected in cursor.execute(
                     'SELECT pid, title, cid, selected FROM playlists '
@@ -32,7 +32,7 @@ def main():
                 selected = 'yes' if selected else 'no'
                 out.write(
                     f'    {pid} <{escape(title)}> {cid} {selected}\n')
-            out.write('  ]\n') # end of playlists
+            out.write('  =]\n') # end of playlists
             out.write('  [= <Tracks> <TID> <Title> <Seconds> '
                       '<Filename> <Selected> <PID> =\n')
             for tid, title, seconds, filename, selected, pid in (
@@ -43,7 +43,7 @@ def main():
                 out.write(
                     f'    {tid} <{escape(title)}> {seconds:.1f} '
                     f'<{escape(filename)}> {selected} {pid}\n')
-            out.write('  ]\n') # end of tracks
+            out.write('  =]\n') # end of tracks
             out.write(']\n') # end of simple list of SQL tables
 
 

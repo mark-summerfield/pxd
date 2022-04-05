@@ -5,7 +5,6 @@ pxd.py # TODO class _Parser
 pxd.adoc
 
 eg/tlm-ini.pxd
-eg/playlists-tlm.pxd
 eg/playlists-epd.pxd
 
 misc/epd2pxd.py
