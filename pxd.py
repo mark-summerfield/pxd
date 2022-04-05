@@ -338,16 +338,8 @@ class Table:
         self.records = []
 
 
-    def set_name(self, name):
-        self.name = name
-
-
     def append_fieldname(self, name):
         self._fieldnames.append(name)
-
-
-    def append_fieldnames(self, *names):
-        self._fieldnames += names
 
 
     def append(self, value):
@@ -392,16 +384,18 @@ class Table:
                 f'{len(self.records)} records')
 
 
+    def __repr__(self): # debug only
+        rows = [f'{self.__class__.__name__} {self.name!r} [=',
+                f'  fieldnames: {self._fieldnames!r}']
+        for record in self:
+            rows.append(f'    {record}')
+        rows.append('=]')
+        return '\n'.join(rows)
+
+
 def _parse(tokens, *, text, warn_is_error=False, _debug=False):
-#    ## TODO delete from here
-#    for token in tokens:
-#        lino = text.count('\n', 0, token.pos) + 1
-#        print(f'{lino}:{token}')
-#    print()
-#    ## TODO delete to here
     parser = _Parser()
-    data = parser.parse(tokens, text)
-    print(data)
+    return parser.parse(tokens, text)
 
 
 class _Parser(ErrorMixin):
@@ -415,7 +409,6 @@ class _Parser(ErrorMixin):
         self.keys = []
         self.stack = []
         self.pos = -1
-        data = None
         self.states = [_State.EXPECT_COLLECTION]
 
 
@@ -423,6 +416,7 @@ class _Parser(ErrorMixin):
         self.clear()
         self.tokens = tokens
         self.text = text
+        data = None
         for token in tokens:
             self.pos = token.pos
             state = self.states[-1]
@@ -563,153 +557,6 @@ class _State(enum.Enum):
     EXPECT_EOF = enum.auto()
 
 
-#        lino = ((self.text.count('\n', 0, self.pos) + 1) if self._debug
-#                else 0)
-
-########################### TODO ########################
-#def _parse2(tokens, *, text, warn_is_error=False, _debug=False):
-#    if not tokens:
-#        raise Error('no tokens to parse')
-#    if tokens[0].kind not in {_TokenKind.LIST_BEGIN, _TokenKind.DICT_BEGIN,
-#                              _TokenKind.TABLE_BEGIN}:
-#        raise Error(f'expected list or dict, got {tokens[0]}')
-#
-############# TODO create a _Parser class so I can have all this as state and
-## can call self.inrow() and self.intableinfo() etc.
-#    data = None
-#    states = []
-#    key = None
-#    table = None
-#
-#    def inrow():
-#        return states and states[-1] is _State.IN_TABLE_ROWS
-#
-#    for token in tokens:
-#        if token.kind is _TokenKind.TABLE_BEGIN:
-#            table = Table()
-#            states.append(_State.IN_TABLE_INFO)
-#            print(token) ### TODO delete
-#        elif token.kind is _TokenKind.TABLE_NAME:
-#            if table is None:
-#                raise Error(f'table name outside table info: {token}')
-#            table.name = token.value
-#            print(token) ### TODO delete
-#        elif token.kind is _TokenKind.TABLE_FIELD_NAME:
-#            if table is None:
-#                raise Error(f'field name outside table info: {token}')
-#            table.append_fieldname(token.value)
-#            print(token) ### TODO delete
-#        elif token.kind is _TokenKind.TABLE_ROWS:
-#            if table is None:
-#                raise Error(f'"=" outside table info: {token}')
-#            states.pop()
-#            states.append(_State.IN_TABLE_ROWS)
-#            print(token) ### TODO delete
-#        elif token.kind is _TokenKind.TABLE_END:
-#            if states[-1] not in {_State.IN_TABLE_INFO,
-#                                  _State.IN_TABLE_ROWS}:
-#                raise Error(f'end of table outside table: {token}')
-#            states.pop()
-#            if data is None:
-#                data = table # pxd is a single Table
-#            elif isinstance(data, list):
-#                data.append(table)
-#            elif isinstance(data, dict):
-#                if key is None:
-#                    raise Error(f'dict value without key: {token}')
-#                data[key] = table
-#                key = None
-#            table = None
-#            print(token) ### TODO delete
-#        elif token.kind is _TokenKind.LIST_BEGIN:
-#            if inrow():
-#                raise Error(f'tables may not contain lists: {token}')
-#            print(token) ### TODO delete
-#        elif token.kind is _TokenKind.LIST_END:
-#            if inrow():
-#                raise Error(f'tables may not contain end lists: {token}')
-#            print(token) ### TODO delete
-#        elif token.kind is _TokenKind.DICT_BEGIN:
-#            if inrow():
-#                raise Error(f'tables may not contain dicts: {token}')
-#            print(token) ### TODO delete
-#        elif token.kind is _TokenKind.DICT_END:
-#            if inrow():
-#                raise Error(f'tables may not contain end dicts: {token}')
-#            print(token) ### TODO delete
-#        elif token.kind is _TokenKind.NULL:
-#            if inrow():
-#                if table is None:
-#                    raise Error(f'internal table error {token}')
-#                table += token.value
-#            else:
-#                print(token) ### TODO delete
-#        elif token.kind is _TokenKind.BOOL:
-#            if inrow():
-#                if table is None:
-#                    raise Error(f'internal table error {token}')
-#                table += token.value
-#            else:
-#                print(token) ### TODO delete
-#        elif token.kind is _TokenKind.INT:
-#            if inrow():
-#                if table is None:
-#                    raise Error(f'internal table error {token}')
-#                table += token.value
-#            else:
-#                print(token) ### TODO delete
-#        elif token.kind is _TokenKind.REAL:
-#            if inrow():
-#                if table is None:
-#                    raise Error(f'internal table error {token}')
-#                table += token.value
-#            else:
-#                print(token) ### TODO delete
-#        elif token.kind is _TokenKind.DATE:
-#            if inrow():
-#                if table is None:
-#                    raise Error(f'internal table error {token}')
-#                table += token.value
-#            else:
-#                print(token) ### TODO delete
-#        elif token.kind is _TokenKind.DATE_TIME:
-#            if inrow():
-#                if table is None:
-#                    raise Error(f'internal table error {token}')
-#                table += token.value
-#            else:
-#                print(token) ### TODO delete
-#        elif token.kind is _TokenKind.STR:
-#            if inrow():
-#                if table is None:
-#                    raise Error(f'internal table error {token}')
-#                table += token.value
-#            else:
-#                print(token) ### TODO delete
-#        elif token.kind is _TokenKind.BYTES:
-#            if inrow():
-#                if table is None:
-#                    raise Error(f'internal table error {token}')
-#                table += token.value
-#            else:
-#                print(token) ### TODO delete
-#        elif token.kind is _TokenKind.EOF:
-#            if inrow():
-#                raise Error(f'missing "=]" to end a table: {token}')
-#            print(token) ### TODO delete
-#        else:
-#            raise Error(f'invalid token: {token}')
-#    print(data) ### TODO delete
-#    return data
-
-#@enum.unique
-#class _State(enum.Enum):
-#    IN_LIST = enum.auto()
-#    IN_DICT = enum.auto()
-#    IN_TABLE_INFO = enum.auto()
-#    IN_TABLE_ROWS = enum.auto()
-
-
 def write(filename_or_filelike, *, data, custom='', compress=False):
     '''
     custom is a short user string (with no newlines), e.g., a file
@@ -760,6 +607,8 @@ if __name__ == '__main__':
             outfile = arg
     try:
         data = read(infile)
+        import pprint # TODO delete
+        pprint.pprint(data.data) # TODO delete
         outfile = sys.stdout if outfile is None else outfile
         write(outfile, data=data.data, custom=data.custom,
               compress=compress)
