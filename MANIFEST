@@ -1,14 +1,15 @@
 pxd.py
-# TODO get working with all play*.pxd egs so that it can round-trip them
+# TODO get working with all test*.pxd egs so that it can round-trip them
 
 pxd.adoc
 
 eg/tlm-ini.pxd
-eg/test1-epd.pxd
-eg/test2-epd.pxd
-eg/test3-epd.pxd
-eg/test4-epd.pxd
-eg/test5-epd.pxd
+eg/test0.pxd
+eg/test1.pxd
+eg/test2.pxd
+eg/test3.pxd
+eg/test4.pxd
+eg/test5.pxd
 
 misc/epd2pxd.py
 

@@ -270,7 +270,7 @@ class _Lexer(ErrorMixin):
         start = self.pos - 1
         for target in targets:
             if self.text.startswith(target, start):
-                self.pos += len(target) # skip past target
+                self.pos += len(target) - 1 # skip past target
                 return target
 
 
@@ -403,10 +403,7 @@ def _canonicalize(s, prefix):
 
 def _parse(tokens, *, text, warn_is_error=False, _debug=False):
     parser = _Parser()
-    try:
-        return parser.parse(tokens, text)
-    except IndexError:
-        raise Error('parse error')
+    return parser.parse(tokens, text)
 
 
 class _Parser(ErrorMixin):
@@ -429,7 +426,8 @@ class _Parser(ErrorMixin):
         self.text = text
         data = None
         for token in tokens:
-            print(token, self.states)
+            if token.kind is _Kind.EOF:
+                break
             self.pos = token.pos
             state = self.states[-1]
             if state is _Expect.COLLECTION:
