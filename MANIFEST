@@ -2,6 +2,8 @@ pxd.py # TODO class _WriteValue
 
 pxd.adoc
 
+misc/epd2pxd.py
+
 test/regression.py
 test/test0.pxd
 test/test1.pxd
@@ -18,8 +20,6 @@ test/expected/test3.pxd
 test/expected/test4.pxd
 test/expected/test5.pxd
 test/expected/test6.pxd
-
-misc/epd2pxd.py
 
 # TODO
 # pxdconvert [-z|--compress] [-i|--indent=n]

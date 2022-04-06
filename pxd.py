@@ -732,6 +732,8 @@ indent defaults to 2 (range 0-8) e.g., -i0 or --indent=0 (with no space)
                 indent = int(arg[2:])
             else:
                 indent = int(arg[9:])
+            if not 0 <= indent <= 9:
+                indent = 2
         elif infile is None:
             infile = arg
         else:
