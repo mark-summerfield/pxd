@@ -11,6 +11,14 @@ test/test4.pxd
 test/test5.pxd
 test/test6.pxd
 
+test/expected/test0.pxd
+test/expected/test1.pxd
+test/expected/test2.pxd
+test/expected/test3.pxd
+test/expected/test4.pxd
+test/expected/test5.pxd
+test/expected/test6.pxd
+
 misc/epd2pxd.py
 
 # TODO

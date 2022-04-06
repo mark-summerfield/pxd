@@ -430,8 +430,6 @@ class _Parser(ErrorMixin):
                 break
             self.pos = token.pos
             state = self.states[-1]
-            # print(state, token) # DEBUG TODO delete
-            # print(state, token, data) # DEBUG TODO delete
             if state is _Expect.COLLECTION:
                 if not self._is_collection_start(token.kind):
                     self.error(
@@ -635,7 +633,8 @@ def _write_value(file, item, indent=0, *, pad, dict_value=False):
     if isinstance(item, Table):
         return _write_table(file, item, indent, pad=pad,
                             dict_value=dict_value)
-    return _write_scalar(file, item, 0, pad=pad, dict_value=dict_value)
+    return _write_scalar(file, item, indent=indent, pad=pad,
+                         dict_value=dict_value)
 
 
 def _write_list(file, item, indent=0, *, pad, dict_value=False):
@@ -683,7 +682,8 @@ def _write_table(file, item, indent=0, *, pad, dict_value=False):
 
 
 def _write_scalar(file, item, indent=0, *, pad, dict_value=False):
-    file.write(pad * indent)
+    if not dict_value:
+        file.write(pad * indent)
     if item is None:
         file.write('null')
     elif isinstance(item, bool):
@@ -714,14 +714,24 @@ def _write_scalar(file, item, indent=0, *, pad, dict_value=False):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help', 'help'}:
-        raise SystemExit(
-            'usage: pxd.py [-z|--compress] <infile.pxd> [<outfile.pxd>]')
+        raise SystemExit('''\
+usage: pxd.py [-z|--compress] [-iN|--indent=N] <infile.pxd> [<outfile.pxd>]
+
+gzip compression is ignored if no outfile (i.e., for stdout).
+indent defaults to 2 (range 0-8) e.g., -i0 or --indent=0 (with no space)
+''')
     compress = False
+    indent = 2
     args = sys.argv[1:]
     infile = outfile = None
     for arg in args:
         if arg in {'-z', '--compress'}:
             compress = True
+        elif arg.startswith(('-i', '--indent=')):
+            if arg[1] == 'i':
+                indent = int(arg[2:])
+            else:
+                indent = int(arg[9:])
         elif infile is None:
             infile = arg
         else:
@@ -729,6 +739,7 @@ if __name__ == '__main__':
     try:
         data, custom = read(infile)
         outfile = sys.stdout if outfile is None else outfile
-        write(outfile, data=data, custom=custom, compress=compress)
+        write(outfile, data=data, custom=custom, compress=compress,
+              indent=indent)
     except Error as err:
         print(f'Error:{err}')
