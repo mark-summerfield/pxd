@@ -13,25 +13,12 @@ eg/play5.pxd
 misc/epd2pxd.py
 
 # TODO
-# pxd to:
-#   pxdtosqlite
-#   pxdtojson
-#   pxdtoxml
-#   pxdtoini ?
-#   pxdtocsv ?
-#   pxdtotoml ?
-#   pxdtoyaml ?
-#
-# pxd from:
-#   pxdfromsqlite (tables only)
-#   pxdfromjson
-#   pxdfromcsv (one or more csv files)
-#   pxdfromxml ?
-#   pxdfromini ?
-#   pxdfromtoml ?
-#   pxdfromyaml ?
-#
-# pxd lib
+# pxdconvert [-z|--compress] [-i|--indent=n]
+#	     <infile.{csv,ini,json,pxd,sqlite,toml,xml,yaml}>
+#	     [<outfile.{csv,ini,json,pxd,sqlite,toml,xml,yaml}>]
+# indent is 0-8
+# some conversions are lossy
+
 # pxd.py pxd.rs pxd.cpp pxd.java pxd.rb ...
 
 st.sh

@@ -192,7 +192,7 @@ optional `dict` or `list`.
     NULL     ::= 'null'
     BOOL     ::= 'no' | 'false' | 'yes' | 'true'
     INT      ::= /[-+]?\d+/
-    REAL     ::= # support both standard and scientific
+    REAL     ::= # support both standard and scientific (must contain decimal point)
     DATE     ::= /\d\d\d\d-\d\d-\d\d/ # basic ISO8601 YYYY-MM-DD format
     DATETIME ::= /\d\d\d\d-\d\d-\d\dT\d\d:\d\d(:\d\d)?(Z|[-+]\d\d(:?[:]?\d\d)?)?/ # see note below
     STR      ::= /[<][^<>]*[>]/ # newlines and &amp; &lt; &gt; supported i.e., XML

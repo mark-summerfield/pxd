@@ -74,7 +74,7 @@ class _Lexer(ErrorMixin):
 
 
     def clear(self):
-        self.text_token_type = _TokenKind.STR
+        self.text_kind = _Kind.STR
         self.pos = 0 # current
         self.custom = None
         self.tokens = []
@@ -86,7 +86,7 @@ class _Lexer(ErrorMixin):
         self.scan_header()
         while not self.at_end():
             self.scan_next()
-        self.add_token(_TokenKind.EOF)
+        self.add_token(_Kind.EOF)
         return self.tokens
 
 
@@ -121,26 +121,26 @@ class _Lexer(ErrorMixin):
         elif c == '[':
             if self.peek() == '=':
                 self.pos += 1
-                self.add_token(_TokenKind.TABLE_BEGIN)
-                self.text_token_type = _TokenKind.TABLE_NAME
+                self.add_token(_Kind.TABLE_BEGIN)
+                self.text_kind = _Kind.TABLE_NAME
             else:
-                self.add_token(_TokenKind.LIST_BEGIN)
+                self.add_token(_Kind.LIST_BEGIN)
         elif c == '=':
             if self.peek() == ']':
                 self.pos += 1
-                self.add_token(_TokenKind.TABLE_END)
-                self.text_token_type = _TokenKind.STR
-            elif self.text_token_type is _TokenKind.TABLE_FIELD_NAME:
-                self.add_token(_TokenKind.TABLE_ROWS)
-                self.text_token_type = _TokenKind.STR
+                self.add_token(_Kind.TABLE_END)
+                self.text_kind = _Kind.STR
+            elif self.text_kind is _Kind.TABLE_FIELD_NAME:
+                self.add_token(_Kind.TABLE_ROWS)
+                self.text_kind = _Kind.STR
             else:
                 self.error(f'unexpected character encountered: {c!r}')
         elif c == ']':
-            self.add_token(_TokenKind.LIST_END)
+            self.add_token(_Kind.LIST_END)
         elif c == '{':
-            self.add_token(_TokenKind.DICT_BEGIN)
+            self.add_token(_Kind.DICT_BEGIN)
         elif c == '}':
-            self.add_token(_TokenKind.DICT_END)
+            self.add_token(_Kind.DICT_END)
         elif c == '<':
             self.read_string_or_name()
         elif c == '(':
@@ -158,14 +158,14 @@ class _Lexer(ErrorMixin):
 
     def read_string_or_name(self):
         value = self.match_to('>', error_text='unterminated string or name')
-        self.add_token(self.text_token_type, unescape(value))
-        if self.text_token_type is _TokenKind.TABLE_NAME:
-            self.text_token_type = _TokenKind.TABLE_FIELD_NAME
+        self.add_token(self.text_kind, unescape(value))
+        if self.text_kind is _Kind.TABLE_NAME:
+            self.text_kind = _Kind.TABLE_FIELD_NAME
 
 
     def read_bytes(self):
         value = self.match_to(')', error_text='unterminated bytes')
-        self.add_token(_TokenKind.BYTES, bytes.fromhex(value))
+        self.add_token(_Kind.BYTES, bytes.fromhex(value))
 
 
     def read_negative_number(self, c):
@@ -180,7 +180,7 @@ class _Lexer(ErrorMixin):
         text = self.text[start:self.pos]
         try:
             value = convert(text)
-            self.add_token(_TokenKind.REAL if is_real else _TokenKind.INT,
+            self.add_token(_Kind.REAL if is_real else _Kind.INT,
                            -value)
         except ValueError as err:
             self.error(f'invalid number: {text}: {err}')
@@ -210,20 +210,20 @@ class _Lexer(ErrorMixin):
                 convert = isoparse
             convert = (datetime.datetime.fromisoformat if isoparse is None
                        else isoparse)
-            token = _TokenKind.DATE_TIME
+            token = _Kind.DATE_TIME
         elif hyphens == 2:
             convert = (datetime.date.fromisoformat if isoparse is None
                        else isoparse)
-            token = _TokenKind.DATE
+            token = _Kind.DATE
         elif is_real:
             convert = float
-            token = _TokenKind.REAL
+            token = _Kind.REAL
         else:
             convert = int
-            token = _TokenKind.INT
+            token = _Kind.INT
         try:
             value = convert(text)
-            if token is _TokenKind.DATE and isoparse is not None:
+            if token is _Kind.DATE and isoparse is not None:
                 value = value.date()
             self.add_token(token, value)
         except ValueError as err:
@@ -233,11 +233,11 @@ class _Lexer(ErrorMixin):
     def read_const(self):
         match = self.match_any_of('no', 'yes', 'null', 'true', 'false')
         if match == 'null':
-            self.add_token(_TokenKind.NULL)
+            self.add_token(_Kind.NULL)
         elif match in {'no', 'false'}:
-            self.add_token(_TokenKind.BOOL, False)
+            self.add_token(_Kind.BOOL, False)
         elif match in {'yes', 'true'}:
-            self.add_token(_TokenKind.BOOL, True)
+            self.add_token(_Kind.BOOL, True)
         else:
             i = self.text.find('\n', self.pos)
             text = self.text[self.pos - 1:i if i > -1 else self.pos + 8]
@@ -306,7 +306,7 @@ class _Token:
 
 
 @enum.unique
-class _TokenKind(enum.Enum):
+class _Kind(enum.Enum):
     TABLE_BEGIN = enum.auto()
     TABLE_NAME = enum.auto()
     TABLE_FIELD_NAME = enum.auto()
@@ -329,11 +329,14 @@ class _TokenKind(enum.Enum):
 
 class Table:
 
-    def __init__(self):
-        self.name = None
+    def __init__(self, *, name=None, fieldnames=None, items=None):
+        self.name = name
         self._Class = None
-        self.fieldnames = []
+        self.fieldnames = [] if fieldnames is None else fieldnames
         self.records = []
+        if items:
+            for value in items:
+                self.append(value)
 
 
     def append_fieldname(self, name):
@@ -351,7 +354,7 @@ class Table:
 
     def _make_class(self):
         if not self.name:
-            raise Error('can\'t create a table without a name')
+            raise Error('can\'t use an unnamed table')
         if not self.fieldnames:
             raise Error('can\'t create a table with no field names')
         self._Class = collections.namedtuple(
@@ -361,7 +364,11 @@ class Table:
 
 
     def __iadd__(self, value):
-        if isinstance(value, (list, tuple)): # or: collections.abc.Sequence
+        if not self.name:
+            raise Error('can\'t append to an unnamed table')
+        if not self.fieldnames:
+            raise Error('can\'t append to a table with no field names')
+        if isinstance(value, (list, tuple)): # or: collections.abc.Sequence?
             for v in value:
                 self.append(v)
         else:
@@ -410,7 +417,7 @@ class _Parser(ErrorMixin):
         self.keys = []
         self.stack = []
         self.pos = -1
-        self.states = [_State.EXPECT_COLLECTION]
+        self.states = [_Expect.COLLECTION]
 
 
     def parse(self, tokens, text):
@@ -421,52 +428,52 @@ class _Parser(ErrorMixin):
         for token in tokens:
             self.pos = token.pos
             state = self.states[-1]
-            if state is _State.EXPECT_COLLECTION:
+            if state is _Expect.COLLECTION:
                 if not self._is_collection_start(token.kind):
                     self.error(
                         f'expected dict, list, or table, got {token}')
-                self.states.pop() # _State.EXPECT_COLLECTION
+                self.states.pop() # _Expect.COLLECTION
                 self._on_collection_start(token.kind)
                 data = self.stack[0]
-            elif state is _State.EXPECT_TABLE_NAME:
+            elif state is _Expect.TABLE_NAME:
                 self._handle_table_name(token)
-            elif state is _State.EXPECT_TABLE_FIELD_NAME:
+            elif state is _Expect.TABLE_FIELD_NAME:
                 self._handle_field_name(token)
-            elif state is _State.EXPECT_TABLE_VALUE:
+            elif state is _Expect.TABLE_VALUE:
                 self._handle_table_value(token)
-            elif state is _State.EXPECT_DICT_KEY:
+            elif state is _Expect.DICT_KEY:
                 self._handle_dict_key(token)
-            elif state is _State.EXPECT_DICT_VALUE:
+            elif state is _Expect.DICT_VALUE:
                 self._handle_dict_value(token)
-            elif state is _State.EXPECT_EOF:
-                if token.kind is not _TokenKind.EOF:
+            elif state is _Expect.EOF:
+                if token.kind is not _Kind.EOF:
                     self.error(f'expected EOF, got {token}')
                 break # should be redundant
-            elif state is _State.EXPECT_ANY_VALUE:
-                if token.kind is not _TokenKind.EOF:
+            elif state is _Expect.ANY_VALUE:
+                if token.kind is not _Kind.EOF:
                     self._handle_any_value(token)
         return data
 
 
     def _is_collection_start(self, kind):
-        return kind in {_TokenKind.DICT_BEGIN, _TokenKind.LIST_BEGIN,
-                        _TokenKind.TABLE_BEGIN}
+        return kind in {_Kind.DICT_BEGIN, _Kind.LIST_BEGIN,
+                        _Kind.TABLE_BEGIN}
 
 
     def _is_collection_end(self, kind):
-        return kind in {_TokenKind.DICT_END, _TokenKind.LIST_END,
-                        _TokenKind.TABLE_END}
+        return kind in {_Kind.DICT_END, _Kind.LIST_END,
+                        _Kind.TABLE_END}
 
 
     def _on_collection_start(self, kind):
-        if kind is _TokenKind.DICT_BEGIN:
-            self.states.append(_State.EXPECT_DICT_KEY)
+        if kind is _Kind.DICT_BEGIN:
+            self.states.append(_Expect.DICT_KEY)
             self.stack.append({})
-        elif kind is _TokenKind.LIST_BEGIN:
-            self.states.append(_State.EXPECT_ANY_VALUE)
+        elif kind is _Kind.LIST_BEGIN:
+            self.states.append(_Expect.ANY_VALUE)
             self.stack.append([])
-        elif kind is _TokenKind.TABLE_BEGIN:
-            self.states.append(_State.EXPECT_TABLE_NAME)
+        elif kind is _Kind.TABLE_BEGIN:
+            self.states.append(_Expect.TABLE_NAME)
             self.stack.append(Table())
         else:
             self.error(
@@ -478,40 +485,40 @@ class _Parser(ErrorMixin):
         self.stack.pop()
         if self.stack:
             if isinstance(self.stack[-1], list):
-                self.states.append(_State.EXPECT_ANY_VALUE)
+                self.states.append(_Expect.ANY_VALUE)
             elif isinstance(self.stack[-1], dict):
-                self.states.append(_State.EXPECT_DICT_KEY)
+                self.states.append(_Expect.DICT_KEY)
             elif isinstance(self.stack[-1], Table):
-                self.states.append(_State.EXPECT_TABLE_VALUE)
+                self.states.append(_Expect.TABLE_VALUE)
             else:
                 self.error(f'unexpected token, {token}')
         else:
-            self.states.append(_State.EXPECT_EOF)
+            self.states.append(_Expect.EOF)
 
 
     def _handle_table_name(self, token):
-        if token.kind is not _TokenKind.TABLE_NAME:
+        if token.kind is not _Kind.TABLE_NAME:
             self.error(f'expected table name, got {token}')
         self.stack[-1].name = token.value
-        self.states[-1] = _State.EXPECT_TABLE_FIELD_NAME
+        self.states[-1] = _Expect.TABLE_FIELD_NAME
 
 
     def _handle_field_name(self, token):
-        if token.kind is _TokenKind.TABLE_ROWS:
-            self.states[-1] = _State.EXPECT_TABLE_VALUE
+        if token.kind is _Kind.TABLE_ROWS:
+            self.states[-1] = _Expect.TABLE_VALUE
         else:
-            if token.kind is not _TokenKind.TABLE_FIELD_NAME:
+            if token.kind is not _Kind.TABLE_FIELD_NAME:
                 self.error(f'expected table field name, got {token}')
             self.stack[-1].append_fieldname(token.value)
 
 
     def _handle_table_value(self, token):
-        if token.kind is _TokenKind.TABLE_END:
+        if token.kind is _Kind.TABLE_END:
             self._on_collection_end(token)
         elif token.kind in {
-                _TokenKind.NULL, _TokenKind.BOOL, _TokenKind.INT,
-                _TokenKind.REAL, _TokenKind.DATE, _TokenKind.DATE_TIME,
-                _TokenKind.STR, _TokenKind.BYTES}:
+                _Kind.NULL, _Kind.BOOL, _Kind.INT,
+                _Kind.REAL, _Kind.DATE, _Kind.DATE_TIME,
+                _Kind.STR, _Kind.BYTES}:
             self.stack[-1] += token.value
         else:
             self.error('table values may only be null, bool, int, real, '
@@ -519,13 +526,13 @@ class _Parser(ErrorMixin):
 
 
     def _handle_dict_key(self, token):
-        if token.kind is _TokenKind.DICT_END:
+        if token.kind is _Kind.DICT_END:
             self._on_collection_end(token)
         elif token.kind in {
-                _TokenKind.INT, _TokenKind.DATE, _TokenKind.DATE_TIME,
-                _TokenKind.STR, _TokenKind.BYTES}:
+                _Kind.INT, _Kind.DATE, _Kind.DATE_TIME,
+                _Kind.STR, _Kind.BYTES}:
             self.keys.append(token.value)
-            self.states[-1] = _State.EXPECT_DICT_VALUE
+            self.states[-1] = _Expect.DICT_VALUE
         else:
             self.error('dict keys may only be int, date, datetime, str, '
                        f'or bytes, got {token}')
@@ -540,12 +547,12 @@ class _Parser(ErrorMixin):
             # the value being the new list, dict, or Table
             self.stack[-2][self.keys[-1]] = self.stack[-1]
         elif self._is_collection_end(token.kind):
-            self.states[-1] = _State.EXPECT_DICT_KEY
+            self.states[-1] = _Expect.DICT_KEY
             self.stack.pop()
             if self.stack and isinstance(self.stack[-1], dict):
                 self.keys.pop()
         else: # a scalar
-            self.states[-1] = _State.EXPECT_DICT_KEY
+            self.states[-1] = _Expect.DICT_KEY
             self.stack[-1][self.keys.pop()] = token.value
 
 
@@ -561,18 +568,19 @@ class _Parser(ErrorMixin):
 
 
 @enum.unique
-class _State(enum.Enum):
-    EXPECT_COLLECTION = enum.auto()
-    EXPECT_DICT_KEY = enum.auto()
-    EXPECT_DICT_VALUE = enum.auto()
-    EXPECT_ANY_VALUE = enum.auto()
-    EXPECT_TABLE_NAME = enum.auto()
-    EXPECT_TABLE_FIELD_NAME = enum.auto()
-    EXPECT_TABLE_VALUE = enum.auto()
-    EXPECT_EOF = enum.auto()
+class _Expect(enum.Enum):
+    COLLECTION = enum.auto()
+    DICT_KEY = enum.auto()
+    DICT_VALUE = enum.auto()
+    ANY_VALUE = enum.auto()
+    TABLE_NAME = enum.auto()
+    TABLE_FIELD_NAME = enum.auto()
+    TABLE_VALUE = enum.auto()
+    EOF = enum.auto()
 
 
-def write(filename_or_filelike, *, data, custom='', compress=False):
+def write(filename_or_filelike, *, data, custom='', compress=False,
+          indent=2):
     '''
     custom is a short user string (with no newlines), e.g., a file
     description.
@@ -580,6 +588,7 @@ def write(filename_or_filelike, *, data, custom='', compress=False):
     write to the filename_or_filelike using the strictest typing that is
     valid for pxd.
     '''
+    pad = ' ' * indent
     close = False
     if isinstance(filename_or_filelike, str):
         opener = gzip.open if compress else open
@@ -589,7 +598,7 @@ def write(filename_or_filelike, *, data, custom='', compress=False):
         file = filename_or_filelike
     try:
         _write_header(file, custom)
-        _write_value(file, data)
+        _write_value(file, data, pad=pad)
     finally:
         if close:
             file.close()
@@ -602,62 +611,66 @@ def _write_header(file, custom):
     file.write('\n')
 
 
-def _write_value(file, item, indent=0, *, dict_value=False):
+def _write_value(file, item, indent=0, *, pad, dict_value=False):
     if isinstance(item, list):
-        return _write_list(file, item, indent, dict_value=dict_value)
+        return _write_list(file, item, indent, pad=pad,
+                           dict_value=dict_value)
     if isinstance(item, dict):
-        return _write_dict(file, item, indent, dict_value=dict_value)
+        return _write_dict(file, item, indent, pad=pad,
+                           dict_value=dict_value)
     if isinstance(item, Table):
-        return _write_table(file, item, indent, dict_value=dict_value)
-    return _write_scalar(file, item, 0, dict_value=dict_value)
+        return _write_table(file, item, indent, pad=pad,
+                            dict_value=dict_value)
+    return _write_scalar(file, item, 0, pad=pad, dict_value=dict_value)
 
 
-def _write_list(file, item, indent=0, *, dict_value=False):
-    pad = '' if dict_value else _PAD * indent
-    file.write(f'{pad}[\n')
+def _write_list(file, item, indent=0, *, pad, dict_value=False):
+    tab = '' if dict_value else pad * indent
+    file.write(f'{tab}[\n')
     indent += 1
     for value in item:
-        if not _write_value(file, value, indent, dict_value=dict_value):
+        if not _write_value(file, value, indent, pad=pad,
+                            dict_value=dict_value):
             file.write('\n')
-    pad = _PAD * (indent - 1)
-    file.write(f'{pad}]\n')
+    tab = pad * (indent - 1)
+    file.write(f'{tab}]\n')
     return True
 
 
-def _write_dict(file, item, indent=0, dict_value=False):
-    pad = '' if dict_value else _PAD * indent
-    file.write(f'{pad}{{\n')
+def _write_dict(file, item, indent=0, *, pad, dict_value=False):
+    tab = '' if dict_value else pad * indent
+    file.write(f'{tab}{{\n')
     indent += 1
     for key, value in item.items():
-        _write_scalar(file, key, indent)
+        _write_scalar(file, key, indent, pad=pad)
         file.write(' ')
-        if not _write_value(file, value, indent, dict_value=True):
+        if not _write_value(file, value, indent, pad=pad, dict_value=True):
             file.write('\n')
-    pad = _PAD * (indent - 1)
-    file.write(f'{pad}}}\n')
+    tab = pad * (indent - 1)
+    file.write(f'{tab}}}\n')
     return True
 
 
-def _write_table(file, item, indent=0, dict_value=False):
-    pad = '' if dict_value else _PAD * indent
-    file.write(f'{pad}[= <{escape(item.name)}>')
+def _write_table(file, item, indent=0, *, pad, dict_value=False):
+    tab = '' if dict_value else pad * indent
+    file.write(f'{tab}[= <{escape(item.name)}>')
     for name in item.fieldnames:
         file.write(f' <{escape(name)}>')
     file.write(' =\n')
     indent += 1
     for record in item:
-        file.write(_PAD * indent)
+        file.write(pad * indent)
         for value in record:
-            _write_scalar(file, value)
+            _write_scalar(file, value, pad=pad)
             file.write(' ')
         file.write('\n')
-    pad = _PAD * (indent - 1)
-    file.write(f'{pad}=]\n')
+    tab = pad * (indent - 1)
+    file.write(f'{tab}=]\n')
     return True
 
 
-def _write_scalar(file, item, indent=0, dict_value=False):
-    file.write(_PAD * indent)
+def _write_scalar(file, item, indent=0, *, pad, dict_value=False):
+    file.write(pad * indent)
     if item is None:
         file.write('null')
     elif isinstance(item, bool):
@@ -665,9 +678,15 @@ def _write_scalar(file, item, indent=0, dict_value=False):
     elif isinstance(item, int):
         file.write(str(item))
     elif isinstance(item, float):
-        value = f'{item:g}'
+        value = str(item)
         if '.' not in value:
-            value += '.0'
+            i = value.find('e')
+            if i == -1:
+                i = value.find('E')
+            if i == -1:
+                value += '.0'
+            else:
+                value = value[:i] + '.0' + value[i:]
         file.write(value)
     elif isinstance(item, (datetime.date, datetime.datetime)):
         file.write(item.isoformat())
@@ -678,9 +697,6 @@ def _write_scalar(file, item, indent=0, dict_value=False):
     else:
         print(f'error: unexpectedly got {item!r}', file=sys.stderr)
     return False
-
-
-_PAD = '  '
 
 
 if __name__ == '__main__':
