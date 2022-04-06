@@ -430,6 +430,7 @@ class _Parser(ErrorMixin):
                 break
             self.pos = token.pos
             state = self.states[-1]
+            #print(state, token) # DEBUG
             if state is _Expect.COLLECTION:
                 if not self._is_collection_start(token.kind):
                     self.error(
@@ -564,6 +565,8 @@ class _Parser(ErrorMixin):
             self._on_collection_start(token.kind)
         elif self._is_collection_end(token.kind):
             self.states.pop()
+            if self.states and self.states[-1] is _Expect.DICT_VALUE:
+                self.states[-1] = _Expect.DICT_KEY
             self.stack.pop()
         else: # a scalar
             self.stack[-1].append(token.value)
