@@ -52,7 +52,21 @@ number of values in any given row is equal to the number of field names.
 
 ==== PXD Equivalent
 
-Here the data is simply a `pxd` `table`:
+The most obvious translation would be to a `list` of ``list``s:
+
+    pxd 1.0 Price List
+    [
+        [<Price List> <Date> <Price> <Quantity> <ID> <Description>]
+        [2022-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in>]
+        [2022-10-02 4.49 1 <HV2-K9> <Hammer, 2lb>]
+        [2022-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz>]
+    ]
+
+This is perfectly valid. However, it has the same problem of `.csv`
+files: is the first row data values or column titles? Not to mention the
+fact that we have to use a nested `list` of ``list``s.
+
+The most appropriate `pxd` equivalent is to use a `pxd` `table`:
 
     pxd 1.0 Price List
     [= <Price List> <Date> <Price> <Quantity> <ID> <Description> =
