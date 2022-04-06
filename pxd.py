@@ -403,7 +403,10 @@ def _canonicalize(s, prefix):
 
 def _parse(tokens, *, text, warn_is_error=False, _debug=False):
     parser = _Parser()
-    return parser.parse(tokens, text)
+    try:
+        return parser.parse(tokens, text)
+    except IndexError:
+        raise Error('parse error')
 
 
 class _Parser(ErrorMixin):
@@ -426,6 +429,7 @@ class _Parser(ErrorMixin):
         self.text = text
         data = None
         for token in tokens:
+            print(token, self.states)
             self.pos = token.pos
             state = self.states[-1]
             if state is _Expect.COLLECTION:

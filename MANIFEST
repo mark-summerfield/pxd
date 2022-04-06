@@ -4,11 +4,11 @@ pxd.py
 pxd.adoc
 
 eg/tlm-ini.pxd
-eg/play1.pxd
-eg/play2.pxd
-eg/play3.pxd
-eg/play4.pxd
-eg/play5.pxd
+eg/test1-epd.pxd
+eg/test2-epd.pxd
+eg/test3-epd.pxd
+eg/test4-epd.pxd
+eg/test5-epd.pxd
 
 misc/epd2pxd.py
 
