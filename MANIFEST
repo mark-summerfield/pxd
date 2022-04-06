@@ -1,15 +1,15 @@
 pxd.py
-# TODO get working with all test*.pxd egs so that it can round-trip them
 
 pxd.adoc
 
-eg/tlm-ini.pxd
-eg/test0.pxd
-eg/test1.pxd
-eg/test2.pxd
-eg/test3.pxd
-eg/test4.pxd
-eg/test5.pxd
+test/regression.py
+test/test0.pxd
+test/test1.pxd
+test/test2.pxd
+test/test3.pxd
+test/test4.pxd
+test/test5.pxd
+test/test6.pxd
 
 misc/epd2pxd.py
 

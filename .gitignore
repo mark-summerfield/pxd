@@ -26,7 +26,6 @@ Qrc.py
 .*.swp
 tags
 target/
-test.*
 *.tmp
 ui_*.h
 .wcignore
@@ -44,4 +43,3 @@ dub.selections.json
 zig-cache
 *.html
 *.pxd
-*.out

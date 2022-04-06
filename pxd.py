@@ -430,7 +430,8 @@ class _Parser(ErrorMixin):
                 break
             self.pos = token.pos
             state = self.states[-1]
-            #print(state, token) # DEBUG
+            # print(state, token) # DEBUG TODO delete
+            # print(state, token, data) # DEBUG TODO delete
             if state is _Expect.COLLECTION:
                 if not self._is_collection_start(token.kind):
                     self.error(
@@ -471,16 +472,24 @@ class _Parser(ErrorMixin):
     def _on_collection_start(self, kind):
         if kind is _Kind.DICT_BEGIN:
             self.states.append(_Expect.DICT_KEY)
-            self.stack.append({})
+            self._on_collection_start_helper(dict)
         elif kind is _Kind.LIST_BEGIN:
             self.states.append(_Expect.ANY_VALUE)
-            self.stack.append([])
+            self._on_collection_start_helper(list)
         elif kind is _Kind.TABLE_BEGIN:
             self.states.append(_Expect.TABLE_NAME)
-            self.stack.append(Table())
+            self._on_collection_start_helper(Table)
         else:
             self.error(
                 f'expected to create dict, list, or table, not {kind}')
+
+
+    def _on_collection_start_helper(self, Class):
+        if self.stack and isinstance(self.stack[-1], list):
+            self.stack[-1].append(Class())
+            self.stack.append(self.stack[-1][-1])
+        else:
+            self.stack.append(Class())
 
 
     def _on_collection_end(self, token):
@@ -634,8 +643,7 @@ def _write_list(file, item, indent=0, *, pad, dict_value=False):
     file.write(f'{tab}[\n')
     indent += 1
     for value in item:
-        if not _write_value(file, value, indent, pad=pad,
-                            dict_value=dict_value):
+        if not _write_value(file, value, indent, pad=pad, dict_value=False):
             file.write('\n')
     tab = pad * (indent - 1)
     file.write(f'{tab}]\n')
