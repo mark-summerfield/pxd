@@ -1,4 +1,4 @@
-pxd.py # TODO class _WriteValue
+pxd.py
 
 README.md
 
@@ -6,6 +6,8 @@ misc/epd2pxd.py
 misc/md2html.sh
 
 test/regression.py
+
+st.sh
 
 test/test0.pxd
 test/test1.pxd
@@ -37,10 +39,8 @@ test/expected/test10.pxd
 #	     [<outfile.{csv,ini,json,pxd,sqlite,toml,xml,yaml}>]
 # indent is 0-8
 # some conversions are lossy
-# # need equiv of _WriteValue?
+# # need equiv of _Writer?
 
 # pxd.py pxd.rs pxd.cpp pxd.java pxd.rb ...
-
-st.sh
 
 # vim: syn=yaml

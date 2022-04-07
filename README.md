@@ -3,6 +3,15 @@
 _pxd_ is a plain text human readable storage format that may serve as a
 convenient alternative to csv, ini, json, sqlite, toml, xml, or yaml.
 
+## Libraries
+
+|**Library**|**Language**|**Notes**|
+|-----------|------------|---------|
+|pxd.py     | Python 3   | Works out of the box with the standard library, but will use _dateutil_ if available.|
+
+_Implementations in additional languages are planned._
+
+
 ## Datatypes
 
 _pxd_ supports eleven datatypes.
