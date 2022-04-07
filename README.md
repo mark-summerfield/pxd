@@ -9,6 +9,10 @@ convenient alternative to csv, ini, json, sqlite, toml, xml, or yaml.
 |-----------|------------|---------|
 |py/pxd     | Python 3   | Works out of the box with the standard library, but will use _dateutil_ if available.|
 
+For the Python implementation to incorporate into your own project either
+install using `pip`, or just copy `py/pxd/__init__.py` into your own
+`pyd.py` file and copy that into your project dir.
+
 _Implementations in additional languages are planned._
 
 
@@ -28,7 +32,7 @@ _pxd_ supports eleven datatypes.
 |`bytes`     |`(20AC 65 66 48)` # must be even number of case-insensitive hex digits; whitespace optional|
 |`list`      |`[value1 value2 ... valueN]`|
 |`dict`      |`{key1 value1 key2 value2 ... keyN valueN}`|
-|`table`     |`[= <str1> <str2> ... <strN> = <value0`0> ... <value0`N> ... <valueM`0> ... <valueM`N> =]` |
+|`table`     |`[= <str1> <str2> ... <strN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` |
 
 Dictionary keys may only be of types `int`, `date`, `datetime`, `str`,
 and `bytes`.
@@ -273,4 +277,5 @@ text `.pxd` file containing UTF-8 encoded text. Note also that pxd readers
 and writers should not care about the actual file extension since users are
 free to use their own.
 
-![pxd logo](pxd.svg)
+_pxd_ logo ![pxd logo](pxd.svg)
+
