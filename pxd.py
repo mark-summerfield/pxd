@@ -58,12 +58,12 @@ class ErrorMixin:
         if self.warn_is_error:
             self.error(message)
         lino = self.text.count('\n', 0, self.pos) + 1
-        print(f'warning:{self._prefix}:{lino}: {message}')
+        print(f'warning:{self._what}:{lino}: {message}')
 
 
     def error(self, message):
         lino = self.text.count('\n', 0, self.pos) + 1
-        raise Error(f'{self._prefix}:{lino}: {message}')
+        raise Error(f'{self._what}:{lino}: {message}')
 
 
 class _Lexer(ErrorMixin):
@@ -71,7 +71,7 @@ class _Lexer(ErrorMixin):
     def __init__(self, *, warn_is_error=False, _debug=False):
         self.warn_is_error = warn_is_error
         self._debug = _debug
-        self._prefix = 'lexer'
+        self._what = 'lexer'
 
 
     def clear(self):
@@ -331,13 +331,23 @@ class _Kind(enum.Enum):
 class Table:
 
     def __init__(self, *, name=None, fieldnames=None, items=None):
+        '''items can be a flat list of values (which will be put into a list
+        of lists with each sublist being len(fieldnames) long), or a list of
+        lists in which case each list is _assumed_ to be len(fieldnames)
+        long.
+        '''
         self.name = name
         self._Class = None
         self.fieldnames = [] if fieldnames is None else fieldnames
         self.records = []
         if items:
-            for value in items:
-                self.append(value)
+            if isinstance(items, list):
+                if self._Class is None:
+                    self._make_class()
+                self.records = items
+            else:
+                for value in items:
+                    self.append(value)
 
 
     def append_fieldname(self, name):
@@ -412,7 +422,7 @@ class _Parser(ErrorMixin):
     def __init__(self, *, warn_is_error=False, _debug=False):
         self.warn_is_error = warn_is_error
         self._debug = _debug
-        self._prefix = 'parser'
+        self._what = 'parser'
 
 
     def clear(self):
@@ -611,134 +621,142 @@ def write(filename_or_filelike, *, data, custom='', compress=False,
     else:
         file = filename_or_filelike
     try:
-        _write_header(file, custom)
-        _write_value(file, data, pad=pad)
+        _Writer(file, custom, data, pad)
     finally:
         if close:
             file.close()
 
 
-def _write_header(file, custom):
-    file.write(f'pxd {VERSION}')
-    if custom:
-        file.write(f' {custom}')
-    file.write('\n')
+class _Writer:
+
+    def __init__(self, file, custom, data, pad):
+        self.file = file
+        self.write_header(custom)
+        self.write_value(data, pad=pad)
 
 
-def _write_value(file, item, indent=0, *, pad, dict_value=False):
-    if isinstance(item, list):
-        return _write_list(file, item, indent, pad=pad,
-                           dict_value=dict_value)
-    if isinstance(item, dict):
-        return _write_dict(file, item, indent, pad=pad,
-                           dict_value=dict_value)
-    if isinstance(item, Table):
-        return _write_table(file, item, indent, pad=pad,
-                            dict_value=dict_value)
-    return _write_scalar(file, item, indent=indent, pad=pad,
-                         dict_value=dict_value)
+    def write_header(self, custom):
+        self.file.write(f'pxd {VERSION}')
+        if custom:
+            self.file.write(f' {custom}')
+        self.file.write('\n')
 
 
-def _write_list(file, item, indent=0, *, pad, dict_value=False):
-    tab = '' if dict_value else pad * indent
-    if len(item) == 0:
-        file.write(f'{tab}[]')
-        return False
-    file.write(f'{tab}[')
-    indent += 1
-    is_scalar = _is_scalar(item[0])
-    if is_scalar:
-        kwargs = dict(indent=0, pad=' ', dict_value=False)
-    else:
-        file.write('\n')
-        kwargs = dict(indent=indent, pad=pad, dict_value=False)
-    for value in item:
-        _write_value(file, value, **kwargs)
+    def write_value(self, item, indent=0, *, pad, dict_value=False):
+        if isinstance(item, list):
+            return self.write_list(item, indent, pad=pad,
+                                   dict_value=dict_value)
+        if isinstance(item, dict):
+            return self.write_dict(item, indent, pad=pad,
+                                   dict_value=dict_value)
+        if isinstance(item, Table):
+            return self.write_table(item, indent, pad=pad,
+                                    dict_value=dict_value)
+        return self.write_scalar(item, indent=indent, pad=pad,
+                                 dict_value=dict_value)
+
+
+    def write_list(self, item, indent=0, *, pad, dict_value=False):
+        tab = '' if dict_value else pad * indent
+        if len(item) == 0:
+            self.file.write(f'{tab}[]')
+            return False
+        self.file.write(f'{tab}[')
+        indent += 1
+        is_scalar = _is_scalar(item[0])
         if is_scalar:
-            kwargs['indent'] = 1
-    tab = pad * (indent - 1)
-    if is_scalar:
-        file.write(']\n')
-    else:
-        file.write(f'{tab}]\n')
-    return True
+            kwargs = dict(indent=0, pad=' ', dict_value=False)
+        else:
+            self.file.write('\n')
+            kwargs = dict(indent=indent, pad=pad, dict_value=False)
+        for value in item:
+            self.write_value(value, **kwargs)
+            if is_scalar:
+                kwargs['indent'] = 1
+        tab = pad * (indent - 1)
+        if is_scalar:
+            self.file.write(']\n')
+        else:
+            self.file.write(f'{tab}]\n')
+        return True
 
 
-def _write_dict(file, item, indent=0, *, pad, dict_value=False):
-    tab = '' if dict_value else pad * indent
-    if len(item) == 0:
-        file.write(f'{tab}{{}}')
+    def write_dict(self, item, indent=0, *, pad, dict_value=False):
+        tab = '' if dict_value else pad * indent
+        if len(item) == 0:
+            self.file.write(f'{tab}{{}}')
+            return False
+        elif len(item) == 1:
+            self.file.write(f'{tab}{{')
+            key, value = list(item.items())[0]
+            self.write_scalar(key, 1, pad=' ')
+            self.file.write(' ')
+            self.write_value(value, 1, pad=' ', dict_value=True)
+            self.file.write('}}')
+            return False
+        self.file.write(f'{tab}{{\n')
+        indent += 1
+        for key, value in item.items():
+            self.write_scalar(key, indent, pad=pad)
+            self.file.write(' ')
+            if not self.write_value(value, indent, pad=pad,
+                                    dict_value=True):
+                self.file.write('\n')
+        tab = pad * (indent - 1)
+        self.file.write(f'{tab}}}\n')
+        return True
+
+
+    def write_table(self, item, indent=0, *, pad, dict_value=False):
+        tab = '' if dict_value else pad * indent
+        self.file.write(f'{tab}[= <{escape(item.name)}>')
+        for name in item.fieldnames:
+            self.file.write(f' <{escape(name)}>')
+        if len(item) == 0:
+            self.file.write(' = =]')
+            return False
+        self.file.write(' =\n')
+        indent += 1
+        for record in item:
+            self.file.write(pad * indent)
+            for value in record:
+                self.write_scalar(value, pad=pad)
+                self.file.write(' ')
+            self.file.write('\n')
+        tab = pad * (indent - 1)
+        self.file.write(f'{tab}=]\n')
+        return True
+
+
+    def write_scalar(self, item, indent=0, *, pad, dict_value=False):
+        if not dict_value:
+            self.file.write(pad * indent)
+        if item is None:
+            self.file.write('null')
+        elif isinstance(item, bool):
+            self.file.write('yes' if item else 'no')
+        elif isinstance(item, int):
+            self.file.write(str(item))
+        elif isinstance(item, float):
+            value = str(item)
+            if '.' not in value:
+                i = value.find('e')
+                if i == -1:
+                    i = value.find('E')
+                if i == -1:
+                    value += '.0'
+                else:
+                    value = value[:i] + '.0' + value[i:]
+            self.file.write(value)
+        elif isinstance(item, (datetime.date, datetime.datetime)):
+            self.file.write(item.isoformat())
+        elif isinstance(item, str):
+            self.file.write(f'<{escape(item)}>')
+        elif isinstance(item, bytes):
+            self.file.write(f'({item.hex().upper()})')
+        else:
+            print(f'error: unexpectedly got {item!r}', file=sys.stderr)
         return False
-    elif len(item) == 1:
-        file.write(f'{tab}{{')
-        key, value = list(item.items())[0]
-        _write_scalar(file, key, 1, pad=' ')
-        file.write(' ')
-        _write_value(file, value, 1, pad=' ', dict_value=True)
-        file.write('}}')
-        return False
-    file.write(f'{tab}{{\n')
-    indent += 1
-    for key, value in item.items():
-        _write_scalar(file, key, indent, pad=pad)
-        file.write(' ')
-        if not _write_value(file, value, indent, pad=pad, dict_value=True):
-            file.write('\n')
-    tab = pad * (indent - 1)
-    file.write(f'{tab}}}\n')
-    return True
-
-
-def _write_table(file, item, indent=0, *, pad, dict_value=False):
-    tab = '' if dict_value else pad * indent
-    file.write(f'{tab}[= <{escape(item.name)}>')
-    for name in item.fieldnames:
-        file.write(f' <{escape(name)}>')
-    if len(item) == 0:
-        file.write(' = =]')
-        return False
-    file.write(' =\n')
-    indent += 1
-    for record in item:
-        file.write(pad * indent)
-        for value in record:
-            _write_scalar(file, value, pad=pad)
-            file.write(' ')
-        file.write('\n')
-    tab = pad * (indent - 1)
-    file.write(f'{tab}=]\n')
-    return True
-
-
-def _write_scalar(file, item, indent=0, *, pad, dict_value=False):
-    if not dict_value:
-        file.write(pad * indent)
-    if item is None:
-        file.write('null')
-    elif isinstance(item, bool):
-        file.write('yes' if item else 'no')
-    elif isinstance(item, int):
-        file.write(str(item))
-    elif isinstance(item, float):
-        value = str(item)
-        if '.' not in value:
-            i = value.find('e')
-            if i == -1:
-                i = value.find('E')
-            if i == -1:
-                value += '.0'
-            else:
-                value = value[:i] + '.0' + value[i:]
-        file.write(value)
-    elif isinstance(item, (datetime.date, datetime.datetime)):
-        file.write(item.isoformat())
-    elif isinstance(item, str):
-        file.write(f'<{escape(item)}>')
-    elif isinstance(item, bytes):
-        file.write(f'({item.hex().upper()})')
-    else:
-        print(f'error: unexpectedly got {item!r}', file=sys.stderr)
-    return False
 
 
 def _is_scalar(x):
