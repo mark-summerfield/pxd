@@ -656,7 +656,7 @@ def _write_list(file, item, indent=0, *, pad, dict_value=False):
             kwargs['indent'] = 1
     tab = pad * (indent - 1)
     if is_scalar:
-        file.write(f']\n')
+        file.write(']\n')
     else:
         file.write(f'{tab}]\n')
     return True
