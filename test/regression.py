@@ -4,6 +4,7 @@
 
 import filecmp
 import os
+import re
 import subprocess
 
 os.chdir(os.path.dirname(__file__))
@@ -13,7 +14,7 @@ def main():
     pxd = '../pxd.py'
     total = ok = 0
     cleanup()
-    for name in sorted(os.listdir('.')):
+    for name in sorted(os.listdir('.'), key=by_number):
         if os.path.isfile(name) and name.endswith('.pxd'):
             total += 1
             actual = f'actual/{name}'
@@ -34,6 +35,13 @@ def cleanup():
         name = f'actual/{name}'
         if os.path.isfile(name) and name.endswith('.pxd'):
             os.remove(name)
+
+
+def by_number(s):
+    match = re.match(r'(?P<name>\D+)(?P<number>\d+)', s)
+    if match is not None:
+        return match['name'], int(match['number'])
+    return s, 0
 
 
 if __name__ == '__main__':

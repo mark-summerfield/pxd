@@ -14,6 +14,9 @@ test/test4.pxd
 test/test5.pxd
 test/test6.pxd
 test/test7.pxd
+test/test8.pxd
+test/test9.pxd
+test/test10.pxd
 
 test/expected/test0.pxd
 test/expected/test1.pxd
@@ -23,6 +26,9 @@ test/expected/test4.pxd
 test/expected/test5.pxd
 test/expected/test6.pxd
 test/expected/test7.pxd
+test/expected/test8.pxd
+test/expected/test9.pxd
+test/expected/test10.pxd
 
 # TODO
 # pxdconvert [-z|--compress] [-i|--indent=n]
@@ -30,6 +36,7 @@ test/expected/test7.pxd
 #	     [<outfile.{csv,ini,json,pxd,sqlite,toml,xml,yaml}>]
 # indent is 0-8
 # some conversions are lossy
+# # need equiv of _WriteValue?
 
 # pxd.py pxd.rs pxd.cpp pxd.java pxd.rb ...
 

@@ -58,12 +58,12 @@ class ErrorMixin:
         if self.warn_is_error:
             self.error(message)
         lino = self.text.count('\n', 0, self.pos) + 1
-        print(f'warning:{lino}: {message}')
+        print(f'warning:{self._prefix}:{lino}: {message}')
 
 
     def error(self, message):
         lino = self.text.count('\n', 0, self.pos) + 1
-        raise Error(f'{lino}: {message}')
+        raise Error(f'{self._prefix}:{lino}: {message}')
 
 
 class _Lexer(ErrorMixin):
@@ -71,6 +71,7 @@ class _Lexer(ErrorMixin):
     def __init__(self, *, warn_is_error=False, _debug=False):
         self.warn_is_error = warn_is_error
         self._debug = _debug
+        self._prefix = 'lexer'
 
 
     def clear(self):
@@ -411,6 +412,7 @@ class _Parser(ErrorMixin):
     def __init__(self, *, warn_is_error=False, _debug=False):
         self.warn_is_error = warn_is_error
         self._debug = _debug
+        self._prefix = 'parser'
 
 
     def clear(self):
@@ -669,7 +671,7 @@ def _write_dict(file, item, indent=0, *, pad, dict_value=False):
         return False
     elif len(item) == 1:
         file.write(f'{tab}{{')
-        key, value = item.items()[0]
+        key, value = list(item.items())[0]
         _write_scalar(file, key, 1, pad=' ')
         file.write(' ')
         _write_value(file, value, 1, pad=' ', dict_value=True)
