@@ -3,6 +3,9 @@
 # License: GPLv3
 
 '''
+_pxd_ is a plain text human readable storage format that may serve as a
+convenient alternative to csv, ini, json, sqlite, toml, xml, or yaml.
+
 pxd's public API provides two functions and two classes.
 
     def read(filename_or_filelike)

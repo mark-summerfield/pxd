@@ -1,4 +1,4 @@
-pxd.py
+pxd/__init__.py
 
 README.md
 
@@ -7,6 +7,9 @@ misc/md2html.sh
 
 test/regression.py
 
+setup.py # TODO
+
+pypi.sh
 st.sh
 
 test/test0.pxd
