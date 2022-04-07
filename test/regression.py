@@ -31,10 +31,13 @@ def main():
 
 
 def cleanup():
-    for name in os.listdir('actual'):
-        name = f'actual/{name}'
-        if os.path.isfile(name) and name.endswith('.pxd'):
-            os.remove(name)
+    if os.path.exists('actual'):
+        for name in os.listdir('actual'):
+            name = f'actual/{name}'
+            if os.path.isfile(name) and name.endswith('.pxd'):
+                os.remove(name)
+    else:
+        os.mkdir('actual')
 
 
 def by_number(s):

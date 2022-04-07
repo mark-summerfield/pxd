@@ -428,7 +428,7 @@ class _Parser(ErrorMixin):
         self.text = text
         data = None
         for token in tokens:
-            if token.kind is _Kind.EOF and not self.states:
+            if token.kind is _Kind.EOF:
                 break
             self.pos = token.pos
             state = self.states[-1]
