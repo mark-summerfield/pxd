@@ -755,7 +755,8 @@ class _Writer:
         elif isinstance(item, bytes):
             self.file.write(f'({item.hex().upper()})')
         else:
-            print(f'error: unexpectedly got {item!r}', file=sys.stderr)
+            print(f'error: ignoring unexpected item {item!r}',
+                  file=sys.stderr)
         return False
 
 
