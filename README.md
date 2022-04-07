@@ -7,7 +7,7 @@ convenient alternative to csv, ini, json, sqlite, toml, xml, or yaml.
 
 |**Library**|**Language**|**Notes**|
 |-----------|------------|---------|
-|pxd.py     | Python 3   | Works out of the box with the standard library, but will use _dateutil_ if available.|
+|pxd        | Python 3   | Works out of the box with the standard library, but will use _dateutil_ if available.|
 
 _Implementations in additional languages are planned._
 
