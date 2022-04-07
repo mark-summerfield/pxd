@@ -6,12 +6,17 @@ import filecmp
 import os
 import re
 import subprocess
+import sys
 
 os.chdir(os.path.dirname(__file__))
 
 
 def main():
-    pxd = '../pxd.py'
+    exe = '../pxd.py'
+    if len(sys.argv) > 1:
+        if sys.argv[1] in {'-h', '--help'}:
+            raise SystemExit('usage: regression.py [path/to/pxd-exe]')
+        exe = sys.argv[1]
     total = ok = 0
     cleanup()
     for name in sorted(os.listdir('.'), key=by_number):
@@ -19,7 +24,7 @@ def main():
             total += 1
             actual = f'actual/{name}'
             expected = f'expected/{name}'
-            subprocess.call([pxd, name, actual])
+            subprocess.call([exe, name, actual])
             if filecmp.cmp(actual, expected, False):
                 print(f'{name} OK')
                 ok += 1

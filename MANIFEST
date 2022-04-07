@@ -1,8 +1,9 @@
 pxd.py # TODO class _WriteValue
 
-pxd.adoc
+README.md
 
 misc/epd2pxd.py
+misc/md2html.sh
 
 test/regression.py
 

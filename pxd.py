@@ -7,12 +7,13 @@ pxd's public API provides two functions and two classes.
 
     def read(filename_or_filelike)
 
-This returns a 2-tuple of (data, custom_header).
+This returns a 2-tuple of (data, custom_header). The data is always a dict,
+list, or Table.
 
     def write(filename_or_filelike, data, custom)
 
 This writes the data (and custom header if supplied) into the given file as
-pxd data.
+pxd data. The data must be a dict, list, or Table.
 
     class Error
 
@@ -45,7 +46,7 @@ UTF8 = 'utf-8'
 
 def read(filename_or_filelike, *, warn_is_error=False):
     '''
-    Returns a 2-tuple, the first item of which is a dict or list or Table
+    Returns a 2-tuple, the first item of which is a dict, list, or Table
     containing all the pxd data read. The second item is the custom string
     (if any) from the file's header.
 
