@@ -2,6 +2,29 @@
 # Copyright © 2022 Mark Summerfield. All rights reserved.
 # License: GPLv3
 
+'''
+pxd's public API provides two functions and two classes.
+
+    def read(filename_or_filelike)
+
+This returns a 2-tuple of (data, custom_header).
+
+    def write(filename_or_filelike, data, custom)
+
+This writes the data (and custom header if supplied) into the given file as
+pxd data.
+
+    class Error
+
+Used to propagate errors (and warnings if warn_is_error is True).
+
+    class Table
+
+Used to store pxd tables. A Table has a list of fieldnames and a records
+list which is a lists of lists with each sublist having the same
+number of items as the number of fieldnames.
+'''
+
 import collections
 import datetime
 import enum
@@ -20,23 +43,27 @@ VERSION = 1.0
 UTF8 = 'utf-8'
 
 
-def read(filename_or_filelike, *, warn_is_error=False, _debug=False):
+def read(filename_or_filelike, *, warn_is_error=False):
     '''
-    Returns a PxdData whose Data is a tuple or dict or list using Python
-    type equivalents to pxd types by parsing the filename_or_filelike and
-    whose Custom is the short user string (if any).
+    Returns a 2-tuple, the first item of which is a dict or list or Table
+    containing all the pxd data read. The second item is the custom string
+    (if any) from the file's header.
+
+    filename_or_filelike is sys.stdin or a filename or an open readable file
+    (text mode UTF-8 encoded).
+
+    If warn_is_error is True warnings raise Error exceptions.
     '''
     data = None
     tokens, custom, text = _tokenize(
-        filename_or_filelike, warn_is_error=warn_is_error, _debug=_debug)
-    data = _parse(tokens, text=text, warn_is_error=warn_is_error,
-                  _debug=_debug)
+        filename_or_filelike, warn_is_error=warn_is_error)
+    data = _parse(tokens, text=text, warn_is_error=warn_is_error)
     return data, custom
 
 
-def _tokenize(filename_or_filelike, *, warn_is_error=False, _debug=False):
+def _tokenize(filename_or_filelike, *, warn_is_error=False):
     text = _read_text(filename_or_filelike)
-    lexer = _Lexer(warn_is_error=warn_is_error, _debug=_debug)
+    lexer = _Lexer(warn_is_error=warn_is_error)
     tokens = lexer.tokenize(text)
     return tokens, lexer.custom, text
 
@@ -52,7 +79,7 @@ def _read_text(filename_or_filelike):
             return file.read()
 
 
-class ErrorMixin:
+class _ErrorMixin:
 
     def warn(self, message):
         if self.warn_is_error:
@@ -66,11 +93,10 @@ class ErrorMixin:
         raise Error(f'{self._what}:{lino}: {message}')
 
 
-class _Lexer(ErrorMixin):
+class _Lexer(_ErrorMixin):
 
-    def __init__(self, *, warn_is_error=False, _debug=False):
+    def __init__(self, *, warn_is_error=False):
         self.warn_is_error = warn_is_error
-        self._debug = _debug
         self._what = 'lexer'
 
 
@@ -331,10 +357,18 @@ class _Kind(enum.Enum):
 class Table:
 
     def __init__(self, *, name=None, fieldnames=None, items=None):
-        '''items can be a flat list of values (which will be put into a list
+        '''Used to store a pxd table.
+
+        A Table has a list of fieldnames and a records list which is a lists
+        of lists with each sublist having the same number of items as the
+        number of fieldnames.
+
+        items can be a flat list of values (which will be put into a list
         of lists with each sublist being len(fieldnames) long), or a list of
         lists in which case each list is _assumed_ to be len(fieldnames)
         long.
+
+        When a table is iterated each row is returned as a namedtuple.
         '''
         self.name = name
         self._Class = None
@@ -412,16 +446,15 @@ def _canonicalize(s, prefix):
     return s
 
 
-def _parse(tokens, *, text, warn_is_error=False, _debug=False):
+def _parse(tokens, *, text, warn_is_error=False):
     parser = _Parser()
     return parser.parse(tokens, text)
 
 
-class _Parser(ErrorMixin):
+class _Parser(_ErrorMixin):
 
-    def __init__(self, *, warn_is_error=False, _debug=False):
+    def __init__(self, *, warn_is_error=False):
         self.warn_is_error = warn_is_error
-        self._debug = _debug
         self._what = 'parser'
 
 
@@ -606,11 +639,19 @@ class _Expect(enum.Enum):
 def write(filename_or_filelike, *, data, custom='', compress=False,
           indent=2):
     '''
-    custom is a short user string (with no newlines), e.g., a file
-    description.
-    data is a tuple or namedtuple or list or dict that this function will
-    write to the filename_or_filelike using the strictest typing that is
-    valid for pxd.
+    filename_or_filelike is sys.stdout or a filename or an open writable
+    file (text mode UTF-8 encoded).
+
+    data is a list, dict, or Table that this function will write to the
+    filename_or_filelike in pxd format.
+
+    custom is an optional short user string (with no newlines), e.g., a file
+    type description.
+
+    If compress is True and the filename_or_filelike is a file (not stdout)
+    then gzip compression is used.
+
+    Set indent to 0 to minimize the file size.
     '''
     pad = ' ' * indent
     close = False
@@ -672,12 +713,9 @@ class _Writer:
         for value in item:
             self.write_value(value, **kwargs)
             if is_scalar:
-                kwargs['indent'] = 1
+                kwargs['indent'] = 1 # 0 for first item
         tab = pad * (indent - 1)
-        if is_scalar:
-            self.file.write(']\n')
-        else:
-            self.file.write(f'{tab}]\n')
+        self.file.write(']\n' if is_scalar else f'{tab}]\n')
         return True
 
 
@@ -738,16 +776,7 @@ class _Writer:
         elif isinstance(item, int):
             self.file.write(str(item))
         elif isinstance(item, float):
-            value = str(item)
-            if '.' not in value:
-                i = value.find('e')
-                if i == -1:
-                    i = value.find('E')
-                if i == -1:
-                    value += '.0'
-                else:
-                    value = value[:i] + '.0' + value[i:]
-            self.file.write(value)
+            self.file.write(_realstr(item))
         elif isinstance(item, (datetime.date, datetime.datetime)):
             self.file.write(item.isoformat())
         elif isinstance(item, str):
@@ -758,6 +787,19 @@ class _Writer:
             print(f'error: ignoring unexpected item {item!r}',
                   file=sys.stderr)
         return False
+
+
+def _realstr(s):
+    value = str(s)
+    if '.' not in value:
+        i = value.find('e')
+        if i == -1:
+            i = value.find('E')
+        if i == -1:
+            value += '.0'
+        else:
+            value = value[:i] + '.0' + value[i:]
+    return value
 
 
 def _is_scalar(x):
