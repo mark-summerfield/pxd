@@ -12,6 +12,7 @@ os.chdir(os.path.dirname(__file__))
 def main():
     pxd = '../pxd.py'
     total = ok = 0
+    cleanup()
     for name in sorted(os.listdir('.')):
         if os.path.isfile(name) and name.endswith('.pxd'):
             total += 1
@@ -24,6 +25,15 @@ def main():
             else:
                 print(f'{name} FAIL {actual} != {expected}')
     print(f'{ok}/{total}', 'OK' if total == ok else 'FAIL')
+    if total == ok:
+        cleanup()
+
+
+def cleanup():
+    for name in os.listdir('actual'):
+        name = f'actual/{name}'
+        if os.path.isfile(name) and name.endswith('.pxd'):
+            os.remove(name)
 
 
 if __name__ == '__main__':

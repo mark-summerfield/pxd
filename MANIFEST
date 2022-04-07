@@ -5,6 +5,7 @@ pxd.adoc
 misc/epd2pxd.py
 
 test/regression.py
+
 test/test0.pxd
 test/test1.pxd
 test/test2.pxd
@@ -12,6 +13,7 @@ test/test3.pxd
 test/test4.pxd
 test/test5.pxd
 test/test6.pxd
+test/test7.pxd
 
 test/expected/test0.pxd
 test/expected/test1.pxd
@@ -20,6 +22,7 @@ test/expected/test3.pxd
 test/expected/test4.pxd
 test/expected/test5.pxd
 test/expected/test6.pxd
+test/expected/test7.pxd
 
 # TODO
 # pxdconvert [-z|--compress] [-i|--indent=n]

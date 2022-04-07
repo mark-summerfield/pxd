@@ -639,18 +639,42 @@ def _write_value(file, item, indent=0, *, pad, dict_value=False):
 
 def _write_list(file, item, indent=0, *, pad, dict_value=False):
     tab = '' if dict_value else pad * indent
-    file.write(f'{tab}[\n')
+    if len(item) == 0:
+        file.write(f'{tab}[]')
+        return False
+    file.write(f'{tab}[')
     indent += 1
+    is_scalar = _is_scalar(item[0])
+    if is_scalar:
+        kwargs = dict(indent=0, pad=' ', dict_value=False)
+    else:
+        file.write('\n')
+        kwargs = dict(indent=indent, pad=pad, dict_value=False)
     for value in item:
-        if not _write_value(file, value, indent, pad=pad, dict_value=False):
-            file.write('\n')
+        _write_value(file, value, **kwargs)
+        if is_scalar:
+            kwargs['indent'] = 1
     tab = pad * (indent - 1)
-    file.write(f'{tab}]\n')
+    if is_scalar:
+        file.write(f']\n')
+    else:
+        file.write(f'{tab}]\n')
     return True
 
 
 def _write_dict(file, item, indent=0, *, pad, dict_value=False):
     tab = '' if dict_value else pad * indent
+    if len(item) == 0:
+        file.write(f'{tab}{{}}')
+        return False
+    elif len(item) == 1:
+        file.write(f'{tab}{{')
+        key, value = item.items()[0]
+        _write_scalar(file, key, 1, pad=' ')
+        file.write(' ')
+        _write_value(file, value, 1, pad=' ', dict_value=True)
+        file.write('}}')
+        return False
     file.write(f'{tab}{{\n')
     indent += 1
     for key, value in item.items():
@@ -668,6 +692,9 @@ def _write_table(file, item, indent=0, *, pad, dict_value=False):
     file.write(f'{tab}[= <{escape(item.name)}>')
     for name in item.fieldnames:
         file.write(f' <{escape(name)}>')
+    if len(item) == 0:
+        file.write(' = =]')
+        return False
     file.write(' =\n')
     indent += 1
     for record in item:
@@ -710,6 +737,11 @@ def _write_scalar(file, item, indent=0, *, pad, dict_value=False):
     else:
         print(f'error: unexpectedly got {item!r}', file=sys.stderr)
     return False
+
+
+def _is_scalar(x):
+    return x is None or isinstance(x, (bool, int, float, datetime.date,
+                                       datetime.datetime, str, bytes))
 
 
 if __name__ == '__main__':
