@@ -6,6 +6,12 @@
 pxd is a plain text human readable storage format that may serve as a
 convenient alternative to csv, ini, json, sqlite, toml, xml, or yaml.
 
+The pxd module can be used as an executable. Run
+
+    python3 -m pxd -h
+
+to see the command line options.
+
 pxd's public API provides two functions and three classes.
 
     def read(filename_or_filelike)
@@ -935,9 +941,14 @@ if __name__ == '__main__':
     if len(sys.argv) < 2 or sys.argv[1] in {'-h', '--help', 'help'}:
         raise SystemExit('''\
 usage: pxd.py [-z|--compress] [-iN|--indent=N] <infile.pxd> [<outfile.pxd>]
+   or: python3 -m pxd ...same options as above...
 
 gzip compression is ignored if no outfile (i.e., for stdout).
 indent defaults to 2 (range 0-8) e.g., -i0 or --indent=0 (with no space)
+
+To uncompress a .pxd file run: pxd.py infile.pxd outfile.pxd
+
+To compress and minimize a .pxd file run: pxd.py -i0 -z infile.pxd outfile.pxd
 ''')
     compress = False
     indent = 2
