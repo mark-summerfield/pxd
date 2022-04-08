@@ -56,10 +56,17 @@ except ImportError:
     isoparse = None
 
 
-__all__ = ('__version__', 'VERSION', 'read', 'Table', 'write')
+__all__ = ('__version__', 'VERSION', 'read', 'write', 'Table', 'Pair',
+           'Triple', 'Quad')
 __version__ = '1.0.0' # pxd module version
 VERSION = 1.0 # pxd file format version
+
 UTF8 = 'utf-8'
+
+
+Pair = collections.namedtuple('Pair', ('x', 'y'))
+Triple = collections.namedtuple('Triple', ('x', 'y', 'z'))
+Quad = collections.namedtuple('Quad', ('a', 'b', 'c', 'd'))
 
 
 def read(filename_or_filelike, *, warn_is_error=False):
@@ -190,6 +197,7 @@ class _Lexer(_ErrorMixin):
         elif c == '<':
             self.read_string_or_name()
         elif c == '(':
+            ## TODO ##########################
             self.read_bytes()
         elif c == '-' and self.peek().isdecimal():
             c = self.getch() # skip the - and get the first digit
@@ -362,6 +370,9 @@ class _Kind(enum.Enum):
     LIST_END = enum.auto()
     DICT_BEGIN = enum.auto()
     DICT_END = enum.auto()
+    PAIR = enum.auto()
+    TRIPLE = enum.auto()
+    QUAD = enum.auto()
     NULL = enum.auto()
     BOOL = enum.auto()
     INT = enum.auto()
