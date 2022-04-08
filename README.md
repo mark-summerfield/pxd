@@ -17,12 +17,15 @@ _pxd_ supports fourteen datatypes.
 |`datetime`  |`2022-04-01T16:11:51` # ISO8601 (timezone support is library dependent)|
 |`str`       |`<Some text which may include newlines>` # using \&lt; for <, \&gt; for >, and \&amp; for &|
 |`bytes`     |`(20AC 65 66 48)` # must be even number of case-insensitive hex digits; whitespace optional|
-|`NTuple`    | `(:15 14 0 -75:)` # 2-12 numbers (all ``int``s or all ``real``s)
+|`NTuple`    | `(:15 14 0 -75:)` # 2-12 numbers (all ``int``s or all ``real``s), e.g., for points, RGB numbers, IP addresses, etc.
 |`list`      |`[value1 value2 ... valueN]`|
 |`map`       |`{key1 value1 key2 value2 ... keyN valueN}`|
 |`Table`     |`[= <str1> <str2> ... <strN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` |
 
 Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
+
+Map and list values may be of _any_ type (including nested ``map``s and
+``list``s).
 
 A `Table` starts with a table name, then field names, then values. The
 number of values in any given row is equal to the number of field names.
@@ -81,7 +84,7 @@ For example:
 
     pxd 1.0 Price List
     [= <Price List> <Date|type date min 2022-01-01>
-       <Price|type money min 0.0 max 9e6> <Quantity|type int min 0 max 9999>
+       <Price|type money min 0.0 max 999999.0> <Quantity|type int min 0 max 9999>
        <ID|type str picture A(2)9-A9> <Description> =
       2022-09-21 3.99 2 <CH1-A2> <Chisels (pair), 1in &amp; 1¼in> 
       2022-10-02 4.49 1 <HV2-K9> <Hammer, 2lb> 
@@ -92,9 +95,7 @@ Here we've used a pipe (`|`) to separate field names from field
 attributes with attributes given as _name value_ pairs. The attributes
 are made up and could be anything you like. Here we've indicated the
 type of each field and for some a minimum value, for others both minimum
-and maximum values, and in one case a COBOL-style picture (meaning two
-alphabetic characters followed by a digit then a hyphen then an
-alphabetic character then another digit).
+and maximum values, and in one case a COBOL-style picture.
 
 Note that if you need to include `&`, `<` or `>` inside a `str`, you
 must use the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively.
@@ -173,13 +174,13 @@ For example, here's an alternative:
 Here, we've moved the _Files_ into _General_ and changed the recent
 files from per-file `map` items into a `list` of filenames. We've also
 changed the _x_, _y_ coordinates and the _width_ and _height_ into `pos` and
-`size` ``pxd.NTuple``s. Of course we could have used a single `pxd.NTuple`,
+`size` ``NTuple``s. Of course we could have used a single `NTuple`,
 e.g., `<geometry> (:615 252 592 636:)`.
 
 ### Database to _pxd_
 
 A database normally consists of one or more tables. A _pxd_ equivalent using
-a `list` of ``tables``s is easily made.
+a `list` of ``Table``s is easily made.
 
     pxd 1.0 MyApp Data
     [
@@ -219,28 +220,30 @@ with the remainder ``Table``s as now. Another solution would be to use a
 
 ## Libraries
 
+_Implementations in additional languages are planned._
+
 |**Library**|**Language**|**Notes**|
 |-----------|------------|---------|
-|py/pxd.py  | Python 3   | Works out of the box with the standard library, but will use _dateutil_ if available.|
+|py/pxd.py  | Python 3   | Works out of the box with the standard library, and will use _dateutil_ if available.|
 
 ### Python Notes
 
 Most Python types map losslessly to and from _pxd_ types. In particular:
 
-|**Python Type**     |**pxd type**  |
-|--------------------|--------------|
-|`None`              | `null`       |
-|`bool`              | `bool`       |
-|`int`               | `int`        |
-|`float`             | `real`       |
-|`datetime.date`     | `date`       |
-|`datetime.datetime` | `datetime`   |
-|`str`               | `str`        |
-|`bytes`             | `bytes`      |
-|`pxd.NTuple`        | `pxd.NTuple` |
-|`list`              | `list`       |
-|`dict`              | `map`        |
-|`pxd.Table`         | `pxd.Table`  |
+|**Python Type**     |**pxd type**|
+|--------------------|------------|
+|`None`              | `null`     |
+|`bool`              | `bool`     |
+|`int`               | `int`      |
+|`float`             | `real`     |
+|`datetime.date`     | `date`     |
+|`datetime.datetime` | `datetime` |
+|`str`               | `str`      |
+|`bytes`             | `bytes`    |
+|`pxd.NTuple`        | `NTuple`   |
+|`list`              | `list`     |
+|`dict`              | `map`      |
+|`pxd.Table`         | `Table    `|
 
 If `one_way_conversion` is `False` then any other Python type passed in the
 data passed to `write()` will produce an error.
@@ -257,12 +260,18 @@ when converting to _pxd_ data:
 |`tuple`             | `list`      |
 |`collections.deque` | `list`      |
 
-For Python either do the usual `pip install pyd`. (If you just want to
-create a small standalone `.pyz`, simply copy `py/pxd.py` as `pxd.py` into
-your project folder).
+If you have _lots_ of `complex` numbers it may be more compact and
+convenient to store them in a two-field table, somthing like `[=
+<Mandelbrot> <real> <imag> = 1.3 3.7 4.9 5.8 ... =]`.
 
-_Implementations in additional languages are planned._
+Install with `pip install pxd`. This provides the importable `pxd` library
+(i.e., allows you to use `import pxd`), and also provides `pxdconvert.py`
+which might prove useful to see how to use `pxd`. (See also the `test/*.pxd`
+test files.)
 
+If you just want to create a small standalone `.pyz`, simply copy
+`py/pxd.py` as `pxd.py` into your project folder and inlude it in your
+`.pyz` file.
 
 ## BNF
 
@@ -275,10 +284,10 @@ optional `map`, `list`, or `Table`.
     MAP      ::= '{' OWS (KEY RWS ANYVALUE)? (RWS KEY RWS ANYVALUE)* OWS '}'
     LIST     ::= '[' OWS ANYVALUE? (RWS ANYVALUE)* OWS ']'
     TABLE    ::= '[=' (OWS STR){2,} '=' (RWS VALUE)* '=]'
-    TUPLE    ::= '(:' (OWS INT){2,4} OWS ':)'
-              |  '(:' (OWS REAL){2,4} OWS ':)'
+    NTUPLE   ::= '(:' (OWS INT) (RWS INT){1,11} OWS ':)'   # 2-12 ints or
+              |  '(:' (OWS REAL) (RWS REAL){1,11} OWS ':)' # 2-12 floats
     KEY      ::= (INT | DATE | DATETIME | STR | BYTES)
-    ANYVALUE ::= (VALUE | LIST | MAP | TABLE | TUPLE)
+    ANYVALUE ::= (VALUE | LIST | MAP | TABLE | NTUPLE)
     VALUE    ::= (NULL | BOOL | INT | REAL | DATE | DATETIME | STR | BYTES)
     NULL     ::= 'null'
     BOOL     ::= 'no' | 'false' | 'yes' | 'true'
@@ -297,11 +306,11 @@ values. There's no need to distinguish between one row and the next
 (although it is common to start new rows on new lines) since the number
 of fields indicate how many values each row has.
 
-As the BNF shows, `map` values and `list` items may be of _any_ type.
+As the BNF shows, `map` and `list` values may be of _any_ type.
 
 However, `Table` values may only be scalars (i.e., of type `null`, `bool`,
 `int`, `real`, `date`, `datetime`, `str`, or `bytes`), not ``map``s,
-``list``s, or ``Table``s.
+``list``s, ``NTuple``s or ``Table``s.
 
 For ``datetime``s, support may vary across different _pxd_ libraries and
 might _not_ include timezone support. For example, the Python library
@@ -309,10 +318,11 @@ only supports timezones as time offsets; for `Z` etc, the `dateutil`
 module must be installed, but even that doesn't necessarily support the full
 ISO8601 specification.
 
-Note that a _pxd_ reader must be able to read a plain text or gzipped plain
-text `.pxd` file containing UTF-8 encoded text. Note also that pxd readers
-and writers should not care about the actual file extension since users are
-free to use their own.
+Note that a _pxd_ reader (writer) must be able to read (write) a plain text
+_or_ gzipped plain text `.pxd` file containing UTF-8 encoded text.
+
+Note also that pxd readers and writers should not care about the actual file
+extension since users are free to use their own.
 
 _pxd_ logo ![pxd logo](pxd.svg)
 

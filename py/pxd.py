@@ -184,8 +184,10 @@ class _Lexer(_ErrorMixin):
         elif c == '<':
             self.read_string_or_name()
         elif c == '(':
-            ## TODO ##########################
-            self.read_bytes()
+            if self.peek() == ':':
+                self.read_ntuple()
+            else:
+                self.read_bytes()
         elif c == '-' and self.peek().isdecimal():
             c = self.getch() # skip the - and get the first digit
             self.read_negative_number(c)
@@ -202,6 +204,24 @@ class _Lexer(_ErrorMixin):
         self.add_token(self.text_kind, unescape(value))
         if self.text_kind is _Kind.TABLE_NAME:
             self.text_kind = _Kind.TABLE_FIELD_NAME
+
+
+    def read_ntuple(self):
+        self.pos += 1 # skip the leading : of (:
+        value = self.match_to(':', error_text='unterminated NTuple')
+        if self.peek() != ')':
+            self.error(f'expected \')\', got {self.peek()!r}')
+        self.pos += 1 # skip the trailing ) of :)
+        parts = value.split()
+        if not (2 <= len(parts) <= 12):
+            self.error(f'expected 2-12 ints or floats, got {len(parts)}')
+        try:
+            int(parts[0])
+            Class = int
+        except ValueError:
+            Class = float
+        numbers = [Class(s) for s in parts]
+        self.add_token(_Kind.NTUPLE, NTuple(*numbers))
 
 
     def read_bytes(self):
@@ -387,6 +407,12 @@ class NTuple:
             if len(self._items) > 12:
                 raise Error(f'{self.__class__.__name__} may only hold '
                             '2-12 ints or 2-12 floats')
+
+
+    @property
+    def aspxd(self):
+        items = ' '.join([str(n) for n in self._items])
+        return f'(:{items}:)'
 
 
     def __getattr__(self, name):
@@ -878,6 +904,8 @@ class _Writer:
                             'one_way_conversion is True')
             self.file.write(
                 f'(:{_realstr(item.real)} {_realstr(item.imag)}:)')
+        elif isinstance(item, NTuple):
+            self.file.write(item.aspxd)
         else:
             print(f'error: ignoring unexpected item of type {type(item)}: '
                   f'{item!r}', file=sys.stderr)
