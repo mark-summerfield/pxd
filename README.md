@@ -250,7 +250,7 @@ when converting to _pxd_ data:
 
 |**Python Type (in)**|**pxd type/Python Type (out)**|
 |--------------------|-------------|
-|`bytesarray`        | `bytes`     |
+|`bytearray`         | `bytes`     |
 |`complex`           | `pxd.NTuple`|
 |`set`               | `list`      |
 |`frozenset`         | `list`      |

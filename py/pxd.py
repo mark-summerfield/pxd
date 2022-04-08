@@ -396,7 +396,26 @@ class NTuple:
             return self._items[1]
         if name in {'c', 'z', 'third'}:
             return self._items[2]
-        # TODO up to 12
+        if name in {'d', 'fourth'}:
+            return self._items[3]
+        if name in {'e', 'fifth'}:
+            return self._items[4]
+        if name in {'f', 'sixth'}:
+            return self._items[5]
+        if name in {'g', 'seventh'}:
+            return self._items[6]
+        if name in {'h', 'eighth'}:
+            return self._items[7]
+        if name in {'i', 'ninth'}:
+            return self._items[8]
+        if name in {'j', 'tenth'}:
+            return self._items[9]
+        if name in {'k', 'eleventh'}:
+            return self._items[10]
+        if name in {'l', 'twelth'}:
+            return self._items[11]
+        raise AttributeError(f'{self.__class__.__name__!r} object has '
+                             f'no attribute {name!r}')
 
 
     def __getitem__(self, index):
@@ -706,6 +725,10 @@ def write(filename_or_filelike, *, data, custom='', compress=False,
     then gzip compression is used.
 
     Set indent to 0 to minimize the file size.
+
+    Set one_way_conversion to True to convert bytearray items to bytes,
+    complex items to pxd.NTuples, and sets, frozensets, tuples, and
+    collections.deques to lists rather than raise an Error.
     '''
     pad = ' ' * indent
     close = False
@@ -739,9 +762,12 @@ class _Writer:
 
 
     def write_value(self, item, indent=0, *, pad, dict_value=False):
-        if self.one_way_conversion and isinstance(item, (
-                set, frozenset, tuple, collections.deque)):
-            item = list(item)
+        if isinstance(item, (set, frozenset, tuple, collections.deque)):
+            if self.one_way_conversion:
+                item = list(item)
+            else:
+                raise Error(f'can only convert {type(item)} to list if '
+                            'one_way_conversion is True')
         if isinstance(item, list):
             return self.write_list(item, indent, pad=pad,
                                    dict_value=dict_value)
@@ -839,9 +865,19 @@ class _Writer:
             self.file.write(item.isoformat())
         elif isinstance(item, str):
             self.file.write(f'<{escape(item)}>')
-        elif isinstance(item, bytes) or (self.one_way_conversion and
-                                         isinstance(item, bytearray)):
+        elif isinstance(item, bytes):
             self.file.write(f'({item.hex().upper()})')
+        elif isinstance(item, bytearray):
+            if not self.one_way_conversion:
+                raise Error('can only convert bytearray to bytes if '
+                            'one_way_conversion is True')
+            self.file.write(f'({item.hex().upper()})')
+        elif isinstance(item, complex):
+            if not self.one_way_conversion:
+                raise Error('can only convert complex to NTuple if '
+                            'one_way_conversion is True')
+            self.file.write(
+                f'(:{_realstr(item.real)} {_realstr(item.imag)}:)')
         else:
             print(f'error: ignoring unexpected item of type {type(item)}: '
                   f'{item!r}', file=sys.stderr)

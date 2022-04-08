@@ -24,12 +24,15 @@ def main():
             total += 1
             actual = f'actual/{name}'
             expected = f'expected/{name}'
-            subprocess.call([exe, name, actual])
-            if filecmp.cmp(actual, expected, False):
-                print(f'{name} OK')
-                ok += 1
+            reply = subprocess.call([exe, name, actual])
+            if reply != 0:
+                print(f'{name} FAIL could not output {actual}')
             else:
-                print(f'{name} FAIL {actual} != {expected}')
+                if filecmp.cmp(actual, expected, False):
+                    print(f'{name} OK')
+                    ok += 1
+                else:
+                    print(f'{name} FAIL {actual} != {expected}')
     print(f'{ok}/{total}', 'All OK' if total == ok else 'FAIL')
     if total == ok:
         cleanup()
