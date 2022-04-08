@@ -3,20 +3,20 @@
 # License: GPLv3
 
 '''
-_pxd_ is a plain text human readable storage format that may serve as a
+pxd is a plain text human readable storage format that may serve as a
 convenient alternative to csv, ini, json, sqlite, toml, xml, or yaml.
 
-pxd's public API provides two functions and two classes.
+pxd's public API provides two functions and five classes.
 
     def read(filename_or_filelike)
 
 This returns a 2-tuple of (data, custom_header). The data is always a dict
-(i.e., a pxd map), list, or Table.
+(i.e., a pxd map), list, or pxd.Table.
 
     def write(filename_or_filelike, data, custom)
 
 This writes the data (and custom header if supplied) into the given file as
-pxd data. The data must be a dict, list, or Table.
+pxd data. The data must be a dict, list, or pxd.Table.
 
     class Error
 
@@ -24,9 +24,22 @@ Used to propagate errors (and warnings if warn_is_error is True).
 
     class Table
 
-Used to store pxd Tables. A Table has a list of fieldnames and a records
-list which is a lists of lists with each sublist having the same
-number of items as the number of fieldnames.
+Used to store pxd.Tables. A pxd.Table has a list of fieldnames and a records
+list which is a lists of lists with each sublist having the same number of
+items as the number of fieldnames.
+
+    namedtuple Pair
+
+Use to store two ints or two floats (e.g., a point). If one_way_conversion
+is True then complex numbers are converted to pxd.Pairs.
+
+    namedtuple Triple
+
+Use to store three ints or two floats (e.g., a 3D point).
+
+    namedtuple Quad
+
+Use to store four ints or two floats (e.g., an IPv4 address).
 '''
 
 import collections
@@ -52,8 +65,8 @@ UTF8 = 'utf-8'
 def read(filename_or_filelike, *, warn_is_error=False):
     '''
     Returns a 2-tuple, the first item of which is a dict (i.e., a pxd map),
-    list, or Table containing all the pxd data read. The second item is the
-    custom string (if any) from the file's header.
+    list, or pxd.Table containing all the pxd data read. The second item is
+    the custom string (if any) from the file's header.
 
     filename_or_filelike is sys.stdin or a filename or an open readable file
     (text mode UTF-8 encoded).
@@ -363,18 +376,18 @@ class _Kind(enum.Enum):
 class Table:
 
     def __init__(self, *, name=None, fieldnames=None, items=None):
-        '''Used to store a pxd Table.
+        '''Used to store a pxd.Table.
 
-        A Table has a list of fieldnames and a records list which is a lists
-        of lists with each sublist having the same number of items as the
-        number of fieldnames.
+        A pxd.Table has a list of fieldnames and a records list which is a
+        lists of lists with each sublist having the same number of items as
+        the number of fieldnames.
 
         items can be a flat list of values (which will be put into a list
         of lists with each sublist being len(fieldnames) long), or a list of
         lists in which case each list is _assumed_ to be len(fieldnames)
         long.
 
-        When a Table is iterated each row is returned as a namedtuple.
+        When a pxd.Table is iterated each row is returned as a namedtuple.
         '''
         self.name = name
         self._Class = None
@@ -483,8 +496,8 @@ class _Parser(_ErrorMixin):
             state = self.states[-1]
             if state is _Expect.COLLECTION:
                 if not self._is_collection_start(token.kind):
-                    self.error(f'expected dict (pxd map), list, or Table, '
-                               f'got {token}')
+                    self.error(f'expected dict (pxd map), list, or '
+                               f'pxd.Table, got {token}')
                 self.states.pop() # _Expect.COLLECTION
                 self._on_collection_start(token.kind)
                 data = self.stack[0]
@@ -530,7 +543,7 @@ class _Parser(_ErrorMixin):
             self._on_collection_start_helper(Table)
         else:
             self.error('expected to create dict (pxd map), list, or '
-                       f'Table, not {kind}')
+                       f'pxd.Table, not {kind}')
 
 
     def _on_collection_start_helper(self, Class):
@@ -643,13 +656,13 @@ class _Expect(enum.Enum):
 
 
 def write(filename_or_filelike, *, data, custom='', compress=False,
-          indent=2):
+          indent=2, one_way_conversion=False):
     '''
     filename_or_filelike is sys.stdout or a filename or an open writable
     file (text mode UTF-8 encoded).
 
-    data is a list, dict (i.e., pxd map), or Table that this function will
-    write to the filename_or_filelike in pxd format.
+    data is a list, dict (i.e., pxd map), or pxd.Table that this function
+    will write to the filename_or_filelike in pxd format.
 
     custom is an optional short user string (with no newlines), e.g., a file
     type description.
@@ -668,7 +681,7 @@ def write(filename_or_filelike, *, data, custom='', compress=False,
     else:
         file = filename_or_filelike
     try:
-        _Writer(file, custom, data, pad)
+        _Writer(file, custom, data, pad, one_way_conversion)
     finally:
         if close:
             file.close()
@@ -676,8 +689,9 @@ def write(filename_or_filelike, *, data, custom='', compress=False,
 
 class _Writer:
 
-    def __init__(self, file, custom, data, pad):
+    def __init__(self, file, custom, data, pad, one_way_conversion):
         self.file = file
+        self.one_way_conversion = one_way_conversion
         self.write_header(custom)
         self.write_value(data, pad=pad)
 
@@ -690,6 +704,9 @@ class _Writer:
 
 
     def write_value(self, item, indent=0, *, pad, dict_value=False):
+        if self.one_way_conversion and isinstance(item, (
+                set, frozenset, tuple, collections.deque)):
+            item = list(item)
         if isinstance(item, list):
             return self.write_list(item, indent, pad=pad,
                                    dict_value=dict_value)
@@ -787,11 +804,12 @@ class _Writer:
             self.file.write(item.isoformat())
         elif isinstance(item, str):
             self.file.write(f'<{escape(item)}>')
-        elif isinstance(item, bytes):
+        elif isinstance(item, bytes) or (self.one_way_conversion and
+                                         isinstance(item, bytesarray)):
             self.file.write(f'({item.hex().upper()})')
         else:
-            print(f'error: ignoring unexpected item {item!r}',
-                  file=sys.stderr)
+            print(f'error: ignoring unexpected item of type {type(item)}: '
+                  f'{item!r}', file=sys.stderr)
         return False
 
 
@@ -809,8 +827,9 @@ def _realstr(s):
 
 
 def _is_scalar(x):
-    return x is None or isinstance(x, (bool, int, float, datetime.date,
-                                       datetime.datetime, str, bytes))
+    return x is None or isinstance(
+        x, (bool, int, float, datetime.date, datetime.datetime, str, bytes,
+            bytearray))
 
 
 if __name__ == '__main__':

@@ -3,26 +3,9 @@
 _pxd_ is a plain text human readable storage format that may serve as a
 convenient alternative to csv, ini, json, sqlite, toml, xml, or yaml.
 
-## Libraries
-
-|**Library**|**Language**|**Notes**|
-|-----------|------------|---------|
-|py/pxd     | Python 3   | Works out of the box with the standard library, but will use _dateutil_ if available.|
-
-### Python Notes
-
-The _pxd_ `map` type is the equivalent of the Python `dict` type.
-
-For Python either do the usual `pip install pyd`. (If you just want to
-create a small standalone `.pyz`, simply copy `py/pxd.py` as `pxd.py` into
-your project folder).
-
-_Implementations in additional languages are planned._
-
-
 ## Datatypes
 
-_pxd_ supports eleven datatypes.
+_pxd_ supports fourteen datatypes.
 
 |**Type**   |**Example(s) # notes**|
 |-----------|----------------------|
@@ -34,6 +17,9 @@ _pxd_ supports eleven datatypes.
 |`datetime`  |`2022-04-01T16:11:51` # ISO8601 (timezone support is library dependent)|
 |`str`       |`<Some text which may include newlines>` # using \&lt; for <, \&gt; for >, and \&amp; for &|
 |`bytes`     |`(20AC 65 66 48)` # must be even number of case-insensitive hex digits; whitespace optional|
+|`Pair`      | `(:15 -75:)` # a pair of numbers (both ``int``s or both ``real``s), e.g., use for points or complex numbers
+|`Triple`    | `(:0.7 18.1 6.5:)` # three numbers (all ``int``s or all ``real``s)
+|`Quad`      | `(:127 0 0 1:)` # four numbers (all ``int``s or all ``real``s)
 |`list`      |`[value1 value2 ... valueN]`|
 |`map`       |`{key1 value1 key2 value2 ... keyN valueN}`|
 |`Table`     |`[= <str1> <str2> ... <strN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` |
@@ -180,16 +166,16 @@ For example, here's an alternative:
         }
       }
       <Window> {
-        <x> 615
-        <y> 252
-        <width> 592
-        <height> 636
+        <pos> (:615 252:)
+        <size> (:592 636:)
         <scale> 1.1
       }
     }
 
 Here, we've moved the _Files_ into _General_ and changed the recent
-files from per-file `map` items into a `list` of filenames.
+files from per-file `map` items into a `list` of filenames. We've also
+changed the _x_, _y_ coordinates and the _width_ and _height_ into `pos` and
+`size` ``pxd.Pair``s.
 
 ### Database to _pxd_
 
@@ -232,6 +218,55 @@ with the remainder ``Table``s as now. Another solution would be to use a
         ]
     }
 
+## Libraries
+
+|**Library**|**Language**|**Notes**|
+|-----------|------------|---------|
+|py/pxd.py  | Python 3   | Works out of the box with the standard library, but will use _dateutil_ if available.|
+
+### Python Notes
+
+Most Python types map losslessly to and from _pxd_ types. In particular:
+
+|**Python Type**     |**pxd type**  |
+|--------------------|--------------|
+|`None`              | `null`       |
+|`bool`              | `bool`       |
+|`int`               | `int`        |
+|`float`             | `real`       |
+|`datetime.date`     | `date`       |
+|`datetime.datetime` | `datetime`   |
+|`str`               | `str`        |
+|`bytes`             | `bytes`      |
+|`pxd.Pair`          | `pxd.Pair`   |
+|`pxd.Triple`        | `pxd.Triple` |
+|`pxd.Quad`          | `pxd.Quad`   |
+|`list`              | `list`       |
+|`dict`              | `map`        |
+|`pxd.Table`         | `pxd.Table`  |
+
+If `one_way_conversion` is `False` then any other Python type passed in the
+data passed to `write()` will produce an error.
+
+If `one_way_conversion` is `True` then the following conversions are applied
+when converting to _pxd_ data:
+
+|**Python Type (in)**|**pxd type/Python Type (out)**|
+|--------------------|------------|
+|`bytesarray`        | `bytes`    |
+|`complex`           | `pxd.Pair` |
+|`set`               | `list`     |
+|`frozenset`         | `list`     |
+|`tuple`             | `list`     |
+|`collections.deque` | `list`     |
+
+For Python either do the usual `pip install pyd`. (If you just want to
+create a small standalone `.pyz`, simply copy `py/pxd.py` as `pxd.py` into
+your project folder).
+
+_Implementations in additional languages are planned._
+
+
 ## BNF
 
 A `.pxd` file consists of a mandatory header followed by a single
@@ -243,8 +278,10 @@ optional `map`, `list`, or `Table`.
     MAP      ::= '{' OWS (KEY RWS ANYVALUE)? (RWS KEY RWS ANYVALUE)* OWS '}'
     LIST     ::= '[' OWS ANYVALUE? (RWS ANYVALUE)* OWS ']'
     TABLE    ::= '[=' (OWS STR){2,} '=' (RWS VALUE)* '=]'
+    TUPLE    ::= '(:' (OWS INT){2,4} OWS ':)'
+              |  '(:' (OWS REAL){2,4} OWS ':)'
     KEY      ::= (INT | DATE | DATETIME | STR | BYTES)
-    ANYVALUE ::= (VALUE | LIST | MAP | TABLE)
+    ANYVALUE ::= (VALUE | LIST | MAP | TABLE | TUPLE)
     VALUE    ::= (NULL | BOOL | INT | REAL | DATE | DATETIME | STR | BYTES)
     NULL     ::= 'null'
     BOOL     ::= 'no' | 'false' | 'yes' | 'true'

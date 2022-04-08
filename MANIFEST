@@ -25,6 +25,7 @@ test/test7.pxd
 test/test8.pxd
 test/test9.pxd
 test/test10.pxd
+test/test11.pxd
 
 test/expected/test0.pxd
 test/expected/test1.pxd
@@ -37,6 +38,7 @@ test/expected/test7.pxd
 test/expected/test8.pxd
 test/expected/test9.pxd
 test/expected/test10.pxd
+test/expected/test11.pxd
 
 # TODO
 # pxdconvert [-z|--compress] [-i|--indent=n]
