@@ -10,8 +10,8 @@ pxd's public API provides two functions and two classes.
 
     def read(filename_or_filelike)
 
-This returns a 2-tuple of (data, custom_header). The data is always a dict,
-list, or Table.
+This returns a 2-tuple of (data, custom_header). The data is always a dict
+(i.e., a pxd map), list, or Table.
 
     def write(filename_or_filelike, data, custom)
 
@@ -24,7 +24,7 @@ Used to propagate errors (and warnings if warn_is_error is True).
 
     class Table
 
-Used to store pxd tables. A Table has a list of fieldnames and a records
+Used to store pxd Tables. A Table has a list of fieldnames and a records
 list which is a lists of lists with each sublist having the same
 number of items as the number of fieldnames.
 '''
@@ -43,15 +43,17 @@ except ImportError:
     isoparse = None
 
 
-VERSION = 1.0
+__all__ = ('__version__', 'VERSION', 'read', 'Table', 'write')
+__version__ = '1.0.0' # pxd module version
+VERSION = 1.0 # pxd file format version
 UTF8 = 'utf-8'
 
 
 def read(filename_or_filelike, *, warn_is_error=False):
     '''
-    Returns a 2-tuple, the first item of which is a dict, list, or Table
-    containing all the pxd data read. The second item is the custom string
-    (if any) from the file's header.
+    Returns a 2-tuple, the first item of which is a dict (i.e., a pxd map),
+    list, or Table containing all the pxd data read. The second item is the
+    custom string (if any) from the file's header.
 
     filename_or_filelike is sys.stdin or a filename or an open readable file
     (text mode UTF-8 encoded).
@@ -361,7 +363,7 @@ class _Kind(enum.Enum):
 class Table:
 
     def __init__(self, *, name=None, fieldnames=None, items=None):
-        '''Used to store a pxd table.
+        '''Used to store a pxd Table.
 
         A Table has a list of fieldnames and a records list which is a lists
         of lists with each sublist having the same number of items as the
@@ -372,7 +374,7 @@ class Table:
         lists in which case each list is _assumed_ to be len(fieldnames)
         long.
 
-        When a table is iterated each row is returned as a namedtuple.
+        When a Table is iterated each row is returned as a namedtuple.
         '''
         self.name = name
         self._Class = None
@@ -403,9 +405,9 @@ class Table:
 
     def _make_class(self):
         if not self.name:
-            raise Error('can\'t use an unnamed table')
+            raise Error('can\'t use an unnamed Table')
         if not self.fieldnames:
-            raise Error('can\'t create a table with no field names')
+            raise Error('can\'t create a Table with no field names')
         self._Class = collections.namedtuple(
             _canonicalize(self.name, 'Table'),
             [_canonicalize(name, f'Field{i}')
@@ -414,9 +416,9 @@ class Table:
 
     def __iadd__(self, value):
         if not self.name:
-            raise Error('can\'t append to an unnamed table')
+            raise Error('can\'t append to an unnamed Table')
         if not self.fieldnames:
-            raise Error('can\'t append to a table with no field names')
+            raise Error('can\'t append to a Table with no field names')
         if isinstance(value, (list, tuple)): # or: collections.abc.Sequence?
             for v in value:
                 self.append(v)
@@ -481,8 +483,8 @@ class _Parser(_ErrorMixin):
             state = self.states[-1]
             if state is _Expect.COLLECTION:
                 if not self._is_collection_start(token.kind):
-                    self.error(
-                        f'expected dict, list, or table, got {token}')
+                    self.error(f'expected dict (pxd map), list, or Table, '
+                               f'got {token}')
                 self.states.pop() # _Expect.COLLECTION
                 self._on_collection_start(token.kind)
                 data = self.stack[0]
@@ -527,8 +529,8 @@ class _Parser(_ErrorMixin):
             self.states.append(_Expect.TABLE_NAME)
             self._on_collection_start_helper(Table)
         else:
-            self.error(
-                f'expected to create dict, list, or table, not {kind}')
+            self.error('expected to create dict (pxd map), list, or '
+                       f'Table, not {kind}')
 
 
     def _on_collection_start_helper(self, Class):
@@ -557,7 +559,7 @@ class _Parser(_ErrorMixin):
 
     def _handle_table_name(self, token):
         if token.kind is not _Kind.TABLE_NAME:
-            self.error(f'expected table name, got {token}')
+            self.error(f'expected Table name, got {token}')
         self.stack[-1].name = token.value
         self.states[-1] = _Expect.TABLE_FIELD_NAME
 
@@ -567,7 +569,7 @@ class _Parser(_ErrorMixin):
             self.states[-1] = _Expect.TABLE_VALUE
         else:
             if token.kind is not _Kind.TABLE_FIELD_NAME:
-                self.error(f'expected table field name, got {token}')
+                self.error(f'expected Table field name, got {token}')
             self.stack[-1].append_fieldname(token.value)
 
 
@@ -580,7 +582,7 @@ class _Parser(_ErrorMixin):
                 _Kind.STR, _Kind.BYTES}:
             self.stack[-1] += token.value
         else:
-            self.error('table values may only be null, bool, int, real, '
+            self.error('Table values may only be null, bool, int, real, '
                        f'date, datetime, str, or bytes, got {token}')
 
 
@@ -593,8 +595,8 @@ class _Parser(_ErrorMixin):
             self.keys.append(token.value)
             self.states[-1] = _Expect.DICT_VALUE
         else:
-            self.error('dict keys may only be int, date, datetime, str, '
-                       f'or bytes, got {token}')
+            self.error('dict (pxd map) keys may only be int, date, '
+                       f'datetime, str, or bytes, got {token}')
 
 
     def _handle_dict_value(self, token):
@@ -646,8 +648,8 @@ def write(filename_or_filelike, *, data, custom='', compress=False,
     filename_or_filelike is sys.stdout or a filename or an open writable
     file (text mode UTF-8 encoded).
 
-    data is a list, dict, or Table that this function will write to the
-    filename_or_filelike in pxd format.
+    data is a list, dict (i.e., pxd map), or Table that this function will
+    write to the filename_or_filelike in pxd format.
 
     custom is an optional short user string (with no newlines), e.g., a file
     type description.

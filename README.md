@@ -9,9 +9,13 @@ convenient alternative to csv, ini, json, sqlite, toml, xml, or yaml.
 |-----------|------------|---------|
 |py/pxd     | Python 3   | Works out of the box with the standard library, but will use _dateutil_ if available.|
 
-For the Python implementation to incorporate into your own project either
-install using `pip`, or just copy `py/pxd/__init__.py` into your own
-`pyd.py` file and copy that into your project dir.
+### Python Notes
+
+The _pxd_ `map` type is the equivalent of the Python `dict` type.
+
+For Python either do the usual `pip install pyd`. (If you just want to
+create a small standalone `.pyz`, simply copy `py/pxd.py` as `pxd.py` into
+your project folder).
 
 _Implementations in additional languages are planned._
 
@@ -31,13 +35,12 @@ _pxd_ supports eleven datatypes.
 |`str`       |`<Some text which may include newlines>` # using \&lt; for <, \&gt; for >, and \&amp; for &|
 |`bytes`     |`(20AC 65 66 48)` # must be even number of case-insensitive hex digits; whitespace optional|
 |`list`      |`[value1 value2 ... valueN]`|
-|`dict`      |`{key1 value1 key2 value2 ... keyN valueN}`|
-|`table`     |`[= <str1> <str2> ... <strN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` |
+|`map`       |`{key1 value1 key2 value2 ... keyN valueN}`|
+|`Table`     |`[= <str1> <str2> ... <strN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` |
 
-Dictionary keys may only be of types `int`, `date`, `datetime`, `str`,
-and `bytes`.
+Map keys may only be of types `int`, `date`, `datetime`, `str`, and `bytes`.
 
-A `table` starts with a table name, then field names, then values. The
+A `Table` starts with a table name, then field names, then values. The
 number of values in any given row is equal to the number of field names.
 (See the examples below).
 
@@ -73,7 +76,7 @@ is the first row data values or column titles? (For software this isn't
 always obvious, for example, if all the values are strings.) Not to mention
 the fact that we have to use a nested `list` of ``list``s.
 
-The most appropriate _pxd_ equivalent is to use a _pxd_ `table`:
+The most appropriate _pxd_ equivalent is to use a _pxd_ `Table`:
 
     pxd 1.0 Price List
     [= <Price List> <Date> <Price> <Quantity> <ID> <Description> =
@@ -82,13 +85,13 @@ The most appropriate _pxd_ equivalent is to use a _pxd_ `table`:
       2022-10-02 5.89 1 <SX4-D1> <Eversure Sealant, 13-floz> 
     =]
 
-Notice that the _first_ `table` `str` is the name of the table itself,
+Notice that the _first_ `Table` `str` is the name of the table itself,
 with the rest being the field names. Also note that there's no need to
 group rows into lines (although doing so is common and easier for human
 readability), since the _pxd_ processor will know how many values go
 into each row based on the number of field names.
 
-Although a ``table``'s names are ``str``s, it is perfectly possible to
+Although a ``Table``'s names are ``str``s, it is perfectly possible to
 structure the strings to provide extra data for processing applications.
 For example:
 
@@ -153,16 +156,16 @@ must use the XML/HTML escapes `&amp;`, `&lt;`, and `&gt;` respectively.
       =]
     }
 
-For configuration data it is often convenient to use ``dict``s with name
-keys and data values. In this case the overall data is a `dict` which
+For configuration data it is often convenient to use ``map``s with name
+keys and data values. In this case the overall data is a `map` which
 contains each configuration section. The values of each of the first two of
-the ``dict``'s keys are themselves ``dict``s. But for the third key's value
-we use a `table`. Notice that we don't have to explicitly distinguish
+the ``map``'s keys are themselves ``map``s. But for the third key's value
+we use a `Table`. Notice that we don't have to explicitly distinguish
 between one row and the next (although it is common to start new rows on new
 lines) since the number of fields (here, two, `kind` and `filename`),
 indicate how many values each row has.
 
-Of course, we can nest as deep as we like and mix ``dict``s and ``list``s.
+Of course, we can nest as deep as we like and mix ``map``s and ``list``s.
 For example, here's an alternative:
 
     pxd 1.0 MyApp 1.2.0 Config
@@ -186,12 +189,12 @@ For example, here's an alternative:
     }
 
 Here, we've moved the _Files_ into _General_ and changed the recent
-files from per-file `dict` items into a `list` of filenames.
+files from per-file `map` items into a `list` of filenames.
 
 ### Database to _pxd_
 
-Data-wise a database normally consists of one or more tables. A _pxd_
-equivalent using a `list` of ``tables``s is easily made.
+A database normally consists of one or more tables. A _pxd_ equivalent using
+a `list` of ``tables``s is easily made.
 
     pxd 1.0 MyApp Data
     [
@@ -210,16 +213,16 @@ equivalent using a `list` of ``tables``s is easily made.
       =]
     ]
 
-Here we have a `list` of ``table``s representing three database tables.
+Here we have a `list` of ``Table``s representing three database tables.
 
 Notice that the second customer has a `null` address and the second
 invoice has an empty description.
 
 What if we wanted to add some extra configuration data to the database?
 
-One solution would be to make the first item in the `list` a `dict`,
-with the remainder ``table``s as now. Another solution would be to use a
-`dict` for the container, something like:
+One solution would be to make the first item in the `list` a `map`,
+with the remainder ``Table``s as now. Another solution would be to use a
+`map` for the container, something like:
 
     pxd 1.0 MyApp Data
     {
@@ -232,16 +235,16 @@ with the remainder ``table``s as now. Another solution would be to use a
 ## BNF
 
 A `.pxd` file consists of a mandatory header followed by a single
-optional `dict`, `list`, or `table`.
+optional `map`, `list`, or `Table`.
 
     PXD      ::= 'pxd' RWS REAL CUSTOM? '\n' DATA?
     CUSTOM   ::= RWS [^\n]+ # user-defined data e.g. filetype and version
-    DATA     ::= (DICT | LIST | TABLE)
-    DICT     ::= '{' OWS (KEY RWS ANYVALUE)? (RWS KEY RWS ANYVALUE)* OWS '}'
+    DATA     ::= (MAP | LIST | TABLE)
+    MAP      ::= '{' OWS (KEY RWS ANYVALUE)? (RWS KEY RWS ANYVALUE)* OWS '}'
     LIST     ::= '[' OWS ANYVALUE? (RWS ANYVALUE)* OWS ']'
     TABLE    ::= '[=' (OWS STR){2,} '=' (RWS VALUE)* '=]'
     KEY      ::= (INT | DATE | DATETIME | STR | BYTES)
-    ANYVALUE ::= (VALUE | LIST | DICT | TABLE)
+    ANYVALUE ::= (VALUE | LIST | MAP | TABLE)
     VALUE    ::= (NULL | BOOL | INT | REAL | DATE | DATETIME | STR | BYTES)
     NULL     ::= 'null'
     BOOL     ::= 'no' | 'false' | 'yes' | 'true'
@@ -254,17 +257,17 @@ optional `dict`, `list`, or `table`.
     OWS      ::= /[\s\n]*/
     RWS      ::= /[\s\n]+/ # in some cases RWS is actually optional
 
-For a `table` the first `str` is the table's name and the second and
+For a `Table` the first `str` is the table's name and the second and
 subsequent strings are field names. After the bare `=` come the table's
 values. There's no need to distinguish between one row and the next
 (although it is common to start new rows on new lines) since the number
 of fields indicate how many values each row has.
 
-As the BNF shows, `dict` values and `list` items may be of _any_ type.
+As the BNF shows, `map` values and `list` items may be of _any_ type.
 
-However, table values may only be scalars (i.e., of type `null`, `bool`,
-`int`, `real`, `date`, `datetime`, `str`, or `bytes`), not ``dict``s,
-``list``s, or ``table``s.
+However, `Table` values may only be scalars (i.e., of type `null`, `bool`,
+`int`, `real`, `date`, `datetime`, `str`, or `bytes`), not ``map``s,
+``list``s, or ``Table``s.
 
 For ``datetime``s, support may vary across different _pxd_ libraries and
 might _not_ include timezone support. For example, the Python library

@@ -1,4 +1,5 @@
 py/pxd.py
+py/pxdconvert.py
 
 README.md
 
@@ -7,7 +8,8 @@ misc/md2html.sh
 
 test/regression.py
 
-setup.py # TODO
+setup.py # TODO classifiers + pxdconvert.py "binary"
+pxd.vim # for syntax/pxd.vim TODO
 
 pypi.sh
 st.sh
