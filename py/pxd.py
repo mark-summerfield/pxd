@@ -805,7 +805,7 @@ class _Writer:
         elif isinstance(item, str):
             self.file.write(f'<{escape(item)}>')
         elif isinstance(item, bytes) or (self.one_way_conversion and
-                                         isinstance(item, bytesarray)):
+                                         isinstance(item, bytearray)):
             self.file.write(f'({item.hex().upper()})')
         else:
             print(f'error: ignoring unexpected item of type {type(item)}: '
