@@ -12,7 +12,7 @@ os.chdir(os.path.dirname(__file__))
 
 
 def main():
-    exe = '../py/pxd/__init__.py'
+    exe = '../py/pxd.py'
     if len(sys.argv) > 1:
         if sys.argv[1] in {'-h', '--help'}:
             raise SystemExit('usage: regression.py [path/to/pxd-exe]')
