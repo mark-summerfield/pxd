@@ -11,7 +11,7 @@ match = re.search(r"__version__\s*=\s*'(?P<version>.*?)'", INIT)
 VERSION = match.group('version')
 
 setuptools.setup(
-    name='pxd',
+    name='pxd1',
     version=VERSION,
     author='Mark Summerfield',
     author_email='mark@qtrac.eu',

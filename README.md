@@ -224,7 +224,7 @@ _Implementations in additional languages are planned._
 
 |**Library**|**Language**|**Notes**|
 |-----------|------------|---------|
-|py/pxd.py  | Python 3   | Works out of the box with the standard library, and will use _dateutil_ if available.|
+|pxd1       | Python 3   | Works out of the box with the standard library, and will use _dateutil_ if available.|
 
 ### Python Notes
 
@@ -264,10 +264,10 @@ If you have _lots_ of `complex` numbers it may be more compact and
 convenient to store them in a two-field table, somthing like `[=
 <Mandelbrot> <real> <imag> = 1.3 3.7 4.9 5.8 ... =]`.
 
-Install with `pip install pxd`. This provides the importable `pxd` library
-(i.e., allows you to use `import pxd`), and also provides `pxdconvert.py`
-which might prove useful to see how to use `pxd`. (See also the `test/*.pxd`
-test files.)
+Install with `pip install pxd1`. (Notice the `1` at the end.) This provides
+the importable `pxd` library (i.e., allows you to use `import pxd`), and
+also provides `pxdconvert.py` which might prove useful to see how to use
+`pxd`. (See also the `test/*.pxd` test files.)
 
 If you just want to create a small standalone `.pyz`, simply copy
 `py/pxd.py` as `pxd.py` into your project folder and inlude it in your
