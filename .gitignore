@@ -43,3 +43,6 @@ dub.selections.json
 zig-cache
 *.html
 *.pxd
+build/
+dist/
+py/pxd.egg-info/

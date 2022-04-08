@@ -28,10 +28,10 @@ alternative to csv, ini, json, sqlite, toml, xml, or yaml.',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
         'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 3.8',
-        # TODO
         'Topic :: Software Development :: Libraries',
         ],
     package_dir={'': 'py'},
-    py_modules=['pxd', 'pxdconvert'],
+    py_modules=['pxd'],
+    scripts=['py/pxdconvert'],
     python_requires='>=3.8',
     )
