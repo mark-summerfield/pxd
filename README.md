@@ -17,9 +17,7 @@ _pxd_ supports fourteen datatypes.
 |`datetime`  |`2022-04-01T16:11:51` # ISO8601 (timezone support is library dependent)|
 |`str`       |`<Some text which may include newlines>` # using \&lt; for <, \&gt; for >, and \&amp; for &|
 |`bytes`     |`(20AC 65 66 48)` # must be even number of case-insensitive hex digits; whitespace optional|
-|`Pair`      | `(:15 -75:)` # a pair of numbers (both ``int``s or both ``real``s), e.g., use for points or complex numbers
-|`Triple`    | `(:0.7 18.1 6.5:)` # three numbers (all ``int``s or all ``real``s)
-|`Quad`      | `(:127 0 0 1:)` # four numbers (all ``int``s or all ``real``s)
+|`NTuple`    | `(:15 14 0 -75:)` # 2-12 numbers (all ``int``s or all ``real``s)
 |`list`      |`[value1 value2 ... valueN]`|
 |`map`       |`{key1 value1 key2 value2 ... keyN valueN}`|
 |`Table`     |`[= <str1> <str2> ... <strN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` |
@@ -175,7 +173,8 @@ For example, here's an alternative:
 Here, we've moved the _Files_ into _General_ and changed the recent
 files from per-file `map` items into a `list` of filenames. We've also
 changed the _x_, _y_ coordinates and the _width_ and _height_ into `pos` and
-`size` ``pxd.Pair``s.
+`size` ``pxd.NTuple``s. Of course we could have used a single `pxd.NTuple`,
+e.g., `<geometry> (:615 252 592 636:)`.
 
 ### Database to _pxd_
 
@@ -238,9 +237,7 @@ Most Python types map losslessly to and from _pxd_ types. In particular:
 |`datetime.datetime` | `datetime`   |
 |`str`               | `str`        |
 |`bytes`             | `bytes`      |
-|`pxd.Pair`          | `pxd.Pair`   |
-|`pxd.Triple`        | `pxd.Triple` |
-|`pxd.Quad`          | `pxd.Quad`   |
+|`pxd.NTuple`        | `pxd.NTuple` |
 |`list`              | `list`       |
 |`dict`              | `map`        |
 |`pxd.Table`         | `pxd.Table`  |
@@ -252,13 +249,13 @@ If `one_way_conversion` is `True` then the following conversions are applied
 when converting to _pxd_ data:
 
 |**Python Type (in)**|**pxd type/Python Type (out)**|
-|--------------------|------------|
-|`bytesarray`        | `bytes`    |
-|`complex`           | `pxd.Pair` |
-|`set`               | `list`     |
-|`frozenset`         | `list`     |
-|`tuple`             | `list`     |
-|`collections.deque` | `list`     |
+|--------------------|-------------|
+|`bytesarray`        | `bytes`     |
+|`complex`           | `pxd.NTuple`|
+|`set`               | `list`      |
+|`frozenset`         | `list`      |
+|`tuple`             | `list`      |
+|`collections.deque` | `list`      |
 
 For Python either do the usual `pip install pyd`. (If you just want to
 create a small standalone `.pyz`, simply copy `py/pxd.py` as `pxd.py` into

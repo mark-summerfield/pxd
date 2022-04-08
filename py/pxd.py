@@ -6,7 +6,7 @@
 pxd is a plain text human readable storage format that may serve as a
 convenient alternative to csv, ini, json, sqlite, toml, xml, or yaml.
 
-pxd's public API provides two functions and five classes.
+pxd's public API provides two functions and three classes.
 
     def read(filename_or_filelike)
 
@@ -28,18 +28,11 @@ Used to store pxd.Tables. A pxd.Table has a list of fieldnames and a records
 list which is a lists of lists with each sublist having the same number of
 items as the number of fieldnames.
 
-    namedtuple Pair
+    class NTuple
 
-Use to store two ints or two floats (e.g., a point). If one_way_conversion
-is True then complex numbers are converted to pxd.Pairs.
-
-    namedtuple Triple
-
-Use to store three ints or two floats (e.g., a 3D point).
-
-    namedtuple Quad
-
-Use to store four ints or two floats (e.g., an IPv4 address).
+Use to store 2-12 ints or 2-12 floats. If one_way_conversion is True then
+complex numbers are converted to pxd.NTuples. These are ideal for storing
+complex numbers, points (2D or 3D), IP addresses, and RGB and RGBA values.
 '''
 
 import collections
@@ -56,17 +49,11 @@ except ImportError:
     isoparse = None
 
 
-__all__ = ('__version__', 'VERSION', 'read', 'write', 'Table', 'Pair',
-           'Triple', 'Quad')
+__all__ = ('__version__', 'VERSION', 'read', 'write', 'Table', 'NTuple')
 __version__ = '1.0.0' # pxd module version
 VERSION = 1.0 # pxd file format version
 
 UTF8 = 'utf-8'
-
-
-Pair = collections.namedtuple('Pair', ('x', 'y'))
-Triple = collections.namedtuple('Triple', ('x', 'y', 'z'))
-Quad = collections.namedtuple('Quad', ('a', 'b', 'c', 'd'))
 
 
 def read(filename_or_filelike, *, warn_is_error=False):
@@ -370,9 +357,7 @@ class _Kind(enum.Enum):
     LIST_END = enum.auto()
     DICT_BEGIN = enum.auto()
     DICT_END = enum.auto()
-    PAIR = enum.auto()
-    TRIPLE = enum.auto()
-    QUAD = enum.auto()
+    NTUPLE = enum.auto()
     NULL = enum.auto()
     BOOL = enum.auto()
     INT = enum.auto()
@@ -382,6 +367,45 @@ class _Kind(enum.Enum):
     STR = enum.auto()
     BYTES = enum.auto()
     EOF = enum.auto()
+
+
+class NTuple:
+
+    __slots__ = ('_items',)
+
+    def __init__(self, a, b, *args):
+        kind = type(a)
+        if type(b) is not kind:
+            raise Error(f'{self.__class__.__name__} may only hold all '
+                        'ints or all floats')
+        self._items = [a, b]
+        for n in args:
+            if type(n) is not kind:
+                raise Error(f'{self.__class__.__name__} only holds all '
+                            'ints or all floats')
+            self._items.append(n)
+            if len(self._items) > 12:
+                raise Error(f'{self.__class__.__name__} may only hold '
+                            '2-12 ints or 2-12 floats')
+
+
+    def __getattr__(self, name):
+        if name in {'a', 'x', 'first'}:
+            return self._items[0]
+        if name in {'b', 'y', 'second'}:
+            return self._items[1]
+        if name in {'c', 'z', 'third'}:
+            return self._items[2]
+        # TODO up to 12
+
+
+    def __getitem__(self, index):
+        return self._items[index]
+
+
+    def __repr__(self):
+        items = ', '.join([str(n) for n in self._items])
+        return f'{self.__class__.__name__}({items})'
 
 
 class Table:
