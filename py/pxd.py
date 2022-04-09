@@ -10,19 +10,19 @@ The pxd module can be used as an executable. Run
 
     python3 -m pxd -h
 
-to see the command line options.
+to see the command line help.
 
 pxd's public API provides two functions and three classes.
 
-    def read(filename_or_filelike)
+    def read(filename_or_filelike): -> (data, custom_header)
 
-This returns a 2-tuple of (data, custom_header). The data is always a dict
-(i.e., a pxd map), list, or pxd.Table.
+In the returned 2-tuple the data is a dict (i.e., a pxd map), list, or
+pxd.Table, and the custom_header is a (possibly empty) custom string.
 
     def write(filename_or_filelike, data, custom)
 
 This writes the data (and custom header if supplied) into the given file as
-pxd data. The data must be a dict, list, or pxd.Table.
+pxd data. The data must be a single dict, list, or pxd.Table.
 
     class Error
 
@@ -37,8 +37,13 @@ items as the number of fieldnames.
     class NTuple
 
 Use to store 2-12 ints or 2-12 floats. If one_way_conversion is True then
-complex numbers are converted to pxd.NTuples. These are ideal for storing
-complex numbers, points (2D or 3D), IP addresses, and RGB and RGBA values.
+complex numbers are converted to two-item pxd.NTuples. NTuples are ideal for
+storing complex numbers, points (2D or 3D), IP addresses, and RGB and RGBA
+values.
+
+Note that the __version__ is the module version (i.e., the versio of this
+implementation), while the VERSION is the maximum pxd version that this
+module can read (and the pxd version that it writes).
 '''
 
 import collections
@@ -396,6 +401,33 @@ class _Kind(enum.Enum):
 
 
 class NTuple:
+    '''Used to store a pxd.NTuple.
+
+    A pxd.NTuple holds 2-12 ints or 2-12 floats.
+
+    When using write() when one_way_conversion is True then complex numbers
+    are converted to two-item pxd.NTuples.
+
+    NTuples are ideal for storing complex numbers, points (2D or 3D), IP
+    addresses, and RGB and RGBA values.
+
+    Examples:
+
+    >>> nt = NTuple(10, 20, 30, 40, 50)
+    >>> nt[0], nt.a, nt.x, nt.first
+    (10, 10, 10, 10)
+    >>> nt[1], nt.b, nt.y, nt.second
+    (20, 20, 20, 20)
+    >>> nt[2], nt.c, nt.z, nt.third
+    (30, 30, 30, 30)
+    >>> nt[3], nt.d, nt.fourth
+    (40, 40, 40)
+    
+    Every item can be accessed by index 0 <= min(len(), 12) or by fieldname.
+    The first three items can be accessed as x, y, and z, respectively.
+    All items can be accessed as a, b, c, ..., j, k, l, respectively, and as
+    first, second, third, ..., tenth, eleventh, twelth, respectively.
+    '''
 
     __slots__ = ('_items',)
 

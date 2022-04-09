@@ -17,7 +17,7 @@ _pxd_ supports fourteen datatypes.
 |`datetime`  |`2022-04-01T16:11:51` # ISO8601 (timezone support is library dependent)|
 |`str`       |`<Some text which may include newlines>` # using \&lt; for <, \&gt; for >, and \&amp; for &|
 |`bytes`     |`(20AC 65 66 48)` # must be even number of case-insensitive hex digits; whitespace optional|
-|`NTuple`    | `(:15 14 0 -75:)` # 2-12 numbers (all ``int``s or all ``real``s), e.g., for points, RGB numbers, IP addresses, etc. (For more numbers simply use a `list`.)
+|`NTuple`    | `(:15 14 0 -75:)` # 2-12 numbers (all ``int``s or all ``real``s), e.g., for points, RGB and RGBA numbers, IP addresses, etc. (For more numbers simply use a `list`.)
 |`list`      |`[value1 value2 ... valueN]`|
 |`map`       |`{key1 value1 key2 value2 ... keyN valueN}`|
 |`Table`     |`[= <str1> <str2> ... <strN> = <value0_0> ... <value0_N> ... <valueM_0> ... <valueM_N> =]` |
@@ -228,6 +228,10 @@ _Implementations in additional languages are planned._
 
 ### Python Notes
 
+- Install: `python3 -m pip install pxd1` _# notice the `1`_
+- Run: `python3 -m pxd -h` _# this shows the command line help_
+- Use: `import pxd` _# see the `pxd.py` module docs for the API_
+
 Most Python types map losslessly to and from _pxd_ types. In particular:
 
 |**Python Type**     |**pxd type**|
@@ -264,10 +268,13 @@ If you have _lots_ of `complex` numbers it may be more compact and
 convenient to store them in a two-field table, somthing like `[=
 <Mandelbrot> <real> <imag> = 1.3 3.7 4.9 5.8 ... =]`.
 
-Install with `pip install pxd1`. (Notice the `1` at the end.) This provides
-the importable `pxd` library (i.e., allows you to use `import pxd`), and
-also provides `pxdconvert.py` which might prove useful to see how to use
-`pxd`. (See also the `test/*.pxd` test files.)
+Using `pxd` as an executable (with `python3 -m pxd ...`) provides a means of
+doing `.pxd` to `.pxd` conversions (e.g., compress or uncompress, or make
+more human readable or more compact).
+
+Installed alongside `pxd.py` is `pxdconvert.py` (from `py/pxdconvert.py`)
+which might prove useful to see how to use `pxd`. And also see the
+`test/*.pxd` test files.
 
 If you just want to create a small standalone `.pyz`, simply copy
 `py/pxd.py` as `pxd.py` into your project folder and inlude it in your
