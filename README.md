@@ -1,5 +1,7 @@
 # pxd
 
+**Renamed [Uniform eXchange Format (uxf)](https://github.com/mark-summerfield)**
+
 _pxd_ is a plain text human readable storage format that may serve as a
 convenient alternative to csv, ini, json, sqlite, toml, xml, or yaml.
 
