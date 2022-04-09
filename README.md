@@ -258,14 +258,14 @@ when converting to _pxd_ data:
 |**Python Type (in)**|**pxd type/Python Type (out)**|
 |--------------------|-------------|
 |`bytearray`         | `bytes`     |
-|`complex`           | `pxd.NTuple`|
+|`complex`           | `pxd.NTuple` _# with two items_|
 |`set`               | `list`      |
 |`frozenset`         | `list`      |
 |`tuple`             | `list`      |
 |`collections.deque` | `list`      |
 
 If you have _lots_ of `complex` numbers it may be more compact and
-convenient to store them in a two-field table, somthing like `[=
+convenient to store them in a two-field table, something like `[=
 <Mandelbrot> <real> <imag> = 1.3 3.7 4.9 5.8 ... =]`.
 
 Using `pxd` as an executable (with `python3 -m pxd ...`) provides a means of
